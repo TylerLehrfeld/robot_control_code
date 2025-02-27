@@ -25,11 +25,12 @@ void test_get_joint() {
 
 void test_get_linkage_end_effector() {
     Point p = get_linkage_end_effector(true, {-5,5,0}, {5,6,0},{0,10,0}, UPPER_TRANSMISSION_LENGTH, UPPER_PROXIMAL_LENGTH, UPPER_DISTAL_LENGTH, UPPER_MIDPOINT_DISTANCE, {0,.5,0}, 0);
-} 
+}
+
 int main() {
-    test_get_joint();
-    test_get_linkage_end_effector();
-    Point end_effector = get_end_effector({-63, 109.08, 0}, {-21,150.71,0}, {21.07, 144.91, 0}, {63, 112.94, 0}, {0, 186.4, 0}, {0, 223.62, 0}, 0);
+    //test_get_joint();
+    //test_get_linkage_end_effector();
+    Point end_effector = get_end_effector({-63, 109.08, 0}, {-21,144.91 ,0}, {21.07, 150.71, 0}, {63, 109.08, 0}, {0, 186.4, 0}, {0, 223.62, 0}, 0);
     std::cout << "end effector" << std::endl;
     end_effector.print();
 }

@@ -11,7 +11,7 @@ const float LOWER_TRANSMISSION_LENGTH = 110;
 const float LOWER_PROXIMAL_LENGTH = 92;
 const float LOWER_DISTAL_LENGTH = 99;
 const float LOWER_MIDPOINT_DISTANCE = 46;
-const float UPPER_LINKAGE_Z = 35;
+const float UPPER_LINKAGE_Z = 31.96;
 const float LOWER_LINKAGE_Z = 0;
 const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
 /*
