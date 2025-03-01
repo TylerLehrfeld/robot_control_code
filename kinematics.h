@@ -14,6 +14,9 @@ const float LOWER_MIDPOINT_DISTANCE = 46;
 const float UPPER_LINKAGE_Z = 31.96;
 const float LOWER_LINKAGE_Z = 0;
 const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
+const float UPPER_TO_LOWER_BASE_LENGTH = 38;
+const Point LOWER_BASE = {0, 186+UPPER_TO_LOWER_BASE_LENGTH, 0};
+const Point UPPER_BASE = {0, 186,0};
 /*
 const float UPPER_TRANSMISSION_LENGTH = 10;
 const float UPPER_PROXIMAL_LENGTH = 12;

@@ -2,6 +2,12 @@
 #include "Point.h"
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
+#include <ostream>
+
+float highest_z = 0;
+int highest_count = 0;
+int count = 0;
 
 Point get_joint(bool is_left_joint, float midpoint_distance,
                 float transmission_length, float proximal_length, Point base,
@@ -76,13 +82,24 @@ Point get_needle_point_based_on_end_effector_positions(
     float needle_extension) {
   Point z_prime =
       (upper_linkage_end_effector - lower_linkage_end_effector).normalize();
+  count++;
+  float z = z_prime.z;
+  //upper_linkage_end_effector.print();
+  //lower_linkage_end_effector.print();
   Point y_prime = cross(z_prime, {1, 0, 0}).normalize();
   Point x_prime = cross(z_prime, y_prime);
   z_prime = z_prime * (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z - needle_extension);
   y_prime = y_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
   x_prime = x_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.x;
-
-  return lower_linkage_end_effector + z_prime + y_prime + x_prime;
+  Point ee = lower_linkage_end_effector + z_prime + y_prime + x_prime; 
+  //This is for finding the best slider positions. Edit the condition to search for different things
+  /*
+  if(z > highest_z && abs(ee.x) < .1) {
+    std::cout << z << " "<< ee.x << std::endl;
+    highest_z = z;
+    highest_count = count;
+  }*/
+  return ee;
 }
 
 Point get_end_effector(Point left, Point left_middle, Point right_middle,
@@ -95,7 +112,8 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
   Point upper_linkage_end_effector = get_linkage_end_effector(
       true, left, right, top_base, UPPER_TRANSMISSION_LENGTH,
       UPPER_PROXIMAL_LENGTH, UPPER_DISTAL_LENGTH, UPPER_MIDPOINT_DISTANCE,
-      {0, 19.33, 0}, UPPER_LINKAGE_Z);
+      {0, 19.11, 0}, UPPER_LINKAGE_Z);
+  
   //std::cout << "upper linkage end effector" << std::endl;
   //upper_linkage_end_effector.print();
   Point lower_linkage_end_effector = get_linkage_end_effector(

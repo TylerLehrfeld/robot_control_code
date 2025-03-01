@@ -1,28 +1,48 @@
 #include "kinematics.cpp"
+#include <cmath>
 #include <fstream>
 #include <iostream>
+#include <ostream>
+
+float BASE_TO_SLIDER_MIN = 48;
+float BASE_TO_SLIDER_MAX = 173;
+float HALF_SLIDER_WIDTH = 6.35;
 
 int main() {
     std::ofstream output_csv;
     output_csv.open("output.csv");
-    float left_slider_y = 109.9;
-    float left_middle_slider_y = 150.71;
-    float right_middle_slider_y = 144.91;
-    float right_slider_y = 109.9;
-    float slider_y = 54.35 - .03;
-    Point prev =  get_end_effector(
+    float left_slider_y = 106.565;
+    float left_middle_slider_y =  BASE_TO_SLIDER_MAX-34.5634;
+    float right_middle_slider_y =BASE_TO_SLIDER_MAX-29.8236;
+    float right_slider_y = 106.565;
+    
+    int prev_count = 0;
+    Point end_effector = get_end_effector(
         {-63, left_slider_y, 0}, {-21, left_middle_slider_y, 0},
-        {21.07, right_middle_slider_y, 0}, {63, slider_y, 0},
-        {0, 186.4, 0}, {0, 223.62, 0}, 0);
-    while(slider_y + 0.03 <= 166.65) {
-        slider_y += 0.03;
-        Point end_effector = get_end_effector(
-            {-63, left_slider_y, 0}, {-21, left_middle_slider_y, 0},
-            {21.07, right_middle_slider_y, 0}, {63, slider_y, 0},
-            {0, 186.4, 0}, {0, 223.62, 0}, 0);
-        output_csv << "" << slider_y << "," << (end_effector-prev).magnitude() << std::endl;
-        prev = end_effector;
-        
-    }
+        {21.07, right_middle_slider_y, 0}, {63, right_slider_y, 0},
+        UPPER_BASE, LOWER_BASE, 0);
+    end_effector.print();
+    /**
+     * @brief Uncomment the two loops for the slider lengths you want to find the ideal slider length for according to your condition
+     * 
+     */
+    //for(left_slider_y = 100; left_slider_y < 120; left_slider_y += .03) {
+        for(left_middle_slider_y = BASE_TO_SLIDER_MIN+HALF_SLIDER_WIDTH; left_middle_slider_y < BASE_TO_SLIDER_MAX - HALF_SLIDER_WIDTH; left_middle_slider_y += .03) {
+            for(right_middle_slider_y = BASE_TO_SLIDER_MIN + HALF_SLIDER_WIDTH; right_middle_slider_y < BASE_TO_SLIDER_MAX - HALF_SLIDER_WIDTH; right_middle_slider_y += .03) {
+                //for(right_slider_y = 100; right_slider_y < 120; right_slider_y += .03) {
+                    Point end_effector = get_end_effector(
+                        {-63, left_slider_y, 0}, {-21, left_middle_slider_y, 0},
+                        {21.07, right_middle_slider_y, 0}, {63, right_slider_y, 0},
+                        UPPER_BASE, LOWER_BASE, 0);
+                    if(highest_count != prev_count) {
+                        output_csv << (BASE_TO_SLIDER_MAX) - left_slider_y <<", " <<(BASE_TO_SLIDER_MAX) - left_middle_slider_y<< ", " <<(BASE_TO_SLIDER_MAX) - right_middle_slider_y << ", "<< (BASE_TO_SLIDER_MAX) - right_slider_y << std::endl;    
+                        prev_count = highest_count;
+                    }
+                }
+            }
+        //}
+    //}
+
+    //end_effector.print();
     output_csv.close();
 }
