@@ -1,4 +1,4 @@
-#include "kinematics.cpp"
+#include "forward_kinematics.cpp"
 #include "galil_control_calls.cpp"
 
 int main() {

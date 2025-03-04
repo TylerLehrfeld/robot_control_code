@@ -1,20 +1,7 @@
 const char* GALIL_IP_STRING = "192.168.1.10"; 
 
-/**
- * @brief a struct that contains the y positions of all the sliders
- * 
- */
-struct slider_positions {
-    float left_slider_y;
-    float left_middle_slider_y;
-    float right_middle_slider_y;
-    float right_slider_y;
-};
-
-
-
-
 #include "3D_slicer_interface.h"
+#include "kinematics.h"
 #include "gclib.h"
 #include "gclibo.h"
 

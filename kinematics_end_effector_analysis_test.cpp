@@ -1,4 +1,4 @@
-#include "kinematics.cpp"
+#include "forward_kinematics.cpp"
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -22,8 +22,9 @@ int main() {
         {21.07, right_middle_slider_y, 0}, {63, right_slider_y, 0},
         UPPER_BASE, LOWER_BASE, 0);
     end_effector.print();
+
     /**
-     * @brief Uncomment the two loops for the slider lengths you want to find the ideal slider length for according to your condition
+     * Uncomment the two loops for the slider lengths you want to find the ideal slider length for according to your condition
      * 
      */
     //for(left_slider_y = 100; left_slider_y < 120; left_slider_y += .03) {

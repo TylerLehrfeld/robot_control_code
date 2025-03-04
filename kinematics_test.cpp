@@ -1,5 +1,5 @@
 #include "Point.h"
-#include "kinematics.cpp"
+#include "forward_kinematics.cpp"
 #include <cassert>
 
 bool is_close(float a, float b) {
