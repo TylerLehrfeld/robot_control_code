@@ -1,0 +1,78 @@
+/**
+ * @file kinematic_structs.h
+ * @author Tyler Lehrfeld
+ * @brief This file will hold struct definitions and constants needed for forward and inverse kinematics
+ * @version 0.1
+ * @date 2025-03-04
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+
+ #ifndef KINEMATIC_STRUCTS
+ #define KINEMATIC_STRUCTS
+
+ #include "Point.h"
+
+const float UPPER_TRANSMISSION_LENGTH = 115;
+const float UPPER_PROXIMAL_LENGTH = 116;
+const float UPPER_DISTAL_LENGTH = 125;
+const float UPPER_MIDPOINT_DISTANCE = 58;
+const float LOWER_TRANSMISSION_LENGTH = 110;
+const float LOWER_PROXIMAL_LENGTH = 92;
+const float LOWER_DISTAL_LENGTH = 99;
+const float LOWER_MIDPOINT_DISTANCE = 46;
+const float UPPER_LINKAGE_Z = 31.96;
+const float LOWER_LINKAGE_Z = 0;
+const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
+const float UPPER_TO_LOWER_BASE_LENGTH = 38;
+const Point LOWER_BASE = {0, 186 + UPPER_TO_LOWER_BASE_LENGTH, 0};
+const Point UPPER_BASE = {0, 186, 0};
+const Point UPPER_END_EFFECTOR_VECTOR = {0, 19.11, 0};
+const Point LOWER_END_EFFECTOR_VECTOR = {14, 0, 0};
+const float sliderXs[4] = {-63, -21, 21, 63};
+const float BASE_TO_SLIDER_MIN = 48;
+const float BASE_TO_SLIDER_MAX = 173;
+const float HALF_SLIDER_WIDTH = 6.35;
+
+
+/**
+ * @brief A struct that defines how the robot will approach a target
+ * 
+ */
+ struct approach_definition {
+  //in mm
+  Point target;
+  /**
+   * Imagine looking at the workspace from behind the robot such that the motors are close and the needle is far.
+   * z is up, x is right, and y is forward.
+   * Using spherical angle coordinates
+   * theta is the angle of the approach away from the z axis: the polar angle θ between the radial line (needle) and a given polar axis (z).
+   * phi is the angle to rotate on the x-y plane:  the angle of rotation of the radial line (needle) around the polar axis (z).
+   * angles are in degrees
+   */
+  float theta;
+  float phi;
+};
+
+/**
+* @brief A struct that defines how the robot will approach a target
+* 
+*/
+struct target_and_injection_point_approach {
+  Point target;
+  Point injection_point;
+};
+
+/**
+ * @brief a struct that contains the y positions of all the sliders
+ *
+ */
+struct slider_positions {
+  float left_slider_y;
+  float left_middle_slider_y;
+  float right_middle_slider_y;
+  float right_slider_y;
+};
+
+#endif
