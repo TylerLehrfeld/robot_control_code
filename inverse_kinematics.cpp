@@ -1,8 +1,7 @@
-#include "3D_slicer_interface.h"
 #include "Point.h"
 #include "Transform.h"
-#include "galil_control_calls.cpp"
-#include "kinematics.h"
+#include "kinematic_structs.h"
+#include "inverse_kinematics.h"
 #include <cassert>
 #include <cmath>
 
@@ -67,7 +66,7 @@ slider_positions inverse_kinematics(
 }
 
 /**
- * @brief Get the linkage end effector based on its z value
+ * @brief Get the linkage end effector based on its z value. See kinematics report section 5.2
  *
  * @param robot_approach
  * @param z z value of end effector (0 or LOWER_LINKAGE_Z for lower,
@@ -78,19 +77,29 @@ slider_positions inverse_kinematics(
  */
 Point get_linkage_end_effector(
     target_and_injection_point_approach robot_approach, float z,
-    bool is_upper_linkage) {
-  float t = (z - robot_approach.target.z) /
-            (robot_approach.injection_point.z - robot_approach.target.z);
-  Point end_effector =
-      ((robot_approach.injection_point - robot_approach.target) * t) +
-      robot_approach.target;
+    bool is_upper_linkage, float& needle_extension) {
+  Point upper_base = is_upper_linkage ? UPPER_BASE : LOWER_BASE;
+  upper_base.z = z;
+  Point z_prime = (robot_approach.injection_point - robot_approach.target).normalize();
+  Point needle_at_z = (robot_approach.injection_point-robot_approach.target) * ((z-robot_approach.target.z)/((robot_approach.target-robot_approach.injection_point).z)) + robot_approach.target;
+  Point x_prime = cross((needle_at_z-upper_base),z_prime);
+  Point y_prime = cross(z_prime, x_prime);
+  float z_needle = (-robot_approach.target.z-(LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y*y_prime).z)/z_prime.z;
+  if(!is_upper_linkage) {
+    needle_extension = z_needle-LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z;
+  }
+  x_prime = x_prime*LOWER_END_EFFECTOR_TO_NEEDLEPOINT.x;
+  y_prime = y_prime*LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
+  //we can only vary the needle's z coordinate in the needle frame
+  z_prime = z_prime*z_needle;
+  Point end_effector = robot_approach.target - x_prime - y_prime - z_prime;
   assert(end_effector.z == z);
   end_effector.z = 0;
   if (is_upper_linkage) {
     Point upper_base = UPPER_BASE;
     upper_base.z = 0;
     Point upper_end_effector_vector = UPPER_END_EFFECTOR_VECTOR;
-    end_effector = ((end_effector - upper_base) *
+    end_effector = ((end_effector - upper_base).normalize() *
                     ((end_effector - upper_base).magnitude() -
                      upper_end_effector_vector.magnitude())) +
                    upper_base;
@@ -104,8 +113,8 @@ Point get_linkage_end_effector(
     end_effector =
         (end_effector - left_joint).normalize() * LOWER_DISTAL_LENGTH +
         left_joint;
-    end_effector.z = z;
   }
+  end_effector.z = z;
   return end_effector;
 }
 
@@ -172,6 +181,7 @@ float get_y_of_slider_based_on_midpoint_location(Point midpoint, float x,
  */
 void get_slider_positions(slider_positions &slider_positions_struct,
                           Point end_effector, bool upper) {
+
   end_effector.z = 0;
   Point left_joint = intersection_of_two_circles(
       end_effector, upper ? UPPER_BASE : LOWER_BASE,
@@ -185,9 +195,9 @@ void get_slider_positions(slider_positions &slider_positions_struct,
   float midpoint_distance =
       upper ? UPPER_MIDPOINT_DISTANCE : LOWER_MIDPOINT_DISTANCE;
   Point left_midpoint =
-      ((left_joint - base).normalize() * LOWER_MIDPOINT_DISTANCE) + base;
+      ((left_joint - base).normalize() * midpoint_distance) + base;
   Point right_midpoint =
-      ((right_joint - base).normalize() * LOWER_MIDPOINT_DISTANCE) + base;
+      ((right_joint - base).normalize() * midpoint_distance) + base;
   if (upper) {
     slider_positions_struct.left_slider_y =
         get_y_of_slider_based_on_midpoint_location(left_midpoint, sliderXs[0],

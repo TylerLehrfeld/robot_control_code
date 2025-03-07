@@ -1,10 +1,13 @@
 #include "Point.h"
 #include "Transform.h"
+#include "kinematic_structs.h"
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <ostream>
 
+#ifndef FORWARD_KINEMATICS
+#define FORWARD_KINEMATICS
 
 float highest_z = 0;
 int highest_count = 0;
@@ -71,11 +74,7 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
                    left_joint;
   }
   // end_effector.print();
-  if (is_upper) {
-    end_effector.z = UPPER_LINKAGE_Z;
-  } else {
-    end_effector.z = LOWER_LINKAGE_Z;
-  }
+  end_effector.z = z;
   return end_effector;
 }
 
@@ -85,11 +84,13 @@ Point get_needle_point_based_on_end_effector_positions(
   Point z_prime =
       (upper_linkage_end_effector - lower_linkage_end_effector).normalize();
   count++;
-  float z = z_prime.z;
+  //float z = z_prime.z;
   // upper_linkage_end_effector.print();
   // lower_linkage_end_effector.print();
-  Point y_prime = cross(z_prime, {1, 0, 0}).normalize();
-  Point x_prime = cross(z_prime, y_prime);
+  Point upper_base_with_corrected_z = UPPER_BASE;
+  upper_base_with_corrected_z.z = upper_linkage_end_effector.z;
+  Point x_prime = cross(z_prime, upper_linkage_end_effector-upper_base_with_corrected_z).normalize();
+  Point y_prime = cross(z_prime, x_prime);
   z_prime = z_prime * (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z - needle_extension);
   y_prime = y_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
   x_prime = x_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.x;
@@ -117,14 +118,16 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
       UPPER_PROXIMAL_LENGTH, UPPER_DISTAL_LENGTH, UPPER_MIDPOINT_DISTANCE,
       UPPER_END_EFFECTOR_VECTOR, UPPER_LINKAGE_Z);
 
-  // std::cout << "upper linkage end effector" << std::endl;
-  // upper_linkage_end_effector.print();
+  std::cout << "upper linkage end effector" << std::endl;
+  upper_linkage_end_effector.print();
   Point lower_linkage_end_effector = get_linkage_end_effector(
       false, left_middle, right_middle, bottom_base, LOWER_TRANSMISSION_LENGTH,
       LOWER_PROXIMAL_LENGTH, LOWER_DISTAL_LENGTH, LOWER_MIDPOINT_DISTANCE,
       LOWER_END_EFFECTOR_VECTOR, LOWER_LINKAGE_Z);
-  // std::cout << "lower linkage end effector" << std::endl;
-  // lower_linkage_end_effector.print();
+  std::cout << "lower linkage end effector" << std::endl;
+  lower_linkage_end_effector.print();
   return get_needle_point_based_on_end_effector_positions(
       upper_linkage_end_effector, lower_linkage_end_effector, needle_extension);
 }
+
+#endif

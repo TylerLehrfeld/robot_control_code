@@ -1,7 +1,6 @@
 const char* GALIL_IP_STRING = "192.168.1.10"; 
 
-#include "3D_slicer_interface.h"
-#include "kinematics.h"
+#include "forward_kinematics.h"
 #include "gclib.h"
 #include "gclibo.h"
 

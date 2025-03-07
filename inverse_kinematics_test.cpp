@@ -1,5 +1,7 @@
-#include "kinematics.h"
+#include "inverse_kinematics.h"
+#include "forward_kinematics.h"
 #include <cassert>
+
 void test_overall_kinematics() {
     float left_slider_y = 106.565;
     float left_middle_slider_y =  BASE_TO_SLIDER_MAX-34.5634;
