@@ -2,3 +2,4 @@ control
 move
 test
 output.csv
+*.o

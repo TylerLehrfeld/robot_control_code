@@ -1,4 +1,4 @@
-#include "kinematics.h"
+#include "kinematic_structs.h"
 #include <cmath>
 #include <fstream>
 #include <iostream>

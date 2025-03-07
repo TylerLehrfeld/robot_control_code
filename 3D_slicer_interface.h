@@ -1,7 +1,7 @@
 #ifndef SLICER_INTERFACE
 #define SLICER_INTERFACE
 
-#include "kinematics.h"
+#include "kinematic_structs.h"
 
 
 
