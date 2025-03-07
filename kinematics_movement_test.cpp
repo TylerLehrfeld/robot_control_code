@@ -2,7 +2,7 @@
 #include "galil_control_calls.cpp"
 
 int main() {
-    float left_slider_y, left_middle_slider_y, right_middle_slider_y, right_slider_y;
+    double left_slider_y, left_middle_slider_y, right_middle_slider_y, right_slider_y;
     std::cin >> left_slider_y;
     std::cin >> left_middle_slider_y;
     std::cin >> right_middle_slider_y;

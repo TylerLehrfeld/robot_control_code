@@ -20,7 +20,7 @@
 
 class Transform {
 public:
-  float matrix[4][4];
+  double matrix[4][4];
   Transform() { base_constructor(); }
 
   /**
@@ -35,8 +35,8 @@ public:
    * @param y
    * @param z
    */
-  Transform(float theta_x, float theta_y, float theta_z, float x, float y,
-            float z) {
+  Transform(double theta_x, double theta_y, double theta_z, double x, double y,
+            double z) {
     base_constructor();
     matrix[0][0] = cos(theta_z) * cos(theta_y);
     matrix[0][1] =

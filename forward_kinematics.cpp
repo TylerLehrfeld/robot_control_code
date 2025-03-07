@@ -9,14 +9,14 @@
 #ifndef FORWARD_KINEMATICS
 #define FORWARD_KINEMATICS
 
-float highest_z = 0;
+double highest_z = 0;
 int highest_count = 0;
 int count = 0;
 
-Point get_joint(bool is_left_joint, float midpoint_distance,
-                float transmission_length, float proximal_length, Point base,
+Point get_joint(bool is_left_joint, double midpoint_distance,
+                double transmission_length, double proximal_length, Point base,
                 Point slider) {
-  float theta =
+  double theta =
       std::acos((pow(midpoint_distance, 2) - pow(transmission_length, 2) -
                  pow((base - slider).magnitude(), 2)) /
                 (-2 * transmission_length * (base - slider).magnitude()));
@@ -28,11 +28,11 @@ Point get_joint(bool is_left_joint, float midpoint_distance,
   Point rotated_left_to_base_vec = rotate_z * slider_to_base_vec;
   Point midpoint = transmission_length * rotated_left_to_base_vec + slider;
   if (is_left_joint) {
-    // std::cout << "left midpoint" << std::endl;
+    //std::cout << "left midpoint" << std::endl;
   } else {
-    // std::cout << "right midpoint" << std::endl;
+    //std::cout << "right midpoint" << std::endl;
   }
-  // midpoint.print();
+  //midpoint.print();
 
   Point base_to_midpoint_vec = (midpoint - base).normalize();
   Point joint = proximal_length * base_to_midpoint_vec + base;
@@ -41,18 +41,18 @@ Point get_joint(bool is_left_joint, float midpoint_distance,
 
 Point get_linkage_end_effector(bool is_upper, Point left_slider,
                                Point right_slider, Point base,
-                               float transmission_length, float proximal_length,
-                               float distal_length, float midpoint_distance,
-                               Point end_effector_vect, float z) {
+                               double transmission_length, double proximal_length,
+                               double distal_length, double midpoint_distance,
+                               Point end_effector_vect, double z) {
   Point left_joint = get_joint(true, midpoint_distance, transmission_length,
                                proximal_length, base, left_slider);
-  // std::cout << "left joint" << std::endl;
-  // left_joint.print();
+  //std::cout << "left joint" << std::endl;
+  //left_joint.print();
   Point right_joint = get_joint(false, midpoint_distance, transmission_length,
                                 proximal_length, base, right_slider);
-  // std::cout << "right joint" << std::endl;
-  // right_joint.print();
-  float h = std::sqrt(pow(distal_length, 2) -
+  //std::cout << "right joint" << std::endl;
+  //right_joint.print();
+  double h = std::sqrt(pow(distal_length, 2) -
                       pow((right_joint - left_joint).magnitude(), 2) / 4);
   if (is_upper) {
     h += end_effector_vect.magnitude();
@@ -67,7 +67,8 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
   Point resized_perp_vec = perpendicular_vector.normalize() * h;
   // resized_perp_vec.print();
   Point end_effector = (left_joint + right_joint) * 0.5 + resized_perp_vec;
-  // end_effector.print();
+  //std::cout << "end effector without extension" << std::endl;
+  //end_effector.print();
   if (!is_upper) {
     end_effector = ((end_effector - left_joint).normalize() *
                     (distal_length + end_effector_vect.magnitude())) +
@@ -80,16 +81,16 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
 
 Point get_needle_point_based_on_end_effector_positions(
     Point upper_linkage_end_effector, Point lower_linkage_end_effector,
-    float needle_extension) {
+    double needle_extension) {
   Point z_prime =
       (upper_linkage_end_effector - lower_linkage_end_effector).normalize();
   count++;
-  //float z = z_prime.z;
+  //double z = z_prime.z;
   // upper_linkage_end_effector.print();
   // lower_linkage_end_effector.print();
   Point upper_base_with_corrected_z = UPPER_BASE;
   upper_base_with_corrected_z.z = upper_linkage_end_effector.z;
-  Point x_prime = cross(z_prime, upper_linkage_end_effector-upper_base_with_corrected_z).normalize();
+  Point x_prime = cross(upper_linkage_end_effector-upper_base_with_corrected_z, z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime);
   z_prime = z_prime * (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z - needle_extension);
   y_prime = y_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
@@ -108,7 +109,7 @@ Point get_needle_point_based_on_end_effector_positions(
 
 Point get_end_effector(Point left, Point left_middle, Point right_middle,
                        Point right, Point top_base, Point bottom_base,
-                       float needle_extension) {
+                       double needle_extension) {
   // Z coordinates will be determined in post to make calculations easier, as
   // the z component is static and pre-determined.
   assert(left.z == 0 && right.z == 0 && right_middle.z == 0 &&
@@ -118,16 +119,17 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
       UPPER_PROXIMAL_LENGTH, UPPER_DISTAL_LENGTH, UPPER_MIDPOINT_DISTANCE,
       UPPER_END_EFFECTOR_VECTOR, UPPER_LINKAGE_Z);
 
-  std::cout << "upper linkage end effector" << std::endl;
-  upper_linkage_end_effector.print();
+  //std::cout << "upper linkage end effector" << std::endl;
+  //upper_linkage_end_effector.print();
   Point lower_linkage_end_effector = get_linkage_end_effector(
       false, left_middle, right_middle, bottom_base, LOWER_TRANSMISSION_LENGTH,
       LOWER_PROXIMAL_LENGTH, LOWER_DISTAL_LENGTH, LOWER_MIDPOINT_DISTANCE,
       LOWER_END_EFFECTOR_VECTOR, LOWER_LINKAGE_Z);
-  std::cout << "lower linkage end effector" << std::endl;
-  lower_linkage_end_effector.print();
-  return get_needle_point_based_on_end_effector_positions(
+  //std::cout << "lower linkage end effector" << std::endl;
+  //lower_linkage_end_effector.print();
+  Point needle_point = get_needle_point_based_on_end_effector_positions(
       upper_linkage_end_effector, lower_linkage_end_effector, needle_extension);
+  return needle_point;
 }
 
 #endif

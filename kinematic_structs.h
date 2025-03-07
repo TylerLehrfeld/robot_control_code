@@ -13,27 +13,28 @@
  #define KINEMATIC_STRUCTS
 
  #include "Point.h"
+#include <ostream>
 
-const float UPPER_TRANSMISSION_LENGTH = 115;
-const float UPPER_PROXIMAL_LENGTH = 116;
-const float UPPER_DISTAL_LENGTH = 125;
-const float UPPER_MIDPOINT_DISTANCE = 58;
-const float LOWER_TRANSMISSION_LENGTH = 110;
-const float LOWER_PROXIMAL_LENGTH = 92;
-const float LOWER_DISTAL_LENGTH = 99;
-const float LOWER_MIDPOINT_DISTANCE = 46;
-const float UPPER_LINKAGE_Z = 31.96;
-const float LOWER_LINKAGE_Z = 0;
+const double UPPER_TRANSMISSION_LENGTH = 115;
+const double UPPER_PROXIMAL_LENGTH = 116;
+const double UPPER_DISTAL_LENGTH = 125;
+const double UPPER_MIDPOINT_DISTANCE = 58;
+const double LOWER_TRANSMISSION_LENGTH = 110;
+const double LOWER_PROXIMAL_LENGTH = 92;
+const double LOWER_DISTAL_LENGTH = 99;
+const double LOWER_MIDPOINT_DISTANCE = 46;
+const double UPPER_LINKAGE_Z = 31.96;
+const double LOWER_LINKAGE_Z = 0;
 const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
-const float UPPER_TO_LOWER_BASE_LENGTH = 38;
+const double UPPER_TO_LOWER_BASE_LENGTH = 38;
 const Point LOWER_BASE = {0, 186 + UPPER_TO_LOWER_BASE_LENGTH, 0};
 const Point UPPER_BASE = {0, 186, 0};
 const Point UPPER_END_EFFECTOR_VECTOR = {0, 19.11, 0};
 const Point LOWER_END_EFFECTOR_VECTOR = {14, 0, 0};
-const float sliderXs[4] = {-63, -21, 21, 63};
-const float BASE_TO_SLIDER_MIN = 48;
-const float BASE_TO_SLIDER_MAX = 173;
-const float HALF_SLIDER_WIDTH = 6.35;
+const double sliderXs[4] = {-63, -21, 21, 63};
+const double BASE_TO_SLIDER_MIN = 48;
+const double BASE_TO_SLIDER_MAX = 173;
+const double HALF_SLIDER_WIDTH = 6.35;
 
 
 /**
@@ -51,8 +52,8 @@ const float HALF_SLIDER_WIDTH = 6.35;
    * phi is the angle to rotate on the x-y plane:  the angle of rotation of the radial line (needle) around the polar axis (z).
    * angles are in degrees
    */
-  float theta;
-  float phi;
+  double theta;
+  double phi;
 };
 
 /**
@@ -69,10 +70,24 @@ struct target_and_injection_point_approach {
  *
  */
 struct slider_positions {
-  float left_slider_y;
-  float left_middle_slider_y;
-  float right_middle_slider_y;
-  float right_slider_y;
+  double left_slider_y;
+  double left_middle_slider_y;
+  double right_middle_slider_y;
+  double right_slider_y;
+  double needle_extension;
+
+  void print() {
+    std::cout << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+  }
 };
 
+
+struct linkage_end_effectors {
+  Point upper;
+  Point lower;
+};
+
+inline bool isclose(double a, double b) {
+  return a + .5 > b && a - .5 < b;
+}
 #endif

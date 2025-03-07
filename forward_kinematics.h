@@ -17,8 +17,8 @@
  * @param slider
  * @return Point
  */
-Point get_joint(bool is_left_joint, float midpoint_distance,
-                float transmission_length, float proximal_length, Point base,
+Point get_joint(bool is_left_joint, double midpoint_distance,
+                double transmission_length, double proximal_length, Point base,
                 Point slider);
 
 /**
@@ -40,9 +40,9 @@ Point get_joint(bool is_left_joint, float midpoint_distance,
  */
 Point get_linkage_end_effector(bool is_upper, Point left_slider,
                                Point right_slider, Point base,
-                               float transmission_length, float proximal_length,
-                               float distal_length, float midpoint_distance,
-                               Point end_effector_vect, float z);
+                               double transmission_length, double proximal_length,
+                               double distal_length, double midpoint_distance,
+                               Point end_effector_vect, double z);
 
 /**
  * @brief Get the end effector (needle tip) based on the top and bottom linkage
@@ -59,6 +59,6 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
  */
 Point get_end_effector(Point left, Point left_middle, Point right_middle,
                        Point right, Point top_base, Point bottom_base,
-                       float needle_extension);
+                       double needle_extension);
 
 #endif

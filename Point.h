@@ -4,9 +4,9 @@
 #include <cmath>
 #include <iostream>
 struct Point {
-  float x;
-  float y;
-  float z;
+  double x;
+  double y;
+  double z;
   void print() { std::cout << x << " " << y << " " << z << std::endl; }
 
   /**
@@ -36,7 +36,7 @@ struct Point {
    * @param m 
    * @return Point 
    */
-  friend Point operator*(float scalar, Point &m) {
+  friend Point operator*(double scalar, Point &m) {
     return {.x = m.x * scalar, .y = m.y * scalar, .z = m.z * scalar};
   }
 
@@ -46,7 +46,7 @@ struct Point {
    * @param scalar 
    * @return Point 
    */
-  Point operator*(float scalar) {
+  Point operator*(double scalar) {
     return {
         .x = this->x * scalar, .y = this->y * scalar, .z = this->z * scalar};
   }
@@ -54,9 +54,9 @@ struct Point {
   /**
    * @brief get the magnitude of a vector
    * 
-   * @return float 
+   * @return double 
    */
-  float magnitude() {
+  double magnitude() {
     return std::sqrt(std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2));
   }
 
@@ -66,7 +66,7 @@ struct Point {
    * @return Point 
    */
   Point normalize() {
-    float magnitude = this->magnitude();
+    double magnitude = this->magnitude();
     return {.x = this->x / magnitude,
             .y = this->y / magnitude,
             .z = this->z / magnitude};

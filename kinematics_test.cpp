@@ -2,7 +2,7 @@
 #include "forward_kinematics.cpp"
 #include <cassert>
 
-bool is_close(float a, float b) {
+bool is_close(double a, double b) {
     return a - .0001 < b && a + .0001 > b;
 }
 
