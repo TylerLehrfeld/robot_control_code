@@ -5,3 +5,5 @@ output.csv
 kinematics_end_effector_analysis_test
 inverse_kinematics_test
 *.o
+.cache
+build

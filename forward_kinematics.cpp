@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
-#include <ostream>
 
 #ifndef FORWARD_KINEMATICS
 #define FORWARD_KINEMATICS

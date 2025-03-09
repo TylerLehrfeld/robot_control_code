@@ -1,6 +1,5 @@
 #include "Point.h"
 #include "Transform.h"
-#include "kinematic_structs.h"
 #ifndef KINEMATICS
 #define KINEMATICS
 

@@ -8,8 +8,8 @@ using std::string;
 
 int main() {
     while(true) {
-        approach_definition app;
-        app = get_approach_from_3D_slicer_UI();
+        approach_definition approach_from_3D_slicer;
+        approach_from_3D_slicer = get_approach_from_3D_slicer_UI();
         
         string msg;
         std::cin >> msg;

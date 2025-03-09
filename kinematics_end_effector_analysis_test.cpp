@@ -12,22 +12,27 @@ int main() {
   std::ofstream output_csv;
   output_csv.open("output.csv");
   bool Point_1 = false;
-  approach_definition def = {{0, Point_1 ? 425 : 330.0, -50},
-                             Point_1 ? M_PI / 2 : -M_PI / 2,
-                             M_PI / 6};
+  approach_definition def = {{0, 350, -75},
+                             0,
+                             0};
   slider_positions positions_1 =
       inverse_kinematics(def, Transform(0, 0, 0, 0, 0, 0));
-  positions_1.print();
-  get_end_effector({sliderXs[0], positions_1.left_slider_y, 0},
+  //positions_1.print();
+  Point ee_1 = get_end_effector({sliderXs[0], positions_1.left_slider_y, 0},
                    {sliderXs[1], positions_1.left_middle_slider_y, 0},
                    {sliderXs[2], positions_1.right_middle_slider_y, 0},
                    {sliderXs[3], positions_1.right_slider_y, 0}, UPPER_BASE,
-                   LOWER_BASE, positions_1.needle_extension)
-      .print();
-  def.theta = Point_1 ? -M_PI / 2 : M_PI / 2;
-  slider_positions positions_2 =
+                   LOWER_BASE, positions_1.needle_extension);
+  Point ee_2 = get_end_effector({sliderXs[0], positions_1.left_slider_y + .03, 0},
+        {sliderXs[1], positions_1.left_middle_slider_y, 0},
+        {sliderXs[2], positions_1.right_middle_slider_y, 0},
+        {sliderXs[3], positions_1.right_slider_y, 0}, UPPER_BASE,
+        LOWER_BASE, positions_1.needle_extension);
+std::cout << (ee_1 - ee_2).magnitude() << std::endl;
+        def.target.y=400;
+  /*slider_positions positions_2 =
       inverse_kinematics(def, Transform(0, 0, 0, 0, 0, 0));
-  positions_2.print();
+  //positions_2.print();
 
   get_end_effector({sliderXs[0], positions_2.left_slider_y, 0},
                    {sliderXs[1], positions_2.left_middle_slider_y, 0},
@@ -82,16 +87,17 @@ int main() {
     Point new_point = get_end_effector(
         {sliderXs[0], left_slider_y_plus_offset, 0},
         {sliderXs[1],
-         left_middle_slider_y_plus_offset, 0},
+         positions_1.left_middle_slider_y, 0},
         {sliderXs[2],
-         right_middle_slider_y_plus_offset, 0},
-        {sliderXs[3],right_slider_y_plus_offset, 0},
+         positions_1.right_middle_slider_y, 0},
+        {sliderXs[3],positions_1.right_slider_y, 0},
         UPPER_BASE, LOWER_BASE, 0);
-    output_csv << offset << ", " << (new_point - prev).magnitude() << std::endl;
+    new_point.print();
+    output_csv << offset << ", " << abs((new_point - prev).x) << ", " << abs((new_point - prev).y) << ", "<< abs((new_point - prev).z) << std::endl;
     prev = new_point;
     offset += .03;
     if(offset > max_slider_dif) {
-        std::cout << left_slider_y_plus_offset << " " << left_middle_slider_y_plus_offset << " " << right_middle_slider_y_plus_offset << " " << right_slider_y_plus_offset << std::endl;
+        /*std::cout << left_slider_y_plus_offset << " " << left_middle_slider_y_plus_offset << " " << right_middle_slider_y_plus_offset << " " << right_slider_y_plus_offset << std::endl;
         get_end_effector(
             {sliderXs[0], left_slider_y_plus_offset, 0},
             {sliderXs[1],
@@ -99,11 +105,11 @@ int main() {
             {sliderXs[2],
              right_middle_slider_y_plus_offset, 0},
             {sliderXs[3],right_slider_y_plus_offset, 0},
-            UPPER_BASE, LOWER_BASE, positions_2.needle_extension).print();
-    }
-  }
+            UPPER_BASE, LOWER_BASE, positions_2.needle_extension).print();*/
+    //}
+  //}
 
-  prev.print();
+  //prev.print();
   /*double left_slider_y = 106.565;
   double left_middle_slider_y =  BASE_TO_SLIDER_MAX-34.5634;
   double right_middle_slider_y =BASE_TO_SLIDER_MAX-29.8236;

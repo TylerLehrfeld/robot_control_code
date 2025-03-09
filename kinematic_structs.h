@@ -12,7 +12,7 @@
  #ifndef KINEMATIC_STRUCTS
  #define KINEMATIC_STRUCTS
 
- #include "Point.h"
+#include "Point.h"
 #include <ostream>
 
 const double UPPER_TRANSMISSION_LENGTH = 115;
