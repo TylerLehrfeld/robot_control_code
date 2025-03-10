@@ -1,4 +1,5 @@
 #include "Point.h"
+#include "Robot.h"
 #include "Transform.h"
 #include "kinematic_structs.h"
 #include <cassert>
@@ -14,7 +15,7 @@ int count = 0;
 
 Point get_joint(bool is_left_joint, double midpoint_distance,
                 double transmission_length, double proximal_length, Point base,
-                Point slider) {
+                Point slider, linkage_array& robot_linkage) {
   double theta =
       std::acos((pow(midpoint_distance, 2) - pow(transmission_length, 2) -
                  pow((base - slider).magnitude(), 2)) /
@@ -26,15 +27,21 @@ Point get_joint(bool is_left_joint, double midpoint_distance,
   Point slider_to_base_vec = (base - slider).normalize();
   Point rotated_left_to_base_vec = rotate_z * slider_to_base_vec;
   Point midpoint = transmission_length * rotated_left_to_base_vec + slider;
+
+  Point base_to_midpoint_vec = (midpoint - base).normalize();
+  Point joint = proximal_length * base_to_midpoint_vec + base;
+    
   if (is_left_joint) {
+    robot_linkage.left_midpoint = midpoint;
+    robot_linkage.left_joint = joint;
     //std::cout << "left midpoint" << std::endl;
   } else {
+    robot_linkage.left_midpoint = midpoint;
+    robot_linkage.right_joint = joint;
     //std::cout << "right midpoint" << std::endl;
   }
   //midpoint.print();
 
-  Point base_to_midpoint_vec = (midpoint - base).normalize();
-  Point joint = proximal_length * base_to_midpoint_vec + base;
   return joint;
 }
 
@@ -42,13 +49,13 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
                                Point right_slider, Point base,
                                double transmission_length, double proximal_length,
                                double distal_length, double midpoint_distance,
-                               Point end_effector_vect, double z) {
+                               Point end_effector_vect, double z, Robot& robot) {
   Point left_joint = get_joint(true, midpoint_distance, transmission_length,
-                               proximal_length, base, left_slider);
+                               proximal_length, base, left_slider, is_upper ? robot.top_linkage : robot.bottom_linkage);
   //std::cout << "left joint" << std::endl;
   //left_joint.print();
   Point right_joint = get_joint(false, midpoint_distance, transmission_length,
-                                proximal_length, base, right_slider);
+                                proximal_length, base, right_slider, is_upper ? robot.top_linkage : robot.bottom_linkage);
   //std::cout << "right joint" << std::endl;
   //right_joint.print();
   double h = std::sqrt(pow(distal_length, 2) -
@@ -68,6 +75,11 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
   Point end_effector = (left_joint + right_joint) * 0.5 + resized_perp_vec;
   //std::cout << "end effector without extension" << std::endl;
   //end_effector.print();
+  if(is_upper) {
+    robot.top_linkage.linkage_end_effector = end_effector;
+  } else {
+    robot.bottom_linkage.linkage_end_effector = end_effector;
+  }
   if (!is_upper) {
     end_effector = ((end_effector - left_joint).normalize() *
                     (distal_length + end_effector_vect.magnitude())) +
@@ -80,7 +92,7 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
 
 Point get_needle_point_based_on_end_effector_positions(
     Point upper_linkage_end_effector, Point lower_linkage_end_effector,
-    double needle_extension) {
+    double needle_extension, Robot& robot) {
   Point z_prime =
       (upper_linkage_end_effector - lower_linkage_end_effector).normalize();
   count++;
@@ -108,7 +120,7 @@ Point get_needle_point_based_on_end_effector_positions(
 
 Point get_end_effector(Point left, Point left_middle, Point right_middle,
                        Point right, Point top_base, Point bottom_base,
-                       double needle_extension) {
+                       double needle_extension, Robot& robot) {
   // Z coordinates will be determined in post to make calculations easier, as
   // the z component is static and pre-determined.
   assert(left.z == 0 && right.z == 0 && right_middle.z == 0 &&
@@ -116,18 +128,18 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
   Point upper_linkage_end_effector = get_linkage_end_effector(
       true, left, right, top_base, UPPER_TRANSMISSION_LENGTH,
       UPPER_PROXIMAL_LENGTH, UPPER_DISTAL_LENGTH, UPPER_MIDPOINT_DISTANCE,
-      UPPER_END_EFFECTOR_VECTOR, UPPER_LINKAGE_Z);
+      UPPER_END_EFFECTOR_VECTOR, UPPER_LINKAGE_Z, robot);
 
   //std::cout << "upper linkage end effector" << std::endl;
   //upper_linkage_end_effector.print();
   Point lower_linkage_end_effector = get_linkage_end_effector(
       false, left_middle, right_middle, bottom_base, LOWER_TRANSMISSION_LENGTH,
       LOWER_PROXIMAL_LENGTH, LOWER_DISTAL_LENGTH, LOWER_MIDPOINT_DISTANCE,
-      LOWER_END_EFFECTOR_VECTOR, LOWER_LINKAGE_Z);
+      LOWER_END_EFFECTOR_VECTOR, LOWER_LINKAGE_Z, robot);
   //std::cout << "lower linkage end effector" << std::endl;
   //lower_linkage_end_effector.print();
   Point needle_point = get_needle_point_based_on_end_effector_positions(
-      upper_linkage_end_effector, lower_linkage_end_effector, needle_extension);
+      upper_linkage_end_effector, lower_linkage_end_effector, needle_extension, robot);
   return needle_point;
 }
 

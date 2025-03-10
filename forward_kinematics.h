@@ -1,9 +1,11 @@
-#include "Point.h"
-#include "Transform.h"
+
 #ifndef KINEMATICS
 #define KINEMATICS
 
-
+#include "Point.h"
+#include "Robot.h"
+#include "Transform.h"
+#include "kinematic_structs.h"
 /**
  * @brief Get a left or right joint. The joint is where the proximal links meet
  * the distal links
@@ -18,7 +20,7 @@
  */
 Point get_joint(bool is_left_joint, double midpoint_distance,
                 double transmission_length, double proximal_length, Point base,
-                Point slider);
+                Point slider, linkage_array& robot_array);
 
 /**
  * @brief Get the end effector of each linkage.
@@ -39,9 +41,10 @@ Point get_joint(bool is_left_joint, double midpoint_distance,
  */
 Point get_linkage_end_effector(bool is_upper, Point left_slider,
                                Point right_slider, Point base,
-                               double transmission_length, double proximal_length,
-                               double distal_length, double midpoint_distance,
-                               Point end_effector_vect, double z);
+                               double transmission_length,
+                               double proximal_length, double distal_length,
+                               double midpoint_distance,
+                               Point end_effector_vect, double z, Robot& robot);
 
 /**
  * @brief Get the end effector (needle tip) based on the top and bottom linkage
@@ -58,6 +61,9 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
  */
 Point get_end_effector(Point left, Point left_middle, Point right_middle,
                        Point right, Point top_base, Point bottom_base,
-                       double needle_extension);
+                       double needle_extension, Robot& robot);
 
+Point get_needle_point_based_on_end_effector_positions(
+    Point upper_linkage_end_effector, Point lower_linkage_end_effector,
+    double needle_extension, Robot& robot);
 #endif

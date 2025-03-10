@@ -5,7 +5,8 @@ CXXFLAGS = -g -Wall -Wextra -std=c++17
 SRC = inverse_kinematics_test.cpp \
       kinematics_end_effector_analysis_test.cpp \
       forward_kinematics.cpp \
-      inverse_kinematics.cpp
+      inverse_kinematics.cpp \
+      forward_inverse_kinematic_comparison.cpp
 
 # Header files
 HEADERS = forward_kinematics.h \
@@ -16,9 +17,12 @@ HEADERS = forward_kinematics.h \
 OBJ = $(SRC:.cpp=.o)
 
 # Output executables
-TARGETS = inverse_kinematics_test kinematics_end_effector_analysis_test
+TARGETS = forward_inverse_kinematic_comparison #inverse_kinematics_test kinematics_end_effector_analysis_test
 
 all: $(TARGETS)
+
+forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
+      $(CXX) $(CXXFLAGS) -o $@ $^
 
 inverse_kinematics_test: inverse_kinematics_test.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^

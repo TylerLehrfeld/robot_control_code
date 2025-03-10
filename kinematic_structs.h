@@ -87,6 +87,18 @@ struct linkage_end_effectors {
   Point lower;
 };
 
+
+class linkage_array {
+  public:
+  Point base;
+  Point left_joint;
+  Point right_joint;
+  Point left_midpoint;
+  Point right_midpoint;
+  Point linkage_end_effector;
+  Point extended_end_effector;
+};
+
 inline bool isclose(double a, double b) {
   return a + .5 > b && a - .5 < b;
 }

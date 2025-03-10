@@ -1,5 +1,6 @@
 #include "inverse_kinematics.h"
 #include "Point.h"
+#include "Robot.h"
 #include "Transform.h"
 #include "kinematic_structs.h"
 #include <cassert>
@@ -17,16 +18,17 @@
  */
 slider_positions
 inverse_kinematics(approach_definition needle_to_patient_approach,
-                   Transform T_RP) {
+                   Transform T_RP, Robot& robot) {
   Point mock_injection_point = {sin(needle_to_patient_approach.phi) *
                                     cos(needle_to_patient_approach.theta),
                                 sin(needle_to_patient_approach.phi) *
                                     sin(needle_to_patient_approach.theta),
                                 cos(needle_to_patient_approach.phi)};
+
   mock_injection_point =
       mock_injection_point + needle_to_patient_approach.target;
   return inverse_kinematics(
-      {T_RP * needle_to_patient_approach.target, T_RP * mock_injection_point});
+      {T_RP * needle_to_patient_approach.target, T_RP * mock_injection_point}, robot);
 }
 
 /**
@@ -41,9 +43,9 @@ inverse_kinematics(approach_definition needle_to_patient_approach,
  */
 slider_positions invinverse_kinematics(
     target_and_injection_point_approach needle_to_patient_approach,
-    Transform T_RP) {
+    Transform T_RP, Robot& robot) {
   return inverse_kinematics({T_RP * needle_to_patient_approach.injection_point,
-                             T_RP * needle_to_patient_approach.target});
+                             T_RP * needle_to_patient_approach.target}, robot);
 }
 
 /**
@@ -54,17 +56,20 @@ slider_positions invinverse_kinematics(
  * @return slider_positions
  */
 slider_positions inverse_kinematics(
-    target_and_injection_point_approach needle_to_patient_approach) {
+    target_and_injection_point_approach needle_to_patient_approach, Robot& robot) {
   double needle_extension = 0;
   linkage_end_effectors end_effectors =  get_linkage_end_effector(
-      needle_to_patient_approach, LOWER_LINKAGE_Z, UPPER_LINKAGE_Z, needle_extension);
+      needle_to_patient_approach, LOWER_LINKAGE_Z, UPPER_LINKAGE_Z, needle_extension, robot);
+robot.top_linkage.linkage_end_effector = end_effectors.upper;
+robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
   //std::cout << "lower and upper end effectors" << std::endl;
   //end_effectors.lower.print();
   //end_effectors.upper.print();
   slider_positions sliders;
   sliders.needle_extension = needle_extension;
-  get_slider_positions(sliders, end_effectors.lower, false);
-  get_slider_positions(sliders, end_effectors.upper, true);
+  get_slider_positions(sliders, end_effectors.lower, false, robot);
+  get_slider_positions(sliders, end_effectors.upper, true, robot);
+  robot.sliders = sliders;
   return sliders;
 }
 
@@ -80,7 +85,7 @@ slider_positions inverse_kinematics(
  * @return Point
  */
 linkage_end_effectors get_linkage_end_effector(
-    target_and_injection_point_approach robot_approach, double z_lower, double z_upper, double &needle_extension) {
+    target_and_injection_point_approach robot_approach, double z_lower, double z_upper, double &needle_extension, Robot& robot) {
   Point base = LOWER_BASE;
   base.z = z_lower;
   Point z_prime =
@@ -92,6 +97,9 @@ linkage_end_effectors get_linkage_end_effector(
       robot_approach.target;
   Point x_prime = cross((needle_at_z - base), z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime).normalize();
+  robot.x_prime = x_prime;
+  robot.y_prime = y_prime;
+  robot.z_prime = z_prime;
   double z_needle = (-robot_approach.target.z +
                     (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y * y_prime).z) /
                    z_prime.z;
@@ -103,6 +111,8 @@ linkage_end_effectors get_linkage_end_effector(
   Point lower_end_effector = robot_approach.target - x_prime - y_prime - z_prime;
   z_prime = z_prime.normalize();
   Point upper_end_effector = (((z_upper-z_lower)/z_prime.z)) * z_prime + lower_end_effector;
+  robot.top_linkage.extended_end_effector = upper_end_effector;
+  robot.bottom_linkage.extended_end_effector = lower_end_effector;
   assert(isclose(lower_end_effector.z,z_lower));
   assert(isclose(upper_end_effector.z, z_upper));
   upper_end_effector.z = 0;
@@ -145,7 +155,7 @@ linkage_end_effectors get_linkage_end_effector(
  */
 Point intersection_of_two_circles(Point center_a, Point center_b,
                                   double radius_a, double radius_b,
-                                  bool left_point) {
+                                  bool left_point, Robot& robot) {
   center_a.z = 0;
   center_b.z = 0;
   double d = (center_a - center_b).magnitude();
@@ -191,7 +201,7 @@ double get_y_of_slider_based_on_midpoint_location(Point midpoint, double x,
  * @param upper
  */
 void get_slider_positions(slider_positions &slider_positions_struct,
-                          Point end_effector, bool upper) {
+                          Point end_effector, bool upper, Robot& robot) {
 
   end_effector.z = 0;
   Point left_joint = intersection_of_two_circles(
@@ -206,6 +216,7 @@ void get_slider_positions(slider_positions &slider_positions_struct,
       upper ? UPPER_PROXIMAL_LENGTH : LOWER_PROXIMAL_LENGTH, false);
   //std::cout << "right joint" << std::endl;
   //right_joint.print();
+  
   Point base = upper ? UPPER_BASE : LOWER_BASE;
   double midpoint_distance =
       upper ? UPPER_MIDPOINT_DISTANCE : LOWER_MIDPOINT_DISTANCE;
@@ -215,6 +226,17 @@ void get_slider_positions(slider_positions &slider_positions_struct,
   //left_midpoint.print();
   Point right_midpoint =
       ((right_joint - base).normalize() * midpoint_distance) + base;
+    if(upper) {
+        robot.top_linkage.right_joint = right_joint;
+        robot.top_linkage.left_joint = left_joint;
+        robot.top_linkage.left_midpoint = left_midpoint;
+        robot.top_linkage.right_midpoint = right_midpoint;
+    } else {
+        robot.bottom_linkage.right_joint = right_joint;
+        robot.bottom_linkage.left_joint = left_joint;
+        robot.bottom_linkage.left_midpoint = left_midpoint;
+        robot.bottom_linkage.right_midpoint = right_midpoint;
+    }
   //std::cout << "right midpoint" << std::endl;
   //right_joint.print();
   if (upper) {
