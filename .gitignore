@@ -7,3 +7,4 @@ inverse_kinematics_test
 *.o
 .cache
 build
+forward_inverse_kinematic_comparison

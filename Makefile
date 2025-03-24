@@ -11,7 +11,9 @@ SRC = inverse_kinematics_test.cpp \
 # Header files
 HEADERS = forward_kinematics.h \
           inverse_kinematics.h \
-          kinematic_structs.h
+          kinematic_structs.h \
+          Robot.h \
+          Point.h
 
 # Object files
 OBJ = $(SRC:.cpp=.o)
@@ -21,17 +23,19 @@ TARGETS = forward_inverse_kinematic_comparison #inverse_kinematics_test kinemati
 
 all: $(TARGETS)
 
+
+#inverse_kinematics_test: inverse_kinematics_test.o forward_kinematics.o inverse_kinematics.o
+#	$(CXX) $(CXXFLAGS) -o $@ $^
+
+#kinematics_end_effector_analysis_test: kinematics_end_effector_analysis_test.o forward_kinematics.o inverse_kinematics.o
+#	$(CXX) $(CXXFLAGS) -o $@ $^
+#
 forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
-      $(CXX) $(CXXFLAGS) -o $@ $^
-
-inverse_kinematics_test: inverse_kinematics_test.o forward_kinematics.o inverse_kinematics.o
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
-kinematics_end_effector_analysis_test: kinematics_end_effector_analysis_test.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 
 clean:
 	rm -f $(OBJ) $(TARGETS)

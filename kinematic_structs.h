@@ -88,18 +88,19 @@ struct linkage_end_effectors {
 };
 
 
-class linkage_array {
-  public:
+struct linkage_array {
+  Point extended_end_effector;
+  Point linkage_end_effector;
   Point base;
   Point left_joint;
   Point right_joint;
   Point left_midpoint;
   Point right_midpoint;
-  Point linkage_end_effector;
-  Point extended_end_effector;
 };
 
+const double precision = .00001;
+
 inline bool isclose(double a, double b) {
-  return a + .5 > b && a - .5 < b;
+  return a + precision > b && a - precision < b;
 }
 #endif

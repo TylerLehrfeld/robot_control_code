@@ -36,7 +36,7 @@ Point get_joint(bool is_left_joint, double midpoint_distance,
     robot_linkage.left_joint = joint;
     //std::cout << "left midpoint" << std::endl;
   } else {
-    robot_linkage.left_midpoint = midpoint;
+    robot_linkage.right_midpoint = midpoint;
     robot_linkage.right_joint = joint;
     //std::cout << "right midpoint" << std::endl;
   }
@@ -60,10 +60,7 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
   //right_joint.print();
   double h = std::sqrt(pow(distal_length, 2) -
                       pow((right_joint - left_joint).magnitude(), 2) / 4);
-  if (is_upper) {
-    h += end_effector_vect.magnitude();
-  }
-
+  
   // std::cout << "end effector values midpoint" << std::endl;
   // std::cout << "h " << h << std::endl;
   Point midpoint = (right_joint - left_joint) * 0.5;
@@ -73,17 +70,29 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
   Point resized_perp_vec = perpendicular_vector.normalize() * h;
   // resized_perp_vec.print();
   Point end_effector = (left_joint + right_joint) * 0.5 + resized_perp_vec;
+  //extended vector for upper linkage
+  double extended_h = h + end_effector_vect.magnitude();
+  Point extended_resized_perp_vec = perpendicular_vector.normalize() * extended_h;
+  Point extended_end_effector = (left_joint + right_joint) * 0.5 + extended_resized_perp_vec;
+   
   //std::cout << "end effector without extension" << std::endl;
   //end_effector.print();
   if(is_upper) {
+    robot.top_linkage.extended_end_effector = extended_end_effector;
+    robot.top_linkage.extended_end_effector.z = z;
     robot.top_linkage.linkage_end_effector = end_effector;
+    robot.top_linkage.linkage_end_effector.z = z;
+    end_effector = extended_end_effector;
   } else {
     robot.bottom_linkage.linkage_end_effector = end_effector;
+    robot.bottom_linkage.linkage_end_effector.z = z;
   }
   if (!is_upper) {
     end_effector = ((end_effector - left_joint).normalize() *
                     (distal_length + end_effector_vect.magnitude())) +
                    left_joint;
+    robot.bottom_linkage.extended_end_effector = end_effector;
+    robot.bottom_linkage.extended_end_effector.z = z;
   }
   // end_effector.print();
   end_effector.z = z;
@@ -103,6 +112,9 @@ Point get_needle_point_based_on_end_effector_positions(
   upper_base_with_corrected_z.z = upper_linkage_end_effector.z;
   Point x_prime = cross(upper_linkage_end_effector-upper_base_with_corrected_z, z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime);
+  robot.x_prime = x_prime;
+  robot.y_prime = y_prime;
+  robot.z_prime = z_prime;
   z_prime = z_prime * (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z - needle_extension);
   y_prime = y_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
   x_prime = x_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.x;

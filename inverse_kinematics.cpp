@@ -155,7 +155,7 @@ linkage_end_effectors get_linkage_end_effector(
  */
 Point intersection_of_two_circles(Point center_a, Point center_b,
                                   double radius_a, double radius_b,
-                                  bool left_point, Robot& robot) {
+                                  bool left_point) {
   center_a.z = 0;
   center_b.z = 0;
   double d = (center_a - center_b).magnitude();
