@@ -35,6 +35,11 @@ const double sliderXs[4] = {-63, -21, 21, 63};
 const double BASE_TO_SLIDER_MIN = 48;
 const double BASE_TO_SLIDER_MAX = 173;
 const double HALF_SLIDER_WIDTH = 6.35;
+const double MIN_NEEDLE_EXTENSION = 0;
+//TODO: make this accurate
+const double MAX_NEEDLE_EXTENSION = 100;
+//TODO: make this accurate
+const double MAX_LINKAGE_END_EFFECTOR_DISTANCE = 50;
 
 
 /**
