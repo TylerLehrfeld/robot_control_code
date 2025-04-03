@@ -124,8 +124,43 @@ public:
                  this->matrix[2][2] * p1.z + matrix[2][3]};
   }
 
-  
+  /**
+   * @brief return the inverse of the transform matrix
+   * 
+   * @return Transform 
+   */
   Transform inverse() {
+      Transform inv;
+      double rot[3][3];
+      double trans[3];
+      
+      // Extract rotation matrix
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          rot[i][j] = matrix[i][j];
+        }
+        trans[i] = matrix[i][3]; // Extract translation vector
+      }
+      
+      // Compute inverse rotation (transpose of rotation matrix)
+      for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+          inv.matrix[i][j] = rot[j][i];
+        }
+      }
+      
+      // Compute inverse translation
+      for (int i = 0; i < 3; i++) {
+        inv.matrix[i][3] = -(inv.matrix[i][0] * trans[0] + inv.matrix[i][1] * trans[1] + inv.matrix[i][2] * trans[2]);
+      }
+      
+      // Set last row
+      inv.matrix[3][0] = 0;
+      inv.matrix[3][1] = 0;
+      inv.matrix[3][2] = 0;
+      inv.matrix[3][3] = 1;
+      
+      return inv;
     
   }
 

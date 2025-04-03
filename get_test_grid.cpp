@@ -12,27 +12,32 @@ int main() {
     point_file.open("grid.txt");
     
     double no_extension_z = 0;
+    double lowest_needle_extension = 1000;
     slider_positions sliders;
-    for(double z = -100; z <= 100; z+=1) {
+    for(double z = -70; z <= -60; z+=.1) {
         approach_definition approach = {{0,350, z}, 0, 0};
         Robot inverse_robot;
         sliders = inverse_kinematics(approach, Transform(0,0,0,0,0,0), inverse_robot);
-        if(inverse_robot.sliders.needle_extension <= 1 && inverse_robot.sliders.needle_extension >= -1) {
-            std::cout << z << ": " << inverse_robot.sliders.needle_extension << std::endl;
+        if(abs(inverse_robot.sliders.needle_extension) < abs(lowest_needle_extension)) {
+            lowest_needle_extension = inverse_robot.sliders.needle_extension;
+            std::cout << z << ": " << lowest_needle_extension  << " " << std::endl;
+            
             no_extension_z = z;
         }
     }
-    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += 5) {
-        for(double y = -VERTICAL_RANGE/2; y <= VERTICAL_RANGE/2; y +=5) {
+    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += 20) {
+        for(double y = -VERTICAL_RANGE/2; y <= VERTICAL_RANGE/2; y +=20) {
             try {
                 Robot inverse_robot;
-                approach_definition approach = {{0,350, no_extension_z}, 0, 0};
+                approach_definition approach = {{x,y, no_extension_z}, 0, 0};
                 inverse_kinematics(approach, Transform(0,0,0,0,0,0), inverse_robot);
-                if(inverse_robot.is_valid()) {
-                    point_file << "(" <<x <<"," <<y<<")";
+                std::string error_string;
+                if(inverse_robot.is_valid(error_string)) {
+                    point_file << "(" <<x <<"," <<y<<")" << std::endl;
+                    point_file << sliders.get_slider_string();
                 }
-            } catch (std::exception e) {
-                
+            } catch (const std::runtime_error& e) {
+                std::cout << "caught" << std::endl;
             }
         }
     }

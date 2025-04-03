@@ -14,6 +14,7 @@
 
 #include "Point.h"
 #include <ostream>
+#include <sstream>
 
 const double UPPER_TRANSMISSION_LENGTH = 115;
 const double UPPER_PROXIMAL_LENGTH = 116;
@@ -80,9 +81,15 @@ struct slider_positions {
   double right_middle_slider_y;
   double right_slider_y;
   double needle_extension;
-
+  
+  std::string get_slider_string() {
+    std::stringstream slider_string_stream; 
+    slider_string_stream << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+    return slider_string_stream.str();
+  }
+  
   void print() {
-    std::cout << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+    std::cout << get_slider_string();
   }
 };
 

@@ -73,6 +73,18 @@ robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
   return sliders;
 }
 
+
+void check_end_effector_dists(Point upper_end_effector, Point lower_end_effector) {
+  Point base = UPPER_BASE;
+  if((upper_end_effector - base).magnitude() > UPPER_DISTAL_LENGTH + UPPER_PROXIMAL_LENGTH + static_cast<Point>(UPPER_END_EFFECTOR_VECTOR).magnitude()) {
+    throw new std::runtime_error("The upper linkage is too far from the robot");
+  }
+  base = LOWER_BASE;
+  if((lower_end_effector - base).magnitude() > LOWER_DISTAL_LENGTH + LOWER_PROXIMAL_LENGTH + static_cast<Point>(LOWER_END_EFFECTOR_VECTOR).magnitude()) {
+    throw new std::runtime_error("The lower linkage is too far from the robot");
+  }
+  
+};
 /**
  * @brief Get the linkage end effector based on its z value. See kinematics
  * report section 5.2
@@ -113,6 +125,7 @@ linkage_end_effectors get_linkage_end_effector(
   Point upper_end_effector = (((z_upper-z_lower)/z_prime.z)) * z_prime + lower_end_effector;
   robot.top_linkage.extended_end_effector = upper_end_effector;
   robot.bottom_linkage.extended_end_effector = lower_end_effector;
+  check_end_effector_dists(upper_end_effector, lower_end_effector);
   assert(isclose(lower_end_effector.z,z_lower));
   assert(isclose(upper_end_effector.z, z_upper));
   upper_end_effector.z = 0;

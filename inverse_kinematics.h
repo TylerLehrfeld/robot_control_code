@@ -27,6 +27,6 @@ slider_positions inverse_kinematics(
 
 slider_positions
 inverse_kinematics(approach_definition needle_to_patient_approach,
-                   Transform T_RP, Robot& robot);
+                    Transform T_RP, Robot& robot);
 
 #endif

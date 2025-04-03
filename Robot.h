@@ -38,9 +38,9 @@ public:
       .right_slider_y = 0,
       .needle_extension = 0,
   };
-  bool is_valid() {
+  bool is_valid(std::string& error_string) {
     bool valid = true;
-    std::string error_string = "";
+    error_string = "";
     if(sliders.left_slider_y - HALF_SLIDER_WIDTH < BASE_TO_SLIDER_MIN || sliders.left_slider_y + HALF_SLIDER_WIDTH > BASE_TO_SLIDER_MAX) {
         error_string += "left slider y invalid";
         valid = false;
@@ -65,7 +65,9 @@ public:
         error_string += "linkages too far apart\n";
         valid = false;
     }
+    return valid;
   }
+  
 };
 
 #endif
