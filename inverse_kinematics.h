@@ -1,6 +1,6 @@
 #include "Point.h"
 #include "Robot.h"
-#include "Transform.h"
+#include "NewTransform.h"
 #include "kinematic_structs.h"
 
 #ifndef INVERSE_KINEMATICS
@@ -23,10 +23,10 @@ slider_positions inverse_kinematics(
 
 slider_positions inverse_kinematics(
     target_and_injection_point_approach needle_to_patient_approach,
-    Transform T_RP, Robot& robot);
+    NewTransform T_RP, Robot& robot);
 
 slider_positions
 inverse_kinematics(approach_definition needle_to_patient_approach,
-                    Transform T_RP, Robot& robot);
+                    NewTransform T_RP, Robot& robot);
 
 #endif

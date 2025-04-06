@@ -1,0 +1,23 @@
+I tested and ran this on an ubuntu machine with gcc version 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04).
+I do not know how it will compile (or not) on other Operating systems.
+
+1. install g++ https://gcc.gnu.org/
+2. call make
+3. if make does not run on your computer, run:
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o main.o main.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Matrix.o Matrix.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Pivot.o Pivot.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o PointCloudGenerator.o PointCloudGenerator.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Transform.o Transform.cpp
+g++ -g -I ./dependencies/eigen-3.4.0 main.o Matrix.o Pivot.o PointCloudGenerator.o Transform.o -o main
+4. ./main
+5. call make test
+6. if make does not run, run:
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o test.o test.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Matrix.o Matrix.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Pivot.o Pivot.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o PointCloudGenerator.o PointCloudGenerator.cpp
+g++ -g -I ./dependencies/eigen-3.4.0   -c -o Transform.o Transform.cpp
+g++ -g -I ./dependencies/eigen-3.4.0 test.o Matrix.o Pivot.o PointCloudGenerator.o Transform.o -o test
+
+7. ./test matrix transform pivot point-cloud

@@ -9,6 +9,8 @@
 #include <ostream>
 
 int main() {
+Robot forward_robot;
+Robot inverse_robot;
   std::ofstream output_csv;
   output_csv.open("output.csv");
   bool Point_1 = false;
@@ -16,18 +18,18 @@ int main() {
                              0,
                              0};
   slider_positions positions_1 =
-      inverse_kinematics(def, Transform(0, 0, 0, 0, 0, 0));
+      inverse_kinematics(def, NewTransform(0, 0, 0, 0, 0, 0), inverse_robot);
   //positions_1.print();
   Point ee_1 = get_end_effector({sliderXs[0], positions_1.left_slider_y, 0},
                    {sliderXs[1], positions_1.left_middle_slider_y, 0},
                    {sliderXs[2], positions_1.right_middle_slider_y, 0},
                    {sliderXs[3], positions_1.right_slider_y, 0}, UPPER_BASE,
-                   LOWER_BASE, positions_1.needle_extension);
+                   LOWER_BASE, positions_1.needle_extension, forward_robot);
   Point ee_2 = get_end_effector({sliderXs[0], positions_1.left_slider_y + .03, 0},
         {sliderXs[1], positions_1.left_middle_slider_y, 0},
         {sliderXs[2], positions_1.right_middle_slider_y, 0},
         {sliderXs[3], positions_1.right_slider_y, 0}, UPPER_BASE,
-        LOWER_BASE, positions_1.needle_extension);
+        LOWER_BASE, positions_1.needle_extension, forward_robot);
 std::cout << (ee_1 - ee_2).magnitude() << std::endl;
         def.target.y=400;
   /*slider_positions positions_2 =

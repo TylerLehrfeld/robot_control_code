@@ -1,6 +1,6 @@
 #include "Point.h"
 #include "Robot.h"
-#include "Transform.h"
+#include "NewTransform.h"
 #include "kinematic_structs.h"
 #include <cassert>
 #include <cmath>
@@ -23,7 +23,7 @@ Point get_joint(bool is_left_joint, double midpoint_distance,
   if (!is_left_joint) {
     theta *= -1;
   }
-  Transform rotate_z(0, 0, theta, 0, 0, 0);
+  NewTransform rotate_z(0, 0, theta, 0, 0, 0);
   Point slider_to_base_vec = (base - slider).normalize();
   Point rotated_left_to_base_vec = rotate_z * slider_to_base_vec;
   Point midpoint = transmission_length * rotated_left_to_base_vec + slider;

@@ -1,5 +1,5 @@
 /**
- * @file Transform.h
+ * @file NewTransform.h
  * @author Tyler Lehrfeld
  * @brief This file defines a transformation matrix class that can multiply a 4x4 transform matrix by another to get a new transform
  * @version 0.1
@@ -14,14 +14,14 @@
 #include <math.h>
 #include <iostream>
 
-#ifndef TRANSFORM
-#define TRANSFORM
+#ifndef NEW_TRANSFORM
+#define NEW_TRANSFORM
 
 
-class Transform {
+class NewTransform {
 public:
   double matrix[4][4];
-  Transform() { base_constructor(); }
+  NewTransform() { base_constructor(); }
 
   /**
    * @brief Construct a new Transform object by giving an x angle, a y angle,
@@ -35,7 +35,7 @@ public:
    * @param y
    * @param z
    */
-  Transform(double theta_x, double theta_y, double theta_z, double x, double y,
+  NewTransform(double theta_x, double theta_y, double theta_z, double x, double y,
             double z) {
     base_constructor();
     matrix[0][0] = cos(theta_z) * cos(theta_y);
@@ -60,7 +60,7 @@ public:
     matrix[3][3] = 1;
   }
 
-  Transform(Point translation, double rotation[3][3]) {
+  NewTransform(Point translation, double rotation[3][3]) {
     matrix[0][0] = rotation[0][0];
     matrix[0][1] = rotation[0][1];
     matrix[0][2] = rotation[0][2];
@@ -85,7 +85,7 @@ public:
    * @brief Destroy the Transform object
    * 
    */
-  ~Transform() {
+  ~NewTransform() {
   }
 
   
@@ -95,8 +95,8 @@ public:
    * @param T1 
    * @return Transform 
    */
-  Transform operator*(Transform &T1) {
-    Transform new_transform;
+  NewTransform operator*(NewTransform &T1) {
+    NewTransform new_transform;
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
         new_transform.matrix[i][j] = this->matrix[i][0] * T1.matrix[0][j] +
@@ -127,10 +127,10 @@ public:
   /**
    * @brief return the inverse of the transform matrix
    * 
-   * @return Transform 
+   * @return NewTransform 
    */
-  Transform inverse() {
-      Transform inv;
+  NewTransform inverse() {
+      NewTransform inv;
       double rot[3][3];
       double trans[3];
       
