@@ -10,14 +10,14 @@
  */
 
 #include "Point.h"
-#include "Transform.h"
+#include "NewTransform.h"
 #include <cassert>
 #include <cmath>
 #include <math.h>
 
 void test_multiply() {
-    Transform t1(0,0,0,10,10,10);
-    Transform t2(M_PI/2,0,0,0,0,0);
+    NewTransform t1(0,0,0,10,10,10);
+    NewTransform t2(M_PI/2,0,0,0,0,0);
     Point p1 = {.x = 0, .y = 1, .z = 0};
     Point expected = {.x= 10,.y= 10,.z= 11};
     Point result = (t1*t2*p1);

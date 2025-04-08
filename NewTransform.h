@@ -13,6 +13,7 @@
 #include "Point.h"
 #include <math.h>
 #include <iostream>
+#include "./PROGRAMS/Transform.h"
 
 #ifndef NEW_TRANSFORM
 #define NEW_TRANSFORM
@@ -124,6 +125,16 @@ public:
                  this->matrix[2][2] * p1.z + matrix[2][3]};
   }
 
+
+  bool operator==(NewTransform &T) {
+    for(int i = 0; i < 4; i++) {
+      for(int j = 0; j < 4; j++) {
+        if(this->matrix[i][j] != T.matrix[i][j]) {
+          return false;
+        }
+      }
+    }
+  }
   /**
    * @brief return the inverse of the transform matrix
    * 
@@ -162,6 +173,16 @@ public:
       
       return inv;
     
+  }
+
+  Transform to_transform() {
+    Transform T;
+    T.p_AB = Matrix(3,1,{matrix[0][3], matrix[1][3], matrix[2][3]});
+    T.R_AB = Matrix(3,3, {
+      matrix[0][0], matrix[0][1], matrix[0][2],
+      matrix[1][0], matrix[1][1], matrix[1][2], 
+      matrix[2][0], matrix[2][1], matrix[2][2]});
+    return T;
   }
 
   /**

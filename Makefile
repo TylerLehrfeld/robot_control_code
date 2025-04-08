@@ -15,7 +15,7 @@ HEADERS = forward_kinematics.h \
           kinematic_structs.h \
           Robot.h \
           Point.h \
-          Transform.h
+          NewTransform.h
 
 # Object files
 OBJ = $(SRC:.cpp=.o)

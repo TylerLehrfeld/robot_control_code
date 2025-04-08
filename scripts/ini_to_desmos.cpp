@@ -1,10 +1,7 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <regex>
-#include <map>
 #include "../Point.h"
 #include "../NewTransform.h"
 #include "ini_helpers.h"

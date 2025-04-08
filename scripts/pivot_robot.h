@@ -1,0 +1,103 @@
+#include "../PROGRAMS/Pivot.h"
+#include "../PROGRAMS/Matrix.h"
+#include <string>
+#include <fstream>
+#include <chrono>
+#include <thread>
+#include "../NewTransform.h"
+#include "../kinematic_structs.h"
+
+#ifndef ROBOT_PIVOT
+#define ROBOT_PIVOT
+
+double read_transform(std::ifstream& file, NewTransform& T) {
+    std::string transform_name;
+    file >> transform_name;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            file >> T.matrix[i][j];
+        }
+    }
+    double registration_error;
+    file >> registration_error;
+    return registration_error;
+}
+
+Point get_center_of_circle(vector<Point> points) {
+
+}
+
+void delay_ms(int milliseconds) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
+
+
+NewTransform get_robot_pivot_transform(NewTransform F_M2N) {
+    int num_measurements_needed = 25;
+    int num_measurements_taken = 0;
+    vector<Transform> F_OM1_list;
+    vector<Transform> F_OM2_list;
+    NewTransform previous_F_OM1;
+    NewTransform previous_F_OM2;
+    Point upper_base = UPPER_BASE;
+    //TODO make this accurate
+    upper_base.z = 30;
+    //colect data
+    while(num_measurements_taken < num_measurements_needed) {
+        
+        NewTransform F_OM2;
+        NewTransform F_OM1;
+
+        std::string file_path = "../out.txt";
+        std::ifstream file(file_path);
+        read_transform(file, F_OM1);
+        read_transform(file, F_OM2);
+        if(num_measurements_taken > 0 && !(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)) {
+            F_OM1_list.push_back(F_OM1.to_transform());
+            F_OM2_list.push_back(F_OM2.to_transform());
+            num_measurements_taken++;
+            previous_F_OM2 = F_OM2;
+            previous_F_OM1 = F_OM1;
+        }
+        delay_ms(2000);
+    }
+
+    Matrix A(num_measurements_taken * 3,6,vector<double>(num_measurements_taken*3*6, 0));
+    for(int i = 0; i < num_measurements_taken; i++) {
+        bool Switch = false;
+        int R_M2ind = 0;
+        int R_M1ind = 0;
+        for(int j = 0; j < 18; j++) {
+            if(j % 3 == 0) {
+                Switch = !Switch;
+            }
+            if(Switch) {
+                A.matrixArray[18 * i + j] =
+                    F_OM2_list[i].R_AB.matrixArray[R_M2ind];
+                R_M2ind++;
+            } else {
+                A.matrixArray[18 * i + j] =
+                    -1*F_OM1_list[i].R_AB.matrixArray[R_M1ind];
+                R_M1ind++;
+            }
+        }
+    }
+
+    Matrix b(3 * num_measurements_taken, 1, vector<double>(3 * num_measurements_taken, 0));
+    // populate b
+    for(int i = 0; i < num_measurements_taken; i++) {
+        Matrix b_i = F_OM1_list[i].R_AB*upper_base.to_matrix() + F_OM1_list[i].p_AB+ -1*F_OM2_list[i].p_AB;
+        for(int j = 0; j < 3; j++) {
+            b.matrixArray[3 * i + j] = b_i.matrixArray[j];
+        }
+    }
+
+    Matrix x = (A.transpose() * A).inverse() * A.transpose() * b;
+    Matrix marker_to_upper_base = Matrix(3, 1, {x.matrixArray[0], x.matrixArray[1], x.matrixArray[2]});
+    Matrix marker_to_robot_translation = Matrix(3,1,{x.matrixArray[3], x.matrixArray[4], x.matrixArray[5]});
+    return NewTransform(0,0,0, marker_to_robot_translation.matrixArray[0], marker_to_robot_translation.matrixArray[1], marker_to_robot_translation.matrixArray[2]);
+    
+    
+}
+
+#endif

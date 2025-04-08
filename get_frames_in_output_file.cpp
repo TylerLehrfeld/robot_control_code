@@ -414,20 +414,19 @@ int main( int argc, char** argv )
         cout.unsetf( ios::fixed );*/
         
         std::stringstream ss;
-         
-         ss << "Robot_Marker_   Frame:" << endl
-         << markerTwo->rotation[ 0u ][ 0u ] << " " << markerTwo->rotation[ 0u ][ 1u ] << " " << markerTwo->rotation[ 0u ][ 2u ] << " " << markerTwo->translationMM[ 0u ] << endl
-         << markerTwo->rotation[ 1u ][ 0u ] << " " << markerTwo->rotation[ 1u ][ 1u ] << " " << markerTwo->rotation[ 1u ][ 2u ] << " " << markerTwo->translationMM[ 1u ] << endl
-         << markerTwo->rotation[ 2u ][ 0u ] << " " << markerTwo->rotation[ 2u ][ 1u ] << " " << markerTwo->rotation[ 2u ][ 2u ] << " " << markerTwo->translationMM[ 2u ] << endl
-         << 0  << " " << 0 << " " << 0 << " " << 1 << endl;
-         ss << markerTwo->registrationErrorMM << endl;
-
-         ss << "Needle_Marker_Frame:" << endl
-         << markerOne->rotation[ 0u ][ 0u ] << " " << markerOne->rotation[ 0u ][ 1u ] << " " << markerOne->rotation[ 0u ][ 2u ] << " " << markerOne->translationMM[ 0u ] << endl
-         << markerOne->rotation[ 1u ][ 0u ] << " " << markerOne->rotation[ 1u ][ 1u ] << " " << markerOne->rotation[ 1u ][ 2u ] << " " << markerOne->translationMM[ 1u ] << endl
-         << markerOne->rotation[ 2u ][ 0u ] << " " << markerOne->rotation[ 2u ][ 1u ] << " " << markerOne->rotation[ 2u ][ 2u ] << " " << markerOne->translationMM[ 2u ] << endl
-         << 0 << " " << 0 << " " << 0 << " " << 1 << endl;
-         ss << markerOne->registrationErrorMM << endl;
+        
+        ss << "Robot_Marker_Frame:" << endl
+        << markerTwo->rotation[ 0u ][ 0u ] << " " << markerTwo->rotation[ 0u ][ 1u ] << " " << markerTwo->rotation[ 0u ][ 2u ] << " " << markerTwo->translationMM[ 0u ] << endl
+        << markerTwo->rotation[ 1u ][ 0u ] << " " << markerTwo->rotation[ 1u ][ 1u ] << " " << markerTwo->rotation[ 1u ][ 2u ] << " " << markerTwo->translationMM[ 1u ] << endl
+        << markerTwo->rotation[ 2u ][ 0u ] << " " << markerTwo->rotation[ 2u ][ 1u ] << " " << markerTwo->rotation[ 2u ][ 2u ] << " " << markerTwo->translationMM[ 2u ] << endl
+        << 0  << " " << 0 << " " << 0 << " " << 1 << endl;
+        ss << markerTwo->registrationErrorMM << endl;
+        ss << "Needle_Marker_Frame:" << endl
+        << markerOne->rotation[ 0u ][ 0u ] << " " << markerOne->rotation[ 0u ][ 1u ] << " " << markerOne->rotation[ 0u ][ 2u ] << " " << markerOne->translationMM[ 0u ] << endl
+        << markerOne->rotation[ 1u ][ 0u ] << " " << markerOne->rotation[ 1u ][ 1u ] << " " << markerOne->rotation[ 1u ][ 2u ] << " " << markerOne->translationMM[ 1u ] << endl
+        << markerOne->rotation[ 2u ][ 0u ] << " " << markerOne->rotation[ 2u ][ 1u ] << " " << markerOne->rotation[ 2u ][ 2u ] << " " << markerOne->translationMM[ 2u ] << endl
+        << 0 << " " << 0 << " " << 0 << " " << 1 << endl;
+        ss << markerOne->registrationErrorMM << endl;
         
          
         string s = ss.str();

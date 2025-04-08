@@ -3,7 +3,8 @@
 #include <fstream>
 #include "../Point.h"
 
-
+#ifndef PARSE_INI
+#define PARSE_INI
 std::vector<Point> parse_ini_file(const std::string& filepath) {
     std::ifstream file(filepath);
     if(!file.is_open()) {
@@ -46,5 +47,8 @@ std::vector<Point> parse_ini_file(const std::string& filepath) {
     if (std::regex_match(current_section_name, fiducial_regex)) {
         fiducials.push_back(current_fiducial);
     }
+    file.close();
     return fiducials;
 }
+
+#endif
