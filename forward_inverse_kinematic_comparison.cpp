@@ -11,7 +11,7 @@ void update_robot_forward(slider_positions sliders, Robot& robot) {
 }
 
 void update_robot_backward(approach_definition approach_definition, Robot& robot) {
-  inverse_kinematics(approach_definition, Transform(0, 0, 0, 0, 0, 0), robot);
+  inverse_kinematics(approach_definition, NewTransform(0, 0, 0, 0, 0, 0), robot);
 }
 
 bool compare_point(Point a, Point b) {

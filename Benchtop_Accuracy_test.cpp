@@ -2,10 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include "NewTransform.h"
-#include "galil_.h"
+#include "galil_control_calls.h"
 #include <string>
 #include "./scripts/pivot_needle.h"
 #include "./scripts/pivot_robot.h"
+#include "inverse_kinematics.h"
 
 //TODO: make this accurate or introduce calibration phase.
 NewTransform F_M1R(0,0,0,0,0,0);
@@ -39,6 +40,18 @@ int main() {
             std::cout << "Begin robot base calibration? After continuing, start pivoting around the robot base." << std::endl;
             std::cin >> command;
             NewTransform F_M1R = get_robot_pivot_transform(F_M2N);
+
+            Robot inverse_robot;
+            approach_definition def = {
+                {0, 380, -64.9},
+                0,
+                0
+            };
+            slider_positions position = inverse_kinematics(def, NewTransform(0,0,0,0,0,0),inverse_robot);
+            
+            init_galil();
+            
+            move_robot_with_slider_positions(position);
 
 
             std::ifstream file("out.txt");

@@ -4,6 +4,7 @@ CXXFLAGS = -g -Wall -Wextra -std=c++17
 # Source files
 SRC = inverse_kinematics_test.cpp \
       kinematics_end_effector_analysis_test.cpp \
+      Benchtop_Accuracy_test.cpp \
       forward_kinematics.cpp \
       inverse_kinematics.cpp \
       forward_inverse_kinematic_comparison.cpp \
@@ -15,13 +16,15 @@ HEADERS = forward_kinematics.h \
           kinematic_structs.h \
           Robot.h \
           Point.h \
-          NewTransform.h
+          NewTransform.h \
+          ../scripts/pivot_needle.h \
+          ../scripts/pivot_robot.h
 
 # Object files
 OBJ = $(SRC:.cpp=.o)
 
 # Output executables
-TARGETS = forward_inverse_kinematic_comparison get_test_grid #inverse_kinematics_test kinematics_end_effector_analysis_test
+TARGETS = forward_inverse_kinematic_comparison get_test_grid Benchtop_Accuracy_test #inverse_kinematics_test kinematics_end_effector_analysis_test
 
 all: $(TARGETS)
 
@@ -40,6 +43,8 @@ get_test_grid: get_test_grid.o forward_kinematics.o inverse_kinematics.o
 forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+
+Benchtop_Accuracy_test: Benchtop_Accuracy_test.o forward_kinematics.o inverse_kinematics.o
 %.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
