@@ -1,66 +1,53 @@
-#include "../PROGRAMS/Pivot.h"
-#include "../PROGRAMS/Matrix.h"
+#include "../Pivot.h"
+#include "../Matrix.h"
 #include <string>
 #include <fstream>
 #include <chrono>
 #include <thread>
 #include "../NewTransform.h"
 #include "../kinematic_structs.h"
+#include "../restricted_plane_pivot.h"
 
 #ifndef ROBOT_PIVOT
 #define ROBOT_PIVOT
-
-double read_transform(std::ifstream& file, NewTransform& T) {
-    std::string transform_name;
-    file >> transform_name;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            file >> T.matrix[i][j];
-        }
-    }
-    double registration_error;
-    file >> registration_error;
-    return registration_error;
-}
 
 Point get_center_of_circle(vector<Point> points) {
 
 }
 
-void delay_ms(int milliseconds) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-}
-
 
 NewTransform get_robot_pivot_transform(NewTransform F_M2N) {
-    int num_measurements_needed = 25;
+    int num_measurements_needed = 50;
     int num_measurements_taken = 0;
     vector<Transform> F_OM1_list;
     vector<Transform> F_OM2_list;
     NewTransform previous_F_OM1;
     NewTransform previous_F_OM2;
-    Point upper_base = UPPER_BASE;
-    //TODO make this accurate
-    upper_base.z = 30;
+    Point lower_base = LOWER_BASE;
     //colect data
+    delay_ms(5000);
     while(num_measurements_taken < num_measurements_needed) {
         
         NewTransform F_OM2;
         NewTransform F_OM1;
 
-        std::string file_path = "../out.txt";
-        std::ifstream file(file_path);
-        read_transform(file, F_OM1);
-        read_transform(file, F_OM2);
-        if(num_measurements_taken > 0 && !(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)) {
+        std::string file_path = "./out.txt";
+        read_transform(file_path, F_OM1, true);
+        read_transform(file_path, F_OM2, false);
+        if(!(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)) {
             F_OM1_list.push_back(F_OM1.to_transform());
             F_OM2_list.push_back(F_OM2.to_transform());
             num_measurements_taken++;
+            std::cout << "measurement " <<num_measurements_taken << " taken" << std::endl;
             previous_F_OM2 = F_OM2;
             previous_F_OM1 = F_OM1;
         }
-        delay_ms(2000);
+        delay_ms(200);
     }
+    Matrix p_post_marker = get_p_post(F_OM1_list, F_OM2_list, F_M2N.to_transform());
+    Matrix translation = p_post_marker + -1 * lower_base.to_matrix();
+    return NewTransform(0,0,0, translation.matrixArray[0], translation.matrixArray[1], translation.matrixArray[2]);
+    /*
 
     Matrix A(num_measurements_taken * 3,6,vector<double>(num_measurements_taken*3*6, 0));
     for(int i = 0; i < num_measurements_taken; i++) {
@@ -96,7 +83,7 @@ NewTransform get_robot_pivot_transform(NewTransform F_M2N) {
     Matrix marker_to_upper_base = Matrix(3, 1, {x.matrixArray[0], x.matrixArray[1], x.matrixArray[2]});
     Matrix marker_to_robot_translation = Matrix(3,1,{x.matrixArray[3], x.matrixArray[4], x.matrixArray[5]});
     return NewTransform(0,0,0, marker_to_robot_translation.matrixArray[0], marker_to_robot_translation.matrixArray[1], marker_to_robot_translation.matrixArray[2]);
-    
+    */
     
 }
 

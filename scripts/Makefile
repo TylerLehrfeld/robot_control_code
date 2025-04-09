@@ -1,26 +1,25 @@
 # Makefile for ini_to_desmos.cpp
 
-PATHS = ../PROGRAMS/dependencies/eigen-3.4.0 
+PATHS = ../dependencies/eigen-3.4.0 
 
-CXXFLAGS = -std=c++17 -g -I $(PATHS) -I ../PROGRAMS
+CXXFLAGS = -std=c++17 -g -I $(PATHS) -I ../
 
 # Project structure
 SRC_DIR = .
-PROG_DIR = ../PROGRAMS
 
 # Source files
-SRCS = $(PROG_DIR)/Matrix.cpp \
-	   $(PROG_DIR)/Transform.cpp \
+SRCS = ../Matrix.cpp \
+	   ../Transform.cpp 
        
 
 
 # Header files
 HEADERS = ../Point.h \
           ../NewTransform.h \
-		  $(PROG_DIR)/Matrix.h \
-		  $(PROG_DIR)/Transform.h \
-		  $(SRC_DIR)/ini_helpers.h \
-		  $(PROG_DIR)/helperFunctions.h
+		  ../Matrix.h \
+		  ../Transform.h \
+		  ../ini_helpers.h \
+		  ../helperFunctions.h
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

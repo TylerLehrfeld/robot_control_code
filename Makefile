@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -g -Wall -Wextra -std=c++17
+CXXFLAGS = -g -Wall -Wextra 
 
 # Source files
 SRC = inverse_kinematics_test.cpp \

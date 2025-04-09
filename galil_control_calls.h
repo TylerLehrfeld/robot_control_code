@@ -43,15 +43,15 @@ void move_robot_with_slider_positions(slider_positions positions) {
     ss.clear();
     GCommand(g, command, buf, G_SMALL_BUFFER, &read_bytes);
     ss << "tgtMmF = " << left;
-    GCStringIn command = ss.str().c_str();
+    command = ss.str().c_str();
     GCommand(g, command, buf, G_SMALL_BUFFER, &read_bytes);
     ss.clear();
     ss << "tgtMmB = " << right_middle;
-    GCStringIn command = ss.str().c_str();
+    command = ss.str().c_str();
     GCommand(g, command, buf, G_SMALL_BUFFER, &read_bytes);
     ss.clear();
     ss << "tgtMmE = " << left_middle;
-    GCStringIn command = ss.str().c_str();
+    command = ss.str().c_str();
     GCommand(g, command, buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, "XQ #GoToLow, 1", buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, "XQ #GoToUp, 1", buf, G_SMALL_BUFFER, &read_bytes);

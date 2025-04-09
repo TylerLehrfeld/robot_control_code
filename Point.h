@@ -14,7 +14,7 @@
 
 #include <cmath>
 #include <iostream>
-#include "./PROGRAMS/Matrix.h"
+#include "Matrix.h"
 struct Point {
   double x;
   double y;

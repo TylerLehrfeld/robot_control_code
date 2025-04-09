@@ -12,8 +12,8 @@
 
 #include "ini_helpers.h"
 #include <cmath>
-#include "../PROGRAMS/Matrix.h"
-#include "../PROGRAMS/helperFunctions.h"
+#include "../Matrix.h"
+#include "../helperFunctions.h"
 
 Matrix rotation_from_axis_and_angle(Point rotation_axis_point, double theta) {
     Matrix I = generate_identity(3);
@@ -67,6 +67,12 @@ int main(int argc, char **argv)
     std::ofstream file(filepath);
     for (size_t i = 0; i < Matrix_fiducials.size(); ++i) {
         Matrix f = Matrix_fiducials[i];
-        file << "(" << f.matrixArray[0] << ", " << f.matrixArray[1] << ", " << f.matrixArray[2] << ")\n";
+        double x = (abs(f.matrixArray[0]) < 10e-3 ? 0 : f.matrixArray[0]);
+        double y = (abs(f.matrixArray[1]) < 10e-3 ? 0 : f.matrixArray[1]);
+        double z = (abs(f.matrixArray[2]) < 10e-3 ? 0 : f.matrixArray[2]);
+        
+        file << "[fiducial"<< i << "]" << std::endl;
+        file << "x=" << x << std::endl << "y=" << y << std::endl << "z=" << z << std::endl;
     }
+    file << "[geometry]" <<std::endl << "count=4" << std::endl << "id=" << filepath.substr(8, filepath.length() - std::string("geometry.ini").length()) << std::endl;
 }

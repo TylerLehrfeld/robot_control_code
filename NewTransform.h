@@ -13,7 +13,7 @@
 #include "Point.h"
 #include <math.h>
 #include <iostream>
-#include "./PROGRAMS/Transform.h"
+#include "Transform.h"
 
 #ifndef NEW_TRANSFORM
 #define NEW_TRANSFORM
@@ -134,6 +134,7 @@ public:
         }
       }
     }
+    return true;
   }
   /**
    * @brief return the inverse of the transform matrix
