@@ -68,8 +68,8 @@ int main( int argc, char** argv )
 
     bool showHelp( false );
 
-
-    string outFile( "" );
+    string outFile( "../../../../cis2/robot_control_code/out.txt" );
+    
     deque< string > geomFiles;
 
 
@@ -432,14 +432,19 @@ int main( int argc, char** argv )
         string s = ss.str();
         if(s != "") {
             ofstream outputFile(outFile, std::ios::trunc);
+            if(!outputFile.is_open()) {
+                std::cout << "not open" << std::endl;
+            }
             outputFile << s;
+            outputFile.flush();
+            outputFile.close();
         }
         /*if ( --counter == 0u )
         {
             break;
         }*/
 
-        sleep( 50L );
+        sleep( 100 );
 
         err = ftkGetLastFrame( lib, sn, frame, 1000 );
     }

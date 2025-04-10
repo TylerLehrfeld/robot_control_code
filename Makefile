@@ -24,7 +24,7 @@ HEADERS = forward_kinematics.h \
 OBJ = $(SRC:.cpp=.o)
 
 # Output executables
-TARGETS = forward_inverse_kinematic_comparison get_test_grid Benchtop_Accuracy_test #inverse_kinematics_test kinematics_end_effector_analysis_test
+TARGETS = forward_inverse_kinematic_comparison get_test_grid #inverse_kinematics_test kinematics_end_effector_analysis_test
 
 all: $(TARGETS)
 
@@ -43,10 +43,6 @@ get_test_grid: get_test_grid.o forward_kinematics.o inverse_kinematics.o
 forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-
-Benchtop_Accuracy_test: Benchtop_Accuracy_test.o forward_kinematics.o inverse_kinematics.o
-%.o: %.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 
 clean:

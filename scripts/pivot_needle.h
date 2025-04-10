@@ -7,20 +7,37 @@
 #ifndef NEEDLE_PIVOT
 #define NEEDLE_PIVOT
 
+
+/**
+ * @brief Read a transform from a file (usually out.txt).
+ * 
+ * @param filename The file to read from
+ * @param T The transform to update
+ * @param first whether to read the first or second transform in the file
+ * @return double registration error. If read fails, we return -1
+ */
 double read_transform(std::string filename, NewTransform& T, bool first) {
     std::ifstream file(filename);
     if(!file.is_open()) {
         std::cout << filename<<": file not open." << std::endl;
-        return 0;
+        return -1;
     }
-    
     std::string transform_name;
     file >> transform_name;
+    if(transform_name == "") {
+        return -1;
+    }
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             std::string doubleStr;
             file >> doubleStr; 
-            T.matrix[i][j] = stod(doubleStr);
+            try {
+                T.matrix[i][j] = stod(doubleStr);
+            } catch (std::runtime_error e) {
+                std::cout << "transform not read: could not read numver" << std::endl;
+                return -1;
+            }
+            
         }
     }
     double registration_error;
@@ -29,27 +46,46 @@ double read_transform(std::string filename, NewTransform& T, bool first) {
         return registration_error;
     } else {
 
-        std::string transform_name;
         file >> transform_name;
+        if(transform_name == "") {
+            return -1;
+        }
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 std::string doubleStr;
                 file >> doubleStr; 
-                T.matrix[i][j] = stod(doubleStr);
+                try {
+                    T.matrix[i][j] = stod(doubleStr);
+                } catch (std::runtime_error e) {
+                    std::cout << "transform not read: could not read numver" << std::endl;
+                    return -1;
+                }
+
             }
         }
-        double registration_error;
-        file >> registration_error;
+    
     }
     file.close();
     return registration_error;
 }
 
+
+/**
+ * @brief delay x milliseconds
+ * 
+ * @param milliseconds 
+ */
 void delay_ms(int milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 
+
+/**
+ * @brief Get the transform from the needle marker frame to the needle pivot frame.
+ * 
+ * @return NewTransform 
+ */
 NewTransform get_needle_pivot_transform() {
     int num_measurements = 50;
     std::string file_path = "./out.txt";

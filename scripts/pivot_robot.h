@@ -11,11 +11,14 @@
 #ifndef ROBOT_PIVOT
 #define ROBOT_PIVOT
 
-Point get_center_of_circle(vector<Point> points) {
-
-}
 
 
+/**
+ * @brief Get the transform from the robot marker to the robot. We do this by pivoting around the lower base
+ * 
+ * @param F_M2N The transform from the Needle frame to the marker frame.
+ * @return NewTransform 
+ */
 NewTransform get_robot_pivot_transform(NewTransform F_M2N) {
     int num_measurements_needed = 50;
     int num_measurements_taken = 0;
@@ -47,6 +50,8 @@ NewTransform get_robot_pivot_transform(NewTransform F_M2N) {
     Matrix p_post_marker = get_p_post(F_OM1_list, F_OM2_list, F_M2N.to_transform());
     Matrix translation = p_post_marker + -1 * lower_base.to_matrix();
     return NewTransform(0,0,0, translation.matrixArray[0], translation.matrixArray[1], translation.matrixArray[2]);
+    
+    //This code was used for the first unconstrained pivot problem it does not constrain the z axis because we do not twist around it.
     /*
 
     Matrix A(num_measurements_taken * 3,6,vector<double>(num_measurements_taken*3*6, 0));
