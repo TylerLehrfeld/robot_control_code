@@ -10,7 +10,7 @@ using namespace std::chrono_literals;
 #ifndef GALIL_CALLS
 #define GALIL_CALLS
 
-const char* GALIL_IP_STRING = "192.168.1.10"; 
+GCStringIn GALIL_IP_STRING = "192.168.1.10"; 
 GCon g = NULL;
 
 void init_galil() {
@@ -21,7 +21,8 @@ void init_galil() {
     
     char buf[G_SMALL_BUFFER];
     
-    GOpen(GALIL_IP_STRING, &g);
+    rc = GOpen(GALIL_IP_STRING, &g);
+    std::cout << "return val: " << rc << std::endl;
 }
 
 
