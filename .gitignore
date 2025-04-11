@@ -11,7 +11,6 @@ forward_inverse_kinematic_comparison
 out.txt
 .vscode/*
 ./vscode
-**.ini
 parse_ini
 Data.txt
 .vscode/settings.json
