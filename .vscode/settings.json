@@ -68,6 +68,10 @@
         "mutex": "cpp",
         "span": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "ranges": "cpp",
+        "typeindex": "cpp"
     },
 }

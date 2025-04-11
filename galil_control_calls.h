@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 using namespace std::chrono_literals;
+
 #ifndef GALIL_CALLS
 #define GALIL_CALLS
 
@@ -48,7 +49,7 @@ void init_galil()
 
     check(GCommand(g, "MG TIME", buf, sizeof(buf), 0)); // Send MG TIME. Because response is ASCII, don't care about bytes read.
     printf("response: %s\n", buf);                                    // Print the response
-    check(GProgramDownloadFile(g, "./rc.dmc", "--max 4"));
+    check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/rc.dmc", "--max 4"));
 }
 
 int GoToLowBlocking(double left, double right)
@@ -104,6 +105,38 @@ int GoToPosBlocking(double left, double right) {
    return 0;
  }
 
+
+int HomeUpBlocking(bool msideA, bool msideF) {
+   char buf[G_SMALL_BUFFER]; //traffic buffer
+   GSize read_bytes = 0; //bytes read in GCommand
+   int value = 0;
+   GCommand(g, ("msideA = " + to_string((int) msideA)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+   GCommand(g, ("msideF = " + to_string((int) msideF)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+   GCommand(g, "XQ #homeUp, 1", buf, G_SMALL_BUFFER, &read_bytes);
+   std::this_thread::sleep_for(100ms);
+   do {
+     GCmdI(g, "dHome = ?", &value);
+     std::this_thread::sleep_for(500ms);
+   } while(!value);
+   std::this_thread::sleep_for(1750ms);
+   return 0;
+ }
+
+int HomeLowBlocking(bool msideB, bool msideE) {
+   char buf[G_SMALL_BUFFER]; //traffic buffer
+   GSize read_bytes = 0; //bytes read in GCommand
+   int value = 0;
+   GCommand(g, ("msideB = " + to_string((int) msideB)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+   GCommand(g, ("msideE = " + to_string((int) msideE)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+   GCommand(g, "XQ #homeLow, 1", buf, G_SMALL_BUFFER, &read_bytes);
+   std::this_thread::sleep_for(100ms);
+   do {
+     GCmdI(g, "dHome = ?", &value);
+     std::this_thread::sleep_for(500ms);
+   } while(!value);
+   std::this_thread::sleep_for(1750ms);
+   return 0;
+ }
 
 /**
  * @brief use the slider positions to move the robot into a desired position

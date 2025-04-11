@@ -65,6 +65,15 @@ public:
         error_string += "linkages too far apart\n";
         valid = false;
     }
+    double right = BASE_TO_SLIDER_MAX -sliders.right_slider_y - HALF_SLIDER_WIDTH;
+    double left = BASE_TO_SLIDER_MAX - sliders.left_slider_y - HALF_SLIDER_WIDTH;
+    double right_middle = BASE_TO_SLIDER_MAX -sliders.right_middle_slider_y - HALF_SLIDER_WIDTH;
+    double left_middle = BASE_TO_SLIDER_MAX - sliders.left_middle_slider_y - HALF_SLIDER_WIDTH;
+    if(right < 40 || right > 75 || left < 40 || left > 75 || right_middle > 45 || left_middle > 45 || right_middle < 7 || left_middle < 7) {
+        error_string += "sliders not constrained enough\n";
+        valid = false;
+    }
+    
     return valid;
   }
   

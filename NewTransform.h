@@ -37,6 +37,10 @@ struct deconstructed_transform
     ret.y = this->y + dec.y;
     ret.z = this->z + dec.z;
     return ret;
+  };
+
+  void print() {
+    std::cout << "theta_x " << theta_x << "theta_y " << theta_y << "theta_z " << theta_z << "x " << x << "y " << y << "z " << z << std::endl;
   }
 };
 
@@ -89,6 +93,25 @@ public:
     matrix[3][3] = 1;
   }
 
+  NewTransform(Transform T)
+  {
+    matrix[0][0] = T.R_AB.matrixArray[0];
+    matrix[0][1] = T.R_AB.matrixArray[1];
+    matrix[0][2] = T.R_AB.matrixArray[2];
+    matrix[0][3] = T.p_AB.matrixArray[0];
+    matrix[1][0] = T.R_AB.matrixArray[3];
+    matrix[1][1] = T.R_AB.matrixArray[4];
+    matrix[1][2] = T.R_AB.matrixArray[5];
+    matrix[1][3] = T.p_AB.matrixArray[1];
+    matrix[2][0] = T.R_AB.matrixArray[6];
+    matrix[2][1] = T.R_AB.matrixArray[7];
+    matrix[2][2] = T.R_AB.matrixArray[8];
+    matrix[2][3] = T.p_AB.matrixArray[2];
+    matrix[3][0] = 0;
+    matrix[3][1] = 0;
+    matrix[3][2] = 0;
+    matrix[3][3] = 1;
+  }
   /**
    * @brief Destroy the Transform object
    *

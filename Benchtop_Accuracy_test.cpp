@@ -25,48 +25,64 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 int main() {
     init_galil();
-
+    std::ifstream grid_file("grid.txt");
+    if(!grid_file.is_open()) {
+        std::cout << "grid file not open";
+        return -1;
+    }
     std::string command = "";
     std::string x, y;
+    std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
+    std::cin >> command;
+    std::cout << "getting transforms from out.txt" << std::endl;
+    vector<NewTransform> F_M2Ns;
+    do {
+        NewTransform F_M2N = get_needle_pivot_transform();
+        F_M2N.print();
+        std::cout << "Begin needle marker calibration again (r: redo, a: add another, c: continue to robot pivot)? After continuing, start pivoting the needle such that new optical frames can be read" << std::endl;
+        std::cin >> command;
+        if(command == "a" || command == "c") {
+            F_M2Ns.push_back(F_M2N);
+        }
+    } while(command != "c");
+    
+    NewTransform F_M2N = get_average_transform(F_M2Ns); 
+    vector<NewTransform> F_M1Rs;
+    std::cout << "Begin robot base calibration? After continuing, start pivoting around the robot base." << std::endl;
+    std::cin >> command;
+    do {
+        NewTransform F_M1R = get_robot_pivot_transform(F_M2N);
+        F_M1R.print();
+        std::cout << "Begin robot base calibration again? (r: redo, a: add another trial, c: continue to benchtop test) After continuing, start pivoting around the robot base. enter c to move on" << std::endl;
+        std::cin >> command;
+        if(command == "a" || command == "c") {
+            F_M1Rs.push_back(F_M1R);
+        }
+    } while(command != "c");
+    NewTransform F_M1R = get_average_transform(F_M1Rs);
+    /*bool left_near, right_near;
+    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cin >> left_near;
+    std::cin >> right_near;
+    HomeLowBlocking(left_near, right_near);
+    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cin >> left_near;
+    std::cin >> right_near;
+    HomeUpBlocking(left_near, right_near);
+    */
     while(true) {
         
         if(command == "q") {
             break;
         } else {
-            /*std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
-            std::cin >> command;
-            std::cout << "getting transforms from out.txt" << std::endl;
-            vector<NewTransform> F_M2Ns;
-            do {
-                NewTransform F_M2N = get_needle_pivot_transform();
-                F_M2N.print();
-                std::cout << "Begin needle marker calibration again (r: redo, a: add another, c: continue to robot pivot)? After continuing, start pivoting the needle such that new optical frames can be read" << std::endl;
-                std::cin >> command;
-                if(command == "a" || command == "c") {
-                    F_M2Ns.push_back(F_M2N);
-                }
-            } while(command != "c");
-            
-            NewTransform F_M2N = get_average_transform(F_M2Ns); 
-            vector<NewTransform> F_M1Rs;
-            std::cout << "Begin robot base calibration? After continuing, start pivoting around the robot base." << std::endl;
-            std::cin >> command;
-            do {
-                NewTransform F_M1R = get_robot_pivot_transform(F_M2N);
-                F_M1R.print();
-                std::cout << "Begin robot base calibration again? (r: redo, a: add another trial, c: continue to benchtop test) After continuing, start pivoting around the robot base. enter c to move on" << std::endl;
-                std::cin >> command;
-                if(command == "a" || command == "c") {
-                    F_M1Rs.push_back(F_M1R);
-                }
-            } while(command != "c");
-            NewTransform F_M1R = get_average_transform(F_M1Rs);*/
             Robot inverse_robot;
-
-            std::cout << "x" << std::endl;
-            std::cin >> x;
-            std::cout << "y" << std::endl;
-            std::cin >> y;
+            std::string line;
+            grid_file >> line;
+            std::cout << line <<std::endl;
+            
+            std::string x = line.substr(1,line.find(",")-1);
+            std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -1);
+            std::cout << x << ", " << y << std::endl;
             approach_definition def = {
                 {std::stod(x), std::stod(y), -64.9},
                 0,
@@ -78,15 +94,32 @@ int main() {
     
             move_robot_with_slider_positions(position);
 
-
-            
-            /*NewTransform F_OM1(0,0,0,0,0,0);
-            double registration_error_1 = read_transform("./out.txt", F_OM1, true);
+            vector<NewTransform> F_OM1s;
+            vector<NewTransform> F_OM2s;
+            NewTransform F_OM1(0,0,0,0,0,0);
             NewTransform F_OM2(0,0,0,0,0,0);
-            double registration_error_2 = read_transform("./out.txt", F_OM2, false);*/
-            
-            
-
+            while(F_OM1s.size() < 5) {
+                NewTransform newF1;
+                read_transform("./out.txt", newF1, true);
+                NewTransform newF2;
+                read_transform("./out.txt", newF2, true); 
+                if(!(newF1 == F_OM1 || newF2 == F_OM2)) {
+                    F_OM1s.push_back(newF1);
+                    F_OM1 = newF1;
+                    F_OM2s.push_back(newF2);
+                    F_OM2 = newF2;
+                }
+            }
+            F_OM1 = get_average_transform(F_OM1s);
+            F_OM2 = get_average_transform(F_OM2s);
+            double rotation[3][3];
+            Matrix rot(vector<Matrix>({inverse_robot.x_prime.to_matrix(), inverse_robot.y_prime.to_matrix(), inverse_robot.z_prime.to_matrix()}));
+            Transform expected_F_RN(rot, inverse_robot.bottom_linkage.extended_end_effector.to_matrix());
+            NewTransform New_expected_F_RN(expected_F_RN);
+            NewTransform F_OM1_inverse = F_OM1.inverse();
+            NewTransform actual_F_RN = F_M1R.inverse() * F_OM1_inverse * F_OM2 * F_M2N;
+            NewTransform identity = New_expected_F_RN.inverse() * actual_F_RN;
+            identity.get_params().print();
         }
         
     }
