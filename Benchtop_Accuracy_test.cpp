@@ -24,12 +24,16 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 
 int main() {
+    init_galil();
+
+    std::string command = "";
+    std::string x, y;
     while(true) {
-        std::string command = "";
+        
         if(command == "q") {
             break;
         } else {
-            std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
+            /*std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
             std::cin >> command;
             std::cout << "getting transforms from out.txt" << std::endl;
             vector<NewTransform> F_M2Ns;
@@ -56,28 +60,30 @@ int main() {
                     F_M1Rs.push_back(F_M1R);
                 }
             } while(command != "c");
-            NewTransform F_M1R = get_average_transform(F_M1Rs);
+            NewTransform F_M1R = get_average_transform(F_M1Rs);*/
             Robot inverse_robot;
+
+            std::cout << "x" << std::endl;
+            std::cin >> x;
+            std::cout << "y" << std::endl;
+            std::cin >> y;
             approach_definition def = {
-                {0, 380, -64.9},
+                {std::stod(x), std::stod(y), -64.9},
                 0,
                 0
             };
             slider_positions position = inverse_kinematics(def, NewTransform(0,0,0,0,0,0),inverse_robot);
             
-            init_galil();
             
+    
             move_robot_with_slider_positions(position);
 
 
             
-            
-
-            
-            NewTransform F_OM1(0,0,0,0,0,0);
+            /*NewTransform F_OM1(0,0,0,0,0,0);
             double registration_error_1 = read_transform("./out.txt", F_OM1, true);
             NewTransform F_OM2(0,0,0,0,0,0);
-            double registration_error_2 = read_transform("./out.txt", F_OM2, false);
+            double registration_error_2 = read_transform("./out.txt", F_OM2, false);*/
             
             
 
