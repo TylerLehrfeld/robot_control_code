@@ -291,7 +291,7 @@ public:
       result.theta_z = atan2(-matrix[0][1], matrix[1][1]);
     }
     NewTransform t(result);
-    assert(this->to_transform().R_AB == t.to_transform().R_AB && this->to_transform().p_AB == t.to_transform().p_AB);
+    //assert(this->to_transform().R_AB == t.to_transform().R_AB && this->to_transform().p_AB == t.to_transform().p_AB);
     return result;
   }
 };

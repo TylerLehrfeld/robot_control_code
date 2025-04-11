@@ -26,14 +26,14 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 int main() {
     init_galil();
     bool left_near, right_near;
-    /*std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
     std::cin >> left_near;
     std::cin >> right_near;
     HomeLowBlocking(left_near, right_near);
     std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
     std::cin >> left_near;
     std::cin >> right_near;
-    HomeUpBlocking(left_near, right_near);*/
+    HomeUpBlocking(left_near, right_near);
     
     std::ifstream grid_file("grid.txt");
     if(!grid_file.is_open()) {
