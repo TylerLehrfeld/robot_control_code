@@ -25,6 +25,16 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 int main() {
     init_galil();
+    bool left_near, right_near;
+    /*std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cin >> left_near;
+    std::cin >> right_near;
+    HomeLowBlocking(left_near, right_near);
+    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cin >> left_near;
+    std::cin >> right_near;
+    HomeUpBlocking(left_near, right_near);*/
+    
     std::ifstream grid_file("grid.txt");
     if(!grid_file.is_open()) {
         std::cout << "grid file not open";
@@ -60,15 +70,6 @@ int main() {
         }
     } while(command != "c");
     NewTransform F_M1R = get_average_transform(F_M1Rs);
-    bool left_near, right_near;
-    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
-    std::cin >> left_near;
-    std::cin >> right_near;
-    HomeLowBlocking(left_near, right_near);
-    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
-    std::cin >> left_near;
-    std::cin >> right_near;
-    HomeUpBlocking(left_near, right_near);
     while(true) {
         std::cin >> command;
         if(command == "q") {
@@ -81,7 +82,7 @@ int main() {
                 break;
             }
             std::string x = line.substr(1,line.find(",")-1);
-            std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -1);
+            std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
             std::cout << x << ", " << y << std::endl;
             approach_definition def = {
                 {std::stod(x), std::stod(y), -64.9},
@@ -109,6 +110,7 @@ int main() {
                     F_OM2s.push_back(newF2);
                     F_OM2 = newF2;
                 }
+                delay_ms(500);
             }
             F_OM1 = get_average_transform(F_OM1s);
             F_OM2 = get_average_transform(F_OM2s);

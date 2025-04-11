@@ -23,8 +23,9 @@ void check(GReturn rc)
 {
     if (rc != G_NO_ERROR)
     {
-        printf("ERROR: %d", rc);
+        std::cout << "ERROR:" << rc << std::endl;
         stop_galil();
+        throw std::runtime_error("galil error");
     }
 }
 std::string to_string(double d)
@@ -42,14 +43,18 @@ void init_galil()
     check(GVersion(buf, sizeof(buf)));
     printf("version: %s\n", buf); // Print the library version
 
-    check(GOpen("192.168.1.10", &g)); // Open a connection to Galil, store the identifier in g.
+    char addresses[1024];
+    GAddresses(addresses, sizeof(addresses));
+    std::cout << "Devices found: " << addresses << std::endl;
+
+    check(GOpen("192.168.1.10 --direct", &g)); // Open a connection to Galil, store the identifier in g.
 
     check(GInfo(g, buf, sizeof(buf)));
     printf("info: %s\n", buf); // Print the connection info
 
     check(GCommand(g, "MG TIME", buf, sizeof(buf), 0)); // Send MG TIME. Because response is ASCII, don't care about bytes read.
     printf("response: %s\n", buf);                                    // Print the response
-    check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/rc.dmc", "--max 4"));
+    //check(GProgramDownloadFile(g, "./Galil/rc.dmc", "--max 4"));
 }
 
 int GoToLowBlocking(double left, double right)
