@@ -60,7 +60,7 @@ int main() {
         }
     } while(command != "c");
     NewTransform F_M1R = get_average_transform(F_M1Rs);
-    /*bool left_near, right_near;
+    bool left_near, right_near;
     std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
     std::cin >> left_near;
     std::cin >> right_near;
@@ -69,17 +69,17 @@ int main() {
     std::cin >> left_near;
     std::cin >> right_near;
     HomeUpBlocking(left_near, right_near);
-    */
     while(true) {
-        
+        std::cin >> command;
         if(command == "q") {
             break;
         } else {
             Robot inverse_robot;
             std::string line;
             grid_file >> line;
-            std::cout << line <<std::endl;
-            
+            if(line == "") {
+                break;
+            }
             std::string x = line.substr(1,line.find(",")-1);
             std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -1);
             std::cout << x << ", " << y << std::endl;
