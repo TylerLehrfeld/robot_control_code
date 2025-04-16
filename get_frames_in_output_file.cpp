@@ -68,6 +68,7 @@ int main( int argc, char** argv )
 
     bool showHelp( false );
 
+    //edit this file path
     string outFile( "../../../../cis2/robot_control_code/out.txt" );
     
     deque< string > geomFiles;

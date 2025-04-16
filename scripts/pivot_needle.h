@@ -86,7 +86,7 @@ void delay_ms(int milliseconds) {
  * 
  * @return NewTransform 
  */
-NewTransform get_needle_pivot_transform() {
+NewTransform get_needle_pivot_transform(Matrix& p_bottom_linkage_in_optical_frame) {
     int num_measurements = 50;
     std::string file_path = "./out.txt";
     
@@ -105,6 +105,7 @@ NewTransform get_needle_pivot_transform() {
         delay_ms(200);
     }
     Pivot pivot_calibrator(transform_list);
+    p_bottom_linkage_in_optical_frame = pivot_calibrator.p_post;
     NewTransform Needle(0,0,0, pivot_calibrator.p_t.matrixArray[0], pivot_calibrator.p_t.matrixArray[1], pivot_calibrator.p_t.matrixArray[2]);
     return Needle;
 }

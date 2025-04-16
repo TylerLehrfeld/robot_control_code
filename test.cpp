@@ -26,9 +26,6 @@ int main(int argc, char *argv[]) {
         if(argument == "transform") {
             testTransformClass();
         }
-        if(argument == "point-cloud") {
-            testPointCloudClasses();
-        }
         if(argument == "pivot") {
             testPivot();
         }

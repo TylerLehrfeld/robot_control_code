@@ -18,30 +18,9 @@
 #ifndef NEW_TRANSFORM
 #define NEW_TRANSFORM
 
-struct deconstructed_transform
+struct Quaternion
 {
-  double theta_x;
-  double theta_y;
-  double theta_z;
-  double x;
-  double y;
-  double z;
-
-  deconstructed_transform operator+(deconstructed_transform &dec)
-  {
-    deconstructed_transform ret;
-    ret.theta_x = this->theta_x + dec.theta_x;
-    ret.theta_y = this->theta_y + dec.theta_y;
-    ret.theta_z = this->theta_z + dec.theta_z;
-    ret.x = this->x + dec.x;
-    ret.y = this->y + dec.y;
-    ret.z = this->z + dec.z;
-    return ret;
-  };
-
-  void print() {
-    std::cout << "theta_x " << theta_x << "theta_y " << theta_y << "theta_z " << theta_z << "x " << x << "y " << y << "z " << z << std::endl;
-  }
+  double w, x, y, z;
 };
 
 class NewTransform
@@ -50,11 +29,6 @@ public:
   double matrix[4][4];
   NewTransform() {};
 
-  NewTransform(deconstructed_transform decon_transform)
-  {
-    base_constructor(decon_transform.theta_x, decon_transform.theta_y, decon_transform.theta_z, decon_transform.x, decon_transform.y,
-                     decon_transform.z);
-  }
   /**
    * @brief Construct a new Transform object by giving an x angle, a y angle,
    * and a z angle. This will rotate the identity matrix by theta_x, theta_y,
@@ -270,33 +244,79 @@ public:
     }
   }
 
-  deconstructed_transform get_params()
+  Quaternion to_quaternion()
   {
-    deconstructed_transform result;
-    result.x = matrix[0][3];
-    result.y = matrix[1][3];
-    result.z = matrix[2][3];
+    Quaternion q;
+    double trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
 
-    if (abs(matrix[2][0]) < 1.0)
+    if (trace > 0.0)
     {
-      result.theta_y = -asin(matrix[2][0]);
-      result.theta_x = atan2(matrix[2][1], matrix[2][2]);
-      result.theta_z = atan2(matrix[1][0], matrix[0][0]);
+      double s = 0.5 / sqrt(trace + 1.0);
+      q.w = 0.25 / s;
+      q.x = (matrix[2][1] - matrix[1][2]) * s;
+      q.y = (matrix[0][2] - matrix[2][0]) * s;
+      q.z = (matrix[1][0] - matrix[0][1]) * s;
     }
     else
     {
-      // Gimbal lock: cos(theta_y) == 0
-      result.theta_y = (matrix[2][0] <= -1.0) ? M_PI_2 : -M_PI_2;
-      result.theta_x = 0;
-      result.theta_z = atan2(-matrix[0][1], matrix[1][1]);
+      if (matrix[0][0] > matrix[1][1] && matrix[0][0] > matrix[2][2])
+      {
+        double s = 2.0 * sqrt(1.0 + matrix[0][0] - matrix[1][1] - matrix[2][2]);
+        q.w = (matrix[2][1] - matrix[1][2]) / s;
+        q.x = 0.25 * s;
+        q.y = (matrix[0][1] + matrix[1][0]) / s;
+        q.z = (matrix[0][2] + matrix[2][0]) / s;
+      }
+      else if (matrix[1][1] > matrix[2][2])
+      {
+        double s = 2.0 * sqrt(1.0 + matrix[1][1] - matrix[0][0] - matrix[2][2]);
+        q.w = (matrix[0][2] - matrix[2][0]) / s;
+        q.x = (matrix[0][1] + matrix[1][0]) / s;
+        q.y = 0.25 * s;
+        q.z = (matrix[1][2] + matrix[2][1]) / s;
+      }
+      else
+      {
+        double s = 2.0 * sqrt(1.0 + matrix[2][2] - matrix[0][0] - matrix[1][1]);
+        q.w = (matrix[1][0] - matrix[0][1]) / s;
+        q.x = (matrix[0][2] + matrix[2][0]) / s;
+        q.y = (matrix[1][2] + matrix[2][1]) / s;
+        q.z = 0.25 * s;
+      }
     }
-    NewTransform t(result);
-    //assert(this->to_transform().R_AB == t.to_transform().R_AB && this->to_transform().p_AB == t.to_transform().p_AB);
-    return result;
+
+    return q;
   }
+
+  void from_quaternion(const Quaternion& q) {
+    // Normalize the quaternion to ensure a valid rotation matrix
+    double norm = sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+    double w = q.w / norm;
+    double x = q.x / norm;
+    double y = q.y / norm;
+    double z = q.z / norm;
+
+    // Compute the rotation matrix elements
+    matrix[0][0] = 1 - 2 * (y * y + z * z);
+    matrix[0][1] = 2 * (x * y - z * w);
+    matrix[0][2] = 2 * (x * z + y * w);
+    matrix[0][3] = 0;
+
+    matrix[1][0] = 2 * (x * y + z * w);
+    matrix[1][1] = 1 - 2 * (x * x + z * z);
+    matrix[1][2] = 2 * (y * z - x * w);
+    matrix[1][3] = 0;
+
+    matrix[2][0] = 2 * (x * z - y * w);
+    matrix[2][1] = 2 * (y * z + x * w);
+    matrix[2][2] = 1 - 2 * (x * x + y * y);
+    matrix[2][3] = 0;
+
+    matrix[3][0] = 0;
+    matrix[3][1] = 0;
+    matrix[3][2] = 0;
+    matrix[3][3] = 1;
+}
 };
-
-
-
 
 #endif

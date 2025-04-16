@@ -10,7 +10,8 @@ const double VERTICAL_RANGE = 1000;
 int main() {
     std::ofstream point_file;
     point_file.open("grid.txt");
-    
+    std::ofstream sliders_file;
+    sliders_file.open("sliders.txt");
     double no_extension_z = 0;
     double lowest_needle_extension = 1000;
     slider_positions sliders;
@@ -37,7 +38,7 @@ int main() {
                 std::string error_string;
                 if(inverse_robot.is_valid(error_string)) {
                     point_file << "(" <<x <<"," <<y<<")" << std::endl;
-                    //point_file << sliders.get_slider_string();
+                    sliders_file << sliders.get_slider_string(false);
                 }
             } catch (const std::runtime_error& e) {
                 //std::cout << "caught" << std::endl;

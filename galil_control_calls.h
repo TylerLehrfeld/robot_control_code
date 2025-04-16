@@ -36,7 +36,7 @@ std::string to_string(double d)
 }
 
 
-void init_galil()
+void init_galil(int home_reho_or_updown)
 {
     char buf[1024]; // traffic buffer
 
@@ -54,7 +54,12 @@ void init_galil()
 
     check(GCommand(g, "MG TIME", buf, sizeof(buf), 0)); // Send MG TIME. Because response is ASCII, don't care about bytes read.
     printf("response: %s\n", buf);                                    // Print the response
-    //check(GProgramDownloadFile(g, "./Galil/rc.dmc", "--max 4"));
+    if(home_reho_or_updown == 1) 
+        check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/main.dmc", "--max 4"));
+    if(home_reho_or_updown == 2)
+        check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/rc.dmc", "--max 4"));
+    if(home_reho_or_updown == 3)
+        check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/test.dmc", "--max 4"));
 }
 
 int GoToLowBlocking(double left, double right)

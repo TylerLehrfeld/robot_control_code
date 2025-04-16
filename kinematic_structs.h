@@ -82,14 +82,25 @@ struct slider_positions {
   double right_slider_y;
   double needle_extension;
   
-  std::string get_slider_string() {
-    std::stringstream slider_string_stream; 
-    slider_string_stream << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+  std::string get_slider_string(bool my_coords) {
+    std::stringstream slider_string_stream;
+    if(my_coords) {
+      slider_string_stream << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+    
+    } else {
+      double _right = BASE_TO_SLIDER_MAX -right_slider_y - HALF_SLIDER_WIDTH;
+      double _left = BASE_TO_SLIDER_MAX - left_slider_y - HALF_SLIDER_WIDTH;
+      double _right_middle = BASE_TO_SLIDER_MAX -right_middle_slider_y - HALF_SLIDER_WIDTH;
+      double _left_middle = BASE_TO_SLIDER_MAX - left_middle_slider_y - HALF_SLIDER_WIDTH;
+    
+      slider_string_stream << _left << std::endl << _left_middle << std::endl << _right_middle << std::endl << _right << std::endl << needle_extension << std::endl;
+    
+    }
     return slider_string_stream.str();
   }
   
-  void print() {
-    std::cout << get_slider_string();
+  void print(bool my_coords) {
+    std::cout << get_slider_string(my_coords);
   }
 };
 

@@ -155,4 +155,8 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
   return needle_point;
 }
 
+Point get_end_effector(slider_positions sliders, Robot& robot) {
+  return get_end_effector({sliderXs[0], sliders.left_slider_y, 0}, {sliderXs[1], sliders.left_middle_slider_y, 0}, {sliderXs[2], sliders.right_middle_slider_y, 0}, {sliderXs[3], sliders.right_slider_y, 0}, UPPER_BASE, LOWER_BASE, sliders.needle_extension, robot);
+}
+
 #endif

@@ -66,4 +66,6 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
 Point get_needle_point_based_on_end_effector_positions(
     Point upper_linkage_end_effector, Point lower_linkage_end_effector,
     double needle_extension, Robot& robot);
+
+Point get_end_effector(slider_positions sliders, Robot& robot);
 #endif
