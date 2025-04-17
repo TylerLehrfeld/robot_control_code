@@ -115,8 +115,8 @@ void compare_robots(Robot robot1, Robot robot2) {
     }
     if(!compare_sliders(robot1.sliders, robot2.sliders)) {
         std::cout << "sliders not equal: " << std::endl;
-        robot1.sliders.print();
-        robot2.sliders.print();
+        robot1.sliders.print(true);
+        robot2.sliders.print(true);
     }    
 }
 

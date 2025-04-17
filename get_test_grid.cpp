@@ -1,4 +1,4 @@
-const double HORIZONTAL_RANGE = 1000;
+const double HORIZONTAL_RANGE = 200;
 const double VERTICAL_RANGE = 1000;
 
 
@@ -26,10 +26,11 @@ int main() {
             no_extension_z = z;
         }
     }
-    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += 20) {
-        for(double y = -VERTICAL_RANGE/2; y <= VERTICAL_RANGE/2; y +=20) {
+    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += .5) {
+        for(double y = 350; y <= VERTICAL_RANGE/2; y +=.5) {
+            std::cout << x << " " << y << std::endl;
             try {
-                if(x == 0 && y == 200) {
+                if(x == 0 && y == 224) {
                     std::cout << "here" << std::endl;
                 }
                 Robot inverse_robot;
@@ -38,10 +39,10 @@ int main() {
                 std::string error_string;
                 if(inverse_robot.is_valid(error_string)) {
                     point_file << "(" <<x <<"," <<y<<")" << std::endl;
-                    sliders_file << sliders.get_slider_string(false);
+                    sliders_file << sliders.get_slider_string(true);
                 }
-            } catch (const std::runtime_error& e) {
-                //std::cout << "caught" << std::endl;
+            } catch (const std::runtime_error e) {
+                std::cout << "caught" << std::endl;
             }
         }
     }
