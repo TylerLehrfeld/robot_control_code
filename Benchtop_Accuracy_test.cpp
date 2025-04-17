@@ -46,20 +46,20 @@ int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
     
     
-    init_galil(1);
+    /*init_galil(1);
     std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
     std::cin >> up_left_near;
     std::cin >> up_right_near;
     HomeUpBlocking(up_left_near, up_right_near);
     stop_galil();
-    /*init_galil(3);
-    GoToUpBlocking(60,60);
-    stop_galil();*/
     init_galil(1);
     std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
     std::cin >> low_left_near;
     std::cin >> low_right_near;
-    HomeLowBlocking(low_left_near, low_right_near);
+    HomeLowBlocking(low_left_near, low_right_near);*/
+    /*init_galil(3);
+    GoToUpBlocking(60,60);
+    stop_galil();*/
     std::ifstream grid_file("grid.txt");
 
     if(!grid_file.is_open()) {
@@ -104,8 +104,8 @@ int main() {
     } while(command != "c");
     NewTransform F_M1R = get_average_transform(F_M1Rs);
     //NewTransform F_M1R = F_M1Rs[0];*/
-    HomeUpBlocking(1,1);
-    stop_galil();
+    //HomeUpBlocking(1,1);
+    //stop_galil();
     Robot forward_robot;
     Point target = get_end_effector(home_positions, forward_robot);
     home_positions.needle_extension -= 1;
@@ -121,7 +121,7 @@ int main() {
     vector<NewTransform> F_OM2_list;
     NewTransform previous_F_OM1;
     NewTransform previous_F_OM2;
-    init_galil(2);
+    //init_galil(2);
     while(num_measurements_taken < num_measurements_needed) {
         
         NewTransform F_OM2;
@@ -142,7 +142,13 @@ int main() {
     }
     NewTransform F_OM1 = get_average_transform(F_OM1_list);
     NewTransform F_OM2 = get_average_transform(F_OM2_list);
+    (F_OM1.inverse() * F_OM2).print();
+    (F_OM1.inverse() * F_OM2 * F_M2N).print();
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
+    F_M1R.print();
+    F_RN.print();
+    NewTransform F_OM1_inv = F_OM1.inverse();
+    (F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
     Point last_point = {0,0,0};
     double mag_tot = 0;
     int num_trials = 0;
@@ -171,7 +177,7 @@ int main() {
             break;
         }
         
-        move_robot_with_slider_positions(position);
+        //move_robot_with_slider_positions(position);
         vector<NewTransform> F_OM1s;
         vector<NewTransform> F_OM2s;
         NewTransform F_OM1(0,0,0,0,0,0);
@@ -201,7 +207,7 @@ int main() {
         std::cout << "Expected F_RN: " << std::endl;
         New_expected_F_RN.print();
         Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
-        needle.z -= 150;
+        needle.z -= 115;
         
         std::cout << "Expected needle: " << std::endl;
         Point expected = (New_expected_F_RN * needle); 
@@ -226,6 +232,6 @@ int main() {
         
     }
     //std::cout << "average error over " << num_trials-1 << " trials of 10 samples for each trial: " << mag_tot / (num_trials-1) << std::endl;
-    stop_galil();
+    //stop_galil();
     return 0;
 }

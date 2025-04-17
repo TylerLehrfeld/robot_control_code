@@ -58,8 +58,16 @@ void init_galil(int home_reho_or_updown)
         check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/main.dmc", "--max 4"));
     if(home_reho_or_updown == 2)
         check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/rc.dmc", "--max 4"));
-    if(home_reho_or_updown == 3)
+    if(home_reho_or_updown == 3) {
         check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/test.dmc", "--max 4"));
+        char program[G_HUGE_BUFFER];
+        GProgramUpload(g, program, G_HUGE_BUFFER);
+        printf("%s\n", program);
+    }
+        
+    
+    
+    
 }
 
 int GoToLowBlocking(double left, double right)
