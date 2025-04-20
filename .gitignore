@@ -16,3 +16,6 @@ Data.txt
 .vscode/settings.json
 get_test_grid
 ./scripts/.myenv/**
+grid.txt
+sliders.txt
+Benchtop_Accuracy_test

@@ -134,8 +134,8 @@ int main() {
     double right_middle = BASE_TO_SLIDER_MAX - positions.right_middle_slider_y - HALF_SLIDER_WIDTH;
     double left_middle = BASE_TO_SLIDER_MAX - positions.left_middle_slider_y - HALF_SLIDER_WIDTH;
     std::cout << left << " " << left_middle << " " << right_middle << " " << right << std::endl;
-    //Robot forward_robot;
-    //update_robot_forward(inverse_robot.sliders, forward_robot);
-    //compare_robots(inverse_robot, forward_robot);
+    Robot forward_robot;
+    update_robot_forward(inverse_robot.sliders, forward_robot);
+    compare_robots(inverse_robot, forward_robot);
 
 }

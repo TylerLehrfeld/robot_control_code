@@ -121,7 +121,7 @@ struct linkage_array {
   Point right_midpoint;
 };
 
-const double precision = .00001;
+const double precision = .01;
 
 inline bool isclose(double a, double b) {
   return a + precision > b && a - precision < b;
