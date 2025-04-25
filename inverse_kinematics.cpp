@@ -5,6 +5,7 @@
 #include "kinematic_structs.h"
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 
 /**
  * @brief Get the slider positions of the robot based on the approach angle to a
@@ -111,6 +112,9 @@ linkage_end_effectors get_linkage_end_effector(
           ((z_lower - robot_approach.target.z) /
            ((robot_approach.injection_point - robot_approach.target).z)) +
       robot_approach.target;
+  if((needle_at_z - base).magnitude() == 0) {
+    throw std::runtime_error("can't be on top of lower base");
+  }
   Point x_prime = cross((needle_at_z - base), z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime).normalize();
   robot.x_prime = x_prime;

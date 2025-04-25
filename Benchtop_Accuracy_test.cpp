@@ -131,9 +131,9 @@ int main() {
         NewTransform F_OM1;
 
         std::string file_path = "./out.txt";
-        read_transform(file_path, F_OM1, true);
-        read_transform(file_path, F_OM2, false);
-        if(!(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)) {
+        //read_transform(file_path, F_OM1, true);
+        //read_transform(file_path, F_OM2, false);
+        if(/*!(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)*/ true) {
             F_OM1_list.push_back(F_OM1);
             F_OM2_list.push_back(F_OM2);
             num_measurements_taken++;
@@ -145,22 +145,11 @@ int main() {
     }
     NewTransform F_OM1 = get_average_transform(F_OM1_list);
     NewTransform F_OM2 = get_average_transform(F_OM2_list);
-    (F_OM1.inverse() * F_OM2).print();
-    (F_OM1.inverse() * F_OM2 * F_M2N).print();
+    //(F_OM1.inverse() * F_OM2).print();
+    //(F_OM1.inverse() * F_OM2 * F_M2N).print();
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
-    F_M1R.matrix[0][0] = -1;
-    F_M1R.matrix[0][1] = 0;
-    F_M1R.matrix[0][2] = 0;
-    F_M1R.matrix[1][0] = 0;
-    F_M1R.matrix[1][1] = -1;
-    F_M1R.matrix[1][2] = 0;
-    F_M1R.matrix[2][0] = 0;
-    F_M1R.matrix[2][1] = 0;
-    F_M1R.matrix[2][2] = 1;
-    results_file << "F_M1R" <<std::endl <<F_M1R.to_string();
-    F_RN.print();
     NewTransform F_OM1_inv = F_OM1.inverse();
-    (F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
+    //(F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
     Point last_point = {0,0,0};
     double mag_tot = 0;
     int num_trials = 0;

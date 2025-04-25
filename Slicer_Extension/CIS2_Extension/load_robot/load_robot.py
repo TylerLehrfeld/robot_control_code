@@ -100,6 +100,26 @@ def registerSampleData():
     )
 
 
+def loadSTLModel(self, filePath: str) -> vtk.vtkPolyData:
+    if not os.path.exists(filePath):
+        raise FileNotFoundError(f"STL file not found: {filePath}")
+
+    reader = vtk.vtkSTLReader()
+    reader.SetFileName(filePath)
+    reader.Update()
+    return reader.GetOutput()
+
+def addModelToScene(self, polyData: vtk.vtkPolyData, name: str = "RobotModel") -> slicer.vtkMRMLModelNode:
+    modelNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLModelNode", name)
+    modelNode.SetAndObservePolyData(polyData)
+
+    displayNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLModelDisplayNode")
+    displayNode.SetColor(0.9, 0.3, 0.3)  # red tint
+    slicer.mrmlScene.AddNode(displayNode)
+    modelNode.SetAndObserveDisplayNodeID(displayNode.GetID())
+
+    return modelNode
+
 #
 # load_robotParameterNode
 #
