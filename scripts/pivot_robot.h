@@ -7,6 +7,7 @@
 #include "../NewTransform.h"
 #include "../kinematic_structs.h"
 #include "../restricted_plane_pivot.h"
+#include "./pivot_needle.h"
 
 #ifndef ROBOT_PIVOT
 #define ROBOT_PIVOT
