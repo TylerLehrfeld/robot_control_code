@@ -60,9 +60,9 @@ void init_galil(int home_reho_or_updown)
         check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/rc.dmc", "--max 4"));
     if(home_reho_or_updown == 3) {
         check(GProgramDownloadFile(g, "/home/amiro/Documents/Galil/test.dmc", "--max 4"));
-        char program[G_HUGE_BUFFER];
-        GProgramUpload(g, program, G_HUGE_BUFFER);
-        printf("%s\n", program);
+        //char program[G_HUGE_BUFFER];
+        //GProgramUpload(g, program, G_HUGE_BUFFER);
+        //printf("%s\n", program);
     }
         
     
@@ -93,9 +93,9 @@ int GoToUpBlocking(double left, double right)
     char buf[G_SMALL_BUFFER]; // traffic buffer
     GSize read_bytes = 0;     // bytes read in GCommand
     int value = 0;
-    GCommand(g, ("tgtMmA = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, ("tgtMmF = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #GoToUp, 1", buf, G_SMALL_BUFFER, &read_bytes);
+    //GCommand(g, ("tgtMmA = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    //GCommand(g, ("tgtMmF = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #GoToUp(50,50), 6", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {
@@ -137,6 +137,7 @@ int HomeUpBlocking(bool msideA, bool msideF) {
      std::this_thread::sleep_for(500ms);
    } while(!value);
    std::this_thread::sleep_for(1750ms);
+
    return 0;
  }
 
@@ -155,6 +156,7 @@ int HomeLowBlocking(bool msideB, bool msideE) {
    std::this_thread::sleep_for(1750ms);
    return 0;
  }
+
 
 /**
  * @brief use the slider positions to move the robot into a desired position

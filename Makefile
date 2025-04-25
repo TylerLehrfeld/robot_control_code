@@ -1,5 +1,7 @@
 CXX = g++
-CXXFLAGS = -g -Wall -Wextra 
+CXXFLAGS = -g -Wall -Wextra -I ./dependencies/eigen-3.4.0/
+
+POST_FLAGS = -L/usr/lib/ -lgclib -lpthread -lgclibo
 
 # Source files
 SRC = inverse_kinematics_test.cpp \
@@ -11,6 +13,10 @@ SRC = inverse_kinematics_test.cpp \
       get_test_grid.cpp \
       parse_results.cpp \
       kinematic_grid_error_analysis.cpp \
+      galil_control_test.cpp \
+      Matrix.cpp \
+      Transform.cpp \
+
 
 # Header files
 HEADERS = forward_kinematics.h \
@@ -20,14 +26,15 @@ HEADERS = forward_kinematics.h \
           Point.h \
           NewTransform.h \
           ../scripts/pivot_needle.h \
-          ../scripts/pivot_robot.h
+          ../scripts/pivot_robot.h \
+          galil_control_calls.h \
 
 # Object files
 OBJ = $(SRC:.cpp=.o)
 
 # Output executables
 TARGETS = forward_inverse_kinematic_comparison get_test_grid parse_results#inverse_kinematics_test kinematics_end_effector_analysis_test
-TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test 
+TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test galil_control_test parse_results
 
 all: $(TARGETS)
 
@@ -46,12 +53,14 @@ get_test_grid: get_test_grid.o forward_kinematics.o inverse_kinematics.o
 forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-parse_results: parse_results.o 
+parse_results: parse_results.o Matrix.o Transform.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 kinematic_grid_error_analysis: kinematic_grid_error_analysis.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+galil_control_test: galil_control_test.o Matrix.o Transform.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
 
 clean:
-	rm -f $(OBJ) $(TARGETS)
+	rm -f $(OBJ) $(TARGETS) *.o
