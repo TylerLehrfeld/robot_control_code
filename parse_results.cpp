@@ -48,7 +48,7 @@ void parse_beginning(std::ifstream& file) {
 
 int main() {
     std::ifstream results("results.txt");
-    int num_results = 24;
+    int num_results = 21;
     std::string line;
     parse_beginning(results);
     for(int i = 0; i < num_results; i++) {
@@ -68,7 +68,8 @@ int main() {
         double diff_mag;
         
         results >> diff_mag;
-        //expected_needle.print_desmos();
-        //measured_needle.print_desmos();
+        measured_needle.print_desmos();
+        expected_needle.print_desmos();
+        
     }
 }

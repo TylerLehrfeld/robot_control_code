@@ -46,17 +46,17 @@ int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
     std::ofstream results_file("results.txt");
     
-    init_galil(1);
-    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
-    std::cin >> up_left_near;
-    std::cin >> up_right_near;
-    HomeUpBlocking(up_left_near, up_right_near);
-    stop_galil();
-    init_galil(1);
-    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch: B E" << std::endl;
-    std::cin >> low_left_near;
-    std::cin >> low_right_near;
-    HomeLowBlocking(low_left_near, low_right_near);
+    //init_galil(1);
+    //std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
+    //std::cin >> up_left_near;
+    //std::cin >> up_right_near;
+    //HomeUpBlocking(up_left_near, up_right_near);
+    //stop_galil();
+    //init_galil(1);
+    //std::cout << "Homing low. Enter 1 if the slider is behind the limit switch: B E" << std::endl;
+    //std::cin >> low_left_near;
+    //std::cin >> low_right_near;
+    //HomeLowBlocking(low_left_near, low_right_near);
     /*init_galil(3);
     GoToUpBlocking(60,60);
     stop_galil();*/
@@ -131,9 +131,9 @@ int main() {
         NewTransform F_OM1;
 
         std::string file_path = "./out.txt";
-        //read_transform(file_path, F_OM1, true);
-        //read_transform(file_path, F_OM2, false);
-        if(/*!(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)*/ true) {
+        read_transform(file_path, F_OM1, true);
+        read_transform(file_path, F_OM2, false);
+        if(!(F_OM1 == previous_F_OM1 || F_OM2 == previous_F_OM2)) {
             F_OM1_list.push_back(F_OM1);
             F_OM2_list.push_back(F_OM2);
             num_measurements_taken++;
@@ -145,11 +145,26 @@ int main() {
     }
     NewTransform F_OM1 = get_average_transform(F_OM1_list);
     NewTransform F_OM2 = get_average_transform(F_OM2_list);
-    //(F_OM1.inverse() * F_OM2).print();
-    //(F_OM1.inverse() * F_OM2 * F_M2N).print();
+    (F_OM1.inverse() * F_OM2).print();
+    (F_OM1.inverse() * F_OM2 * F_M2N).print();
+    //5 72 -42.27
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
+    F_M1R.matrix[0][3] = -42;
+    F_M1R.matrix[1][3] = -5;
+    F_M1R.matrix[2][3] = -80;
+    F_M1R.matrix[0][0] = -1;
+    F_M1R.matrix[0][1] = 0;
+    F_M1R.matrix[0][2] = 0;
+    F_M1R.matrix[1][0] = 0;
+    F_M1R.matrix[1][1] = -1;
+    F_M1R.matrix[1][2] = 0;
+    F_M1R.matrix[2][0] = 0;
+    F_M1R.matrix[2][1] = 0;
+    F_M1R.matrix[2][2] = 1;
+    results_file << "F_M1R" <<std::endl <<F_M1R.to_string();
+    F_RN.print();
     NewTransform F_OM1_inv = F_OM1.inverse();
-    //(F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
+    (F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
     Point last_point = {0,0,0};
     double mag_tot = 0;
     int num_trials = 0;
