@@ -8,7 +8,8 @@ SRC = inverse_kinematics_test.cpp \
       forward_kinematics.cpp \
       inverse_kinematics.cpp \
       forward_inverse_kinematic_comparison.cpp \
-      get_test_grid.cpp
+      get_test_grid.cpp \
+      parse_results.cpp \
 
 # Header files
 HEADERS = forward_kinematics.h \
@@ -24,7 +25,7 @@ HEADERS = forward_kinematics.h \
 OBJ = $(SRC:.cpp=.o)
 
 # Output executables
-TARGETS = forward_inverse_kinematic_comparison get_test_grid #inverse_kinematics_test kinematics_end_effector_analysis_test
+TARGETS = forward_inverse_kinematic_comparison get_test_grid parse_results#inverse_kinematics_test kinematics_end_effector_analysis_test
 
 all: $(TARGETS)
 
@@ -41,6 +42,9 @@ get_test_grid: get_test_grid.o forward_kinematics.o inverse_kinematics.o
 
 
 forward_inverse_kinematic_comparison: forward_inverse_kinematic_comparison.o forward_kinematics.o inverse_kinematics.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+parse_results: parse_results.o 
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 

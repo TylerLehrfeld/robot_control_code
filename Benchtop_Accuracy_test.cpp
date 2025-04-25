@@ -44,19 +44,19 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
+    std::ofstream results_file("results.txt");
     
-    
-    /*init_galil(1);
-    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch" << std::endl;
+    init_galil(1);
+    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
     std::cin >> up_left_near;
     std::cin >> up_right_near;
     HomeUpBlocking(up_left_near, up_right_near);
     stop_galil();
     init_galil(1);
-    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch" << std::endl;
+    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch: B E" << std::endl;
     std::cin >> low_left_near;
     std::cin >> low_right_near;
-    HomeLowBlocking(low_left_near, low_right_near);*/
+    HomeLowBlocking(low_left_near, low_right_near);
     /*init_galil(3);
     GoToUpBlocking(60,60);
     stop_galil();*/
@@ -72,12 +72,12 @@ int main() {
         return -1;
     }
     std::string command = "";
-    std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
+   // std::cout << "Begin needle marker calibration? After continuing, start pivoting the needle such that new optical frames can be read." << std::endl;
     std::cin >> command;
     std::cout << "getting transforms from out.txt" << std::endl;
-    vector<NewTransform> F_M2Ns;
+    /*vector<NewTransform> F_M2Ns;
     Matrix p_bottom_linkage_home_in_optical_coordinates;
-    /*do {
+    do {
         NewTransform F_M2N = get_needle_pivot_transform(p_bottom_linkage_home_in_optical_coordinates);
         F_M2N.print();
         std::cout << "Begin needle marker calibration again (r: redo, a: add another, c: continue to robot pivot)? After continuing, start pivoting the needle such that new optical frames can be read" << std::endl;
@@ -88,7 +88,8 @@ int main() {
     } while(command != "c");
     
     NewTransform F_M2N = get_average_transform(F_M2Ns);*/
-    NewTransform F_M2N(0,0,0, .111584, 27.9567, -5.81392);
+    NewTransform F_M2N(0,0,M_PI, -0.108532, 28.6202, -5.99369);
+    results_file << "F_M2N" <<std::endl << F_M2N.to_string();
     //NewTransform F_M2N = F_M2Ns[0];
     /*vector<NewTransform> F_M1Rs;
     std::cout << "Begin robot base calibration? After continuing, start pivoting around the robot base." << std::endl;
@@ -121,7 +122,9 @@ int main() {
     vector<NewTransform> F_OM2_list;
     NewTransform previous_F_OM1;
     NewTransform previous_F_OM2;
-    //init_galil(2);
+    init_galil(2);
+    std::cout <<"collect home positions" << std::endl;
+    std::cin >> command;
     while(num_measurements_taken < num_measurements_needed) {
         
         NewTransform F_OM2;
@@ -145,7 +148,16 @@ int main() {
     (F_OM1.inverse() * F_OM2).print();
     (F_OM1.inverse() * F_OM2 * F_M2N).print();
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
-    F_M1R.print();
+    F_M1R.matrix[0][0] = -1;
+    F_M1R.matrix[0][1] = 0;
+    F_M1R.matrix[0][2] = 0;
+    F_M1R.matrix[1][0] = 0;
+    F_M1R.matrix[1][1] = -1;
+    F_M1R.matrix[1][2] = 0;
+    F_M1R.matrix[2][0] = 0;
+    F_M1R.matrix[2][1] = 0;
+    F_M1R.matrix[2][2] = 1;
+    results_file << "F_M1R" <<std::endl <<F_M1R.to_string();
     F_RN.print();
     NewTransform F_OM1_inv = F_OM1.inverse();
     (F_M1R.inverse() * F_OM1_inv * F_OM2 * F_M2N).print();
@@ -165,19 +177,22 @@ int main() {
         std::string x = line.substr(1,line.find(",")-1);
         std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
         std::cout << x << ", " << y << std::endl;
+        results_file << x<< ", " << y << std::endl;
         approach_definition def = {
             {std::stod(x), std::stod(y), -64.9},
             0,
             0
         };
         slider_positions position = inverse_kinematics(def, NewTransform(0,0,0,0,0,0),inverse_robot);
+        position.print(false);
         std::cout << "move robot and take readings?" << std::endl;
-        std::cin >> command;
+        delay_ms(500);
+        //std::cin >> command;
         if(command == "q") {
             break;
         }
         
-        //move_robot_with_slider_positions(position);
+        move_robot_with_slider_positions(position);
         vector<NewTransform> F_OM1s;
         vector<NewTransform> F_OM2s;
         NewTransform F_OM1(0,0,0,0,0,0);
@@ -197,6 +212,9 @@ int main() {
         }
         F_OM1 = get_average_transform(F_OM1s);
         F_OM2 = get_average_transform(F_OM2s);
+        results_file << "F_OM1" <<std::endl << F_OM1.to_string();
+        results_file << "F_OM2" <<std::endl << F_OM2.to_string();
+    
         Matrix rot(vector<Matrix>({inverse_robot.x_prime.to_matrix(), inverse_robot.y_prime.to_matrix(), inverse_robot.z_prime.to_matrix()}));
         Transform expected_F_RN(rot, inverse_robot.bottom_linkage.extended_end_effector.to_matrix());
         NewTransform New_expected_F_RN(expected_F_RN);
@@ -204,21 +222,31 @@ int main() {
         NewTransform actual_F_RN = F_M1R.inverse() * F_OM1_inverse * F_OM2 * F_M2N;
         std::cout << "Measured F_RN: " << std::endl;
         actual_F_RN.print();
+        results_file << "F_RN measured" <<std::endl << actual_F_RN.to_string();
         std::cout << "Expected F_RN: " << std::endl;
         New_expected_F_RN.print();
-        Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
-        needle.z -= 115;
+        std::cout << "difference transform" << std::endl;
+        (New_expected_F_RN.inverse() * actual_F_RN).print();
+        results_file << "F_RN expected" <<std::endl << New_expected_F_RN.to_string();
         
+        Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
+        needle.z = -115;
         std::cout << "Expected needle: " << std::endl;
         Point expected = (New_expected_F_RN * needle); 
+        results_file << "expected needle" <<std::endl << (New_expected_F_RN * needle).to_string();
         expected.print();
         std::cout << "Actual needle: " << std::endl;
         Point actual = (actual_F_RN * needle); 
+        results_file << "actual needle" <<std::endl << (actual_F_RN * needle).to_string();
         actual.print();
         std::cout << "difference vector: " << std::endl;
         (actual - expected).print();
+
+        results_file << "difference vector" <<std::endl << (actual - expected).to_string();
         std::cout << "difference magnitude: " << std::endl;
         std::cout << (actual - expected).magnitude() << std::endl;
+
+        results_file << "difference magnitude" <<std::endl << (actual - expected).magnitude() << std::endl;
         /*Point origin = {0,0,0};
         Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
         needle.z -= 150;
@@ -232,6 +260,6 @@ int main() {
         
     }
     //std::cout << "average error over " << num_trials-1 << " trials of 10 samples for each trial: " << mag_tot / (num_trials-1) << std::endl;
-    //stop_galil();
+    stop_galil();
     return 0;
 }

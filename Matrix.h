@@ -48,6 +48,7 @@ public:
     double det();
     double magnitude();
     void print();
+    void print_desmos();
     std::tuple<vector<double>, vector<Matrix>> eigenValuesAndVectors();
     double trace();
     vector<double> matrixArray;

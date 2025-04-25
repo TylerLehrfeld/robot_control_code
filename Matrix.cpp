@@ -171,6 +171,10 @@ void Matrix::print() {
     cout << endl;
 }
 
+void Matrix::print_desmos() {
+    cout << "(" << matrixArray[0] << ", " << matrixArray[1] << ", " << matrixArray[2] << ")" << endl;
+}
+
 /**
  * @brief deprecated not used
  *
