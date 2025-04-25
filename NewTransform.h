@@ -13,6 +13,7 @@
 #include <math.h>
 #include <iostream>
 #include "Transform.h"
+#include "Matrix.h"
 #include <cassert>
 
 #ifndef NEW_TRANSFORM
@@ -228,6 +229,19 @@ public:
     matrix[3][3] = 1;
   }
 
+
+  std::string to_string() {
+    std::stringstream ss;
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j = 0; j < 4; j++)
+      {
+        ss << matrix[i][j] << " ";
+      }
+      ss << std::endl;
+    }
+    return ss.str();  
+  }
   /**
    * @brief print a transform so that it is readable
    *

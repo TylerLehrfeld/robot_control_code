@@ -172,7 +172,7 @@ void move_robot_with_slider_positions(slider_positions positions)
     double left_middle = BASE_TO_SLIDER_MAX - positions.left_middle_slider_y - HALF_SLIDER_WIDTH;
     std::cout << left << " " << left_middle << " " << right_middle << " " << right << std::endl;
     std:: cout << "continue with motion?" <<std::endl;
-    std::cin >> command;
+    //std::cin >> command;
     std::cout << "beginning motion" << std::endl;
     //GoToLowBlocking(left_middle, right_middle);
     //GoToUpBlocking(left, right);

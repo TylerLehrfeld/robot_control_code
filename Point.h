@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iostream>
 #include "Matrix.h"
+#include <sstream>
 struct Point {
   double x;
   double y;
@@ -24,6 +25,14 @@ struct Point {
    * 
    */
   void print() { std::cout << x << " " << y << " " << z << std::endl; }
+  std::string to_string() {
+    std::stringstream ss;
+    ss << x << " " << y << " " <<z <<std::endl;
+    return ss.str();
+  }
+  void print_desmos() {
+    std::cout << "(" << x << ", " << y << ", " << z << ")" << std::endl;
+  }
 
   /**
    * @brief add a point to another point
