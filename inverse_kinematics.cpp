@@ -1,10 +1,11 @@
 #include "inverse_kinematics.h"
 #include "Point.h"
 #include "Robot.h"
-#include "Transform.h"
+#include "NewTransform.h"
 #include "kinematic_structs.h"
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 
 /**
  * @brief Get the slider positions of the robot based on the approach angle to a
@@ -18,7 +19,7 @@
  */
 slider_positions
 inverse_kinematics(approach_definition needle_to_patient_approach,
-                   Transform T_RP, Robot& robot) {
+                   NewTransform T_RP, Robot& robot) {
   Point mock_injection_point = {sin(needle_to_patient_approach.phi) *
                                     cos(needle_to_patient_approach.theta),
                                 sin(needle_to_patient_approach.phi) *
@@ -43,7 +44,7 @@ inverse_kinematics(approach_definition needle_to_patient_approach,
  */
 slider_positions invinverse_kinematics(
     target_and_injection_point_approach needle_to_patient_approach,
-    Transform T_RP, Robot& robot) {
+    NewTransform T_RP, Robot& robot) {
   return inverse_kinematics({T_RP * needle_to_patient_approach.injection_point,
                              T_RP * needle_to_patient_approach.target}, robot);
 }
@@ -57,6 +58,7 @@ slider_positions invinverse_kinematics(
  */
 slider_positions inverse_kinematics(
     target_and_injection_point_approach needle_to_patient_approach, Robot& robot) {
+  
   double needle_extension = 0;
   linkage_end_effectors end_effectors =  get_linkage_end_effector(
       needle_to_patient_approach, LOWER_LINKAGE_Z, UPPER_LINKAGE_Z, needle_extension, robot);
@@ -73,6 +75,21 @@ robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
   return sliders;
 }
 
+
+void check_end_effector_dists(Point upper_end_effector, Point lower_end_effector) {
+  Point base = UPPER_BASE;
+  if((upper_end_effector - base).magnitude() > UPPER_DISTAL_LENGTH + UPPER_PROXIMAL_LENGTH + static_cast<Point>(UPPER_END_EFFECTOR_VECTOR).magnitude()) {
+    throw std::runtime_error("The upper linkage is too far from the robot");
+  }
+  base = LOWER_BASE;
+  if((lower_end_effector - base).magnitude() > LOWER_DISTAL_LENGTH + LOWER_PROXIMAL_LENGTH + static_cast<Point>(LOWER_END_EFFECTOR_VECTOR).magnitude()) {
+    throw std::runtime_error("The lower linkage is too far from the robot");
+  }
+  if(lower_end_effector.y < LOWER_BASE.y || upper_end_effector.y < LOWER_BASE.y) {
+    throw std::runtime_error("The end effectors are too close to the robot");
+  }
+  
+};
 /**
  * @brief Get the linkage end effector based on its z value. See kinematics
  * report section 5.2
@@ -95,6 +112,9 @@ linkage_end_effectors get_linkage_end_effector(
           ((z_lower - robot_approach.target.z) /
            ((robot_approach.injection_point - robot_approach.target).z)) +
       robot_approach.target;
+  if((needle_at_z - base).magnitude() == 0) {
+    throw std::runtime_error("can't be on top of lower base");
+  }
   Point x_prime = cross((needle_at_z - base), z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime).normalize();
   robot.x_prime = x_prime;
@@ -113,6 +133,7 @@ linkage_end_effectors get_linkage_end_effector(
   Point upper_end_effector = (((z_upper-z_lower)/z_prime.z)) * z_prime + lower_end_effector;
   robot.top_linkage.extended_end_effector = upper_end_effector;
   robot.bottom_linkage.extended_end_effector = lower_end_effector;
+  check_end_effector_dists(upper_end_effector, lower_end_effector);
   assert(isclose(lower_end_effector.z,z_lower));
   assert(isclose(upper_end_effector.z, z_upper));
   upper_end_effector.z = 0;
@@ -156,8 +177,15 @@ linkage_end_effectors get_linkage_end_effector(
 Point intersection_of_two_circles(Point center_a, Point center_b,
                                   double radius_a, double radius_b,
                                   bool left_point) {
+  
   center_a.z = 0;
   center_b.z = 0;
+  if((center_a - center_b).magnitude() >= radius_a + radius_b) {
+    throw std::runtime_error("The circles do not intersect.");
+  }
+  if((center_a - center_b).magnitude() <= abs(radius_a - radius_b)) {
+    throw std::runtime_error("the circles are within each other");
+  }
   double d = (center_a - center_b).magnitude();
   double a = (pow(radius_a, 2) - pow(radius_b, 2) + pow(d, 2)) / (2 * d);
   double h = std::sqrt(pow(radius_a, 2) - pow(a, 2));
@@ -202,7 +230,6 @@ double get_y_of_slider_based_on_midpoint_location(Point midpoint, double x,
  */
 void get_slider_positions(slider_positions &slider_positions_struct,
                           Point end_effector, bool upper, Robot& robot) {
-
   end_effector.z = 0;
   Point left_joint = intersection_of_two_circles(
       end_effector, upper ? UPPER_BASE : LOWER_BASE,

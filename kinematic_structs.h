@@ -14,6 +14,7 @@
 
 #include "Point.h"
 #include <ostream>
+#include <sstream>
 
 const double UPPER_TRANSMISSION_LENGTH = 115;
 const double UPPER_PROXIMAL_LENGTH = 116;
@@ -35,6 +36,11 @@ const double sliderXs[4] = {-63, -21, 21, 63};
 const double BASE_TO_SLIDER_MIN = 48;
 const double BASE_TO_SLIDER_MAX = 173;
 const double HALF_SLIDER_WIDTH = 6.35;
+const double MIN_NEEDLE_EXTENSION = 0;
+//TODO: make this accurate
+const double MAX_NEEDLE_EXTENSION = 150;
+//TODO: make this accurate
+const double MAX_LINKAGE_END_EFFECTOR_DISTANCE = 50;
 
 
 /**
@@ -75,9 +81,26 @@ struct slider_positions {
   double right_middle_slider_y;
   double right_slider_y;
   double needle_extension;
-
-  void print() {
-    std::cout << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+  
+  std::string get_slider_string(bool my_coords) {
+    std::stringstream slider_string_stream;
+    if(my_coords) {
+      slider_string_stream << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
+    
+    } else {
+      double _right = BASE_TO_SLIDER_MAX -right_slider_y - HALF_SLIDER_WIDTH;
+      double _left = BASE_TO_SLIDER_MAX - left_slider_y - HALF_SLIDER_WIDTH;
+      double _right_middle = BASE_TO_SLIDER_MAX -right_middle_slider_y - HALF_SLIDER_WIDTH;
+      double _left_middle = BASE_TO_SLIDER_MAX - left_middle_slider_y - HALF_SLIDER_WIDTH;
+    
+      slider_string_stream << _left << std::endl << _left_middle << std::endl << _right_middle << std::endl << _right << std::endl << needle_extension << std::endl;
+    
+    }
+    return slider_string_stream.str();
+  }
+  
+  void print(bool my_coords) {
+    std::cout << get_slider_string(my_coords);
   }
 };
 
@@ -98,7 +121,7 @@ struct linkage_array {
   Point right_midpoint;
 };
 
-const double precision = .00001;
+const double precision = .01;
 
 inline bool isclose(double a, double b) {
   return a + precision > b && a - precision < b;

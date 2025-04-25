@@ -14,10 +14,15 @@
 
 #include <cmath>
 #include <iostream>
+#include "Matrix.h"
 struct Point {
   double x;
   double y;
   double z;
+  /**
+   * @brief print out the point
+   * 
+   */
   void print() { std::cout << x << " " << y << " " << z << std::endl; }
 
   /**
@@ -52,6 +57,17 @@ struct Point {
   }
 
   /**
+   * @brief dot product of two points
+   * 
+   * @param p1 
+   * @param p2 
+   * @return double 
+   */
+  friend double operator*(Point p1, Point &p2) {
+    return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
+  }
+
+  /**
    * @brief scale a point
    * 
    * @param scalar 
@@ -81,6 +97,11 @@ struct Point {
     return {.x = this->x / magnitude,
             .y = this->y / magnitude,
             .z = this->z / magnitude};
+  }
+
+
+  Matrix to_matrix() {
+    return Matrix(3,1,{x,y,z});
   }
 
 };

@@ -11,7 +11,7 @@ void update_robot_forward(slider_positions sliders, Robot& robot) {
 }
 
 void update_robot_backward(approach_definition approach_definition, Robot& robot) {
-  inverse_kinematics(approach_definition, Transform(0, 0, 0, 0, 0, 0), robot);
+  inverse_kinematics(approach_definition, NewTransform(0, 0, 0, 0, 0, 0), robot);
 }
 
 bool compare_point(Point a, Point b) {
@@ -115,17 +115,25 @@ void compare_robots(Robot robot1, Robot robot2) {
     }
     if(!compare_sliders(robot1.sliders, robot2.sliders)) {
         std::cout << "sliders not equal: " << std::endl;
-        robot1.sliders.print();
-        robot2.sliders.print();
+        robot1.sliders.print(true);
+        robot2.sliders.print(true);
     }    
 }
 
 int main() {
-    approach_definition inverse_approach = {{0, 350, -75},
+
+    approach_definition inverse_approach = {{0, 455, -75},
                              0,
                              0};
     Robot inverse_robot;
     update_robot_backward(inverse_approach, inverse_robot);
+    //inverse_robot.sliders.print();
+    slider_positions positions = inverse_robot.sliders;
+    double right = BASE_TO_SLIDER_MAX - positions.right_slider_y - HALF_SLIDER_WIDTH;
+    double left = BASE_TO_SLIDER_MAX - positions.left_slider_y - HALF_SLIDER_WIDTH;
+    double right_middle = BASE_TO_SLIDER_MAX - positions.right_middle_slider_y - HALF_SLIDER_WIDTH;
+    double left_middle = BASE_TO_SLIDER_MAX - positions.left_middle_slider_y - HALF_SLIDER_WIDTH;
+    std::cout << left << " " << left_middle << " " << right_middle << " " << right << std::endl;
     Robot forward_robot;
     update_robot_forward(inverse_robot.sliders, forward_robot);
     compare_robots(inverse_robot, forward_robot);

@@ -4,7 +4,7 @@
 
 #include "Point.h"
 #include "Robot.h"
-#include "Transform.h"
+#include "NewTransform.h"
 #include "kinematic_structs.h"
 /**
  * @brief Get a left or right joint. The joint is where the proximal links meet
@@ -66,4 +66,6 @@ Point get_end_effector(Point left, Point left_middle, Point right_middle,
 Point get_needle_point_based_on_end_effector_positions(
     Point upper_linkage_end_effector, Point lower_linkage_end_effector,
     double needle_extension, Robot& robot);
+
+Point get_end_effector(slider_positions sliders, Robot& robot);
 #endif

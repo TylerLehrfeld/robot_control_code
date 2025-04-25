@@ -8,3 +8,14 @@ inverse_kinematics_test
 .cache
 build
 forward_inverse_kinematic_comparison
+out.txt
+.vscode/*
+./vscode
+parse_ini
+Data.txt
+.vscode/settings.json
+get_test_grid
+./scripts/.myenv/**
+grid.txt
+sliders.txt
+Benchtop_Accuracy_test
