@@ -105,17 +105,19 @@ linkage_end_effectors get_linkage_end_effector(
     target_and_injection_point_approach robot_approach, double z_lower, double z_upper, double &needle_extension, Robot& robot) {
   Point base = LOWER_BASE;
   base.z = z_lower;
+  Point upper_base = UPPER_BASE;
+  upper_base.z = UPPER_LINKAGE_Z;
   Point z_prime =
       (robot_approach.injection_point - robot_approach.target).normalize();
   Point needle_at_z =
       (robot_approach.injection_point - robot_approach.target) *
-          ((z_lower - robot_approach.target.z) /
+          ((UPPER_LINKAGE_Z - robot_approach.target.z) /
            ((robot_approach.injection_point - robot_approach.target).z)) +
       robot_approach.target;
   if((needle_at_z - base).magnitude() == 0) {
     throw std::runtime_error("can't be on top of lower base");
   }
-  Point x_prime = cross((needle_at_z - base), z_prime).normalize();
+  Point x_prime = cross((needle_at_z - upper_base), z_prime).normalize();
   Point y_prime = cross(z_prime, x_prime).normalize();
   robot.x_prime = x_prime;
   robot.y_prime = y_prime;
@@ -137,7 +139,6 @@ linkage_end_effectors get_linkage_end_effector(
   assert(isclose(lower_end_effector.z,z_lower));
   assert(isclose(upper_end_effector.z, z_upper));
   upper_end_effector.z = 0;
-  Point upper_base = UPPER_BASE;
   upper_base.z = 0;
   Point upper_end_effector_vector = UPPER_END_EFFECTOR_VECTOR;
   upper_end_effector = ((upper_end_effector - upper_base).normalize() *

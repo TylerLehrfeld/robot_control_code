@@ -2,6 +2,7 @@
 #include <regex>
 #include <fstream>
 #include "../Point.h"
+#include "../helperFunctions.h"
 
 #ifndef PARSE_INI
 #define PARSE_INI
@@ -51,4 +52,17 @@ std::vector<Point> parse_ini_file(const std::string& filepath) {
     return fiducials;
 }
 
+
+Matrix rotation_from_axis_and_angle(Point rotation_axis_point, double theta) {
+    Matrix I = generate_identity(3);
+    Matrix n_x(3, 3, 
+        {
+            0, -rotation_axis_point.z, rotation_axis_point.y, 
+            rotation_axis_point.z, 0, -rotation_axis_point.x, 
+            -rotation_axis_point.y, rotation_axis_point.x, 0
+        });
+    Matrix rotation_axis = rotation_axis_point.to_matrix();
+    Matrix R = I * cos(theta) + (1 - cos(theta)) * (rotation_axis * rotation_axis.transpose()) + sin(theta) * n_x;
+    return R;
+}
 #endif

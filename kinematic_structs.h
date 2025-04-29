@@ -30,7 +30,7 @@ const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
 const double UPPER_TO_LOWER_BASE_LENGTH = 38;
 const Point LOWER_BASE = {0, 186 + UPPER_TO_LOWER_BASE_LENGTH, 0};
 const Point UPPER_BASE = {0, 186, 0};
-const Point UPPER_END_EFFECTOR_VECTOR = {0, 19.11, 0};
+const Point UPPER_END_EFFECTOR_VECTOR = {0, 19.25, 0};
 const Point LOWER_END_EFFECTOR_VECTOR = {14, 0, 0};
 const double sliderXs[4] = {-63, -21, 21, 63};
 const double BASE_TO_SLIDER_MIN = 48;

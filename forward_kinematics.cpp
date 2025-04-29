@@ -102,6 +102,7 @@ Point get_linkage_end_effector(bool is_upper, Point left_slider,
 Point get_needle_point_based_on_end_effector_positions(
     Point upper_linkage_end_effector, Point lower_linkage_end_effector,
     double needle_extension, Robot& robot) {
+  //z direction is the direction of the needle towards the sky
   Point z_prime =
       (upper_linkage_end_effector - lower_linkage_end_effector).normalize();
   count++;

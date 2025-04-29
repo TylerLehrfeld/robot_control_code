@@ -15,18 +15,7 @@
 #include "../Matrix.h"
 #include "../helperFunctions.h"
 
-Matrix rotation_from_axis_and_angle(Point rotation_axis_point, double theta) {
-    Matrix I = generate_identity(3);
-    Matrix n_x(3, 3, 
-        {
-            0, -rotation_axis_point.z, rotation_axis_point.y, 
-            rotation_axis_point.z, 0, -rotation_axis_point.x, 
-            -rotation_axis_point.y, rotation_axis_point.x, 0
-        });
-    Matrix rotation_axis = rotation_axis_point.to_matrix();
-    Matrix R = I * cos(theta) + (1 - cos(theta)) * (rotation_axis * rotation_axis.transpose()) + sin(theta) * n_x;
-    return R;
-}
+
 
 
 int main(int argc, char **argv)
@@ -35,7 +24,19 @@ int main(int argc, char **argv)
     // We want fiducials 2 and 4 to be oriented upwards. Fiducial 2 should be at the origin.
     std::vector<Point> fiducials = parse_ini_file(filepath);
     std::vector<Matrix> Matrix_fiducials;
-    // put fiducial 2 at origin
+    Point rotation_axis_point = {0,0,1};
+    double theta = 1* M_PI / 180;
+    Matrix R = rotation_from_axis_and_angle(rotation_axis_point, theta); 
+    Point middle = fiducials[1];
+    for (int i = 0; i < fiducials.size(); i++)
+    {
+        fiducials[i] = fiducials[i] - middle;
+        Matrix_fiducials.push_back(fiducials[i].to_matrix());
+    }
+    for(int i = 0; i < Matrix_fiducials.size(); i++) {
+        Matrix_fiducials[i] = R*Matrix_fiducials[i];
+    }
+    /*// put fiducial 2 at origin
     Point middle = fiducials[1];
     for (int i = 0; i < fiducials.size(); i++)
     {
@@ -45,6 +46,9 @@ int main(int argc, char **argv)
     // rotate fiducials such that fiducial 4 has an x and y of zero or (fiducial 4 is above 2).
     Point normalized_4 = fiducials[3].normalize();
     Point rotation_axis_point = cross(normalized_4, {0, 0, 1});
+    if(rotation_axis_point.magnitude() == 0) {
+        rotation_axis_point = {0, 0, 1};
+    }
     double theta = acos(normalized_4 * rotation_axis_point);
     
     Matrix R = rotation_from_axis_and_angle(rotation_axis_point, theta); 
@@ -64,6 +68,7 @@ int main(int argc, char **argv)
     for(int i = 0; i < Matrix_fiducials.size(); i++) {
         Matrix_fiducials[i] = R*Matrix_fiducials[i];
     }
+    */
     std::ofstream file(filepath);
     for (size_t i = 0; i < Matrix_fiducials.size(); ++i) {
         Matrix f = Matrix_fiducials[i];

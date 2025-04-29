@@ -9,7 +9,9 @@ SRC_DIR = .
 
 # Source files
 SRCS = ../Matrix.cpp \
-	   ../Transform.cpp 
+	   ../Transform.cpp \
+	   ../Pivot.cpp \
+
        
 
 
@@ -19,13 +21,15 @@ HEADERS = ../Point.h \
 		  ../Matrix.h \
 		  ../Transform.h \
 		  ../ini_helpers.h \
-		  ../helperFunctions.h
+		  ../helperFunctions.h \
+		  ../Pivot.h \
+
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
 
 # Output binary
-TARGETS = orient_ini ini_to_desmos
+TARGETS = orient_ini ini_to_desmos get_rot
 
 # Build target
 all: $(TARGETS)
@@ -35,6 +39,9 @@ orient_ini: orient_ini.o $(OBJS)
 
 
 ini_to_desmos: ini_to_desmos.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+get_rot: get_rot.o $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Compile source to object

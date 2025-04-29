@@ -5,6 +5,14 @@
 #include "kinematic_structs.h"
 #include <iostream>
 
+slider_positions home_positions = {
+    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+    20
+};
+
 void update_robot_forward(slider_positions sliders, Robot& robot) {
     robot.sliders = sliders;
     get_end_effector({sliderXs[0], sliders.left_slider_y, 0}, {sliderXs[1],sliders.left_middle_slider_y, 0},{sliderXs[2], sliders.right_middle_slider_y, 0}, {sliderXs[3], sliders.right_slider_y, 0}, UPPER_BASE, LOWER_BASE, sliders.needle_extension, robot);
@@ -121,21 +129,32 @@ void compare_robots(Robot robot1, Robot robot2) {
 }
 
 int main() {
-
-    approach_definition inverse_approach = {{0, 455, -75},
-                             0,
-                             0};
-    Robot inverse_robot;
-    update_robot_backward(inverse_approach, inverse_robot);
-    //inverse_robot.sliders.print();
-    slider_positions positions = inverse_robot.sliders;
-    double right = BASE_TO_SLIDER_MAX - positions.right_slider_y - HALF_SLIDER_WIDTH;
-    double left = BASE_TO_SLIDER_MAX - positions.left_slider_y - HALF_SLIDER_WIDTH;
-    double right_middle = BASE_TO_SLIDER_MAX - positions.right_middle_slider_y - HALF_SLIDER_WIDTH;
-    double left_middle = BASE_TO_SLIDER_MAX - positions.left_middle_slider_y - HALF_SLIDER_WIDTH;
-    std::cout << left << " " << left_middle << " " << right_middle << " " << right << std::endl;
     Robot forward_robot;
-    update_robot_forward(inverse_robot.sliders, forward_robot);
-    compare_robots(inverse_robot, forward_robot);
+    Robot inverse_robot;
+    
+    
+//
+    //approach_definition inverse_approach = {{-60, 410, 64.9},
+    //                         0,
+    //                         0};
+//
+    //Robot inverse_robot;
+    //update_robot_backward(inverse_approach, inverse_robot);
+    ////inverse_robot.sliders.print();
+    //slider_positions positions = inverse_robot.sliders;
+    //double right = BASE_TO_SLIDER_MAX - positions.right_slider_y - HALF_SLIDER_WIDTH;
+    //double left = BASE_TO_SLIDER_MAX - positions.left_slider_y - HALF_SLIDER_WIDTH;
+    //double right_middle = BASE_TO_SLIDER_MAX - positions.right_middle_slider_y - HALF_SLIDER_WIDTH;
+    //double left_middle = BASE_TO_SLIDER_MAX - positions.left_middle_slider_y - HALF_SLIDER_WIDTH;
+    //std::cout << left << " " << left_middle << " " << right_middle << " " << right << std::endl;
+    //update_robot_forward(inverse_robot.sliders, forward_robot);
+    //compare_robots(inverse_robot, forward_robot);
+    forward_robot.sliders = home_positions;
+    Point target_p = get_end_effector(home_positions, forward_robot);
+    target_p.print_desmos();
+    Point injection_p = target_p + forward_robot.z_prime;
+    inverse_kinematics({target_p, injection_p}, inverse_robot);
+    inverse_robot.needle_tip.print_desmos();
+    compare_robots(forward_robot, inverse_robot);
 
 }
