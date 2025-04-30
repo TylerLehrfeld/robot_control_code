@@ -14,7 +14,7 @@ slider_positions home_positions = {
     BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
     BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
     BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 53.71 - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
     20
 };
 
@@ -88,7 +88,7 @@ int main() {
     } while(command != "c");
     
     NewTransform F_M2N = get_average_transform(F_M2Ns);*/
-    NewTransform F_M2N(0,0,M_PI, -0.108532, 28.6202, -5.99369);
+    NewTransform F_M2N(0,0,M_PI, .00558085, 28.3789, -5.49509);
     results_file << "F_M2N" <<std::endl << F_M2N.to_string();
     //NewTransform F_M2N = F_M2Ns[0];
     /*vector<NewTransform> F_M1Rs;
@@ -149,9 +149,9 @@ int main() {
     (F_OM1.inverse() * F_OM2 * F_M2N).print();
     //5 72 -42.27
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
-    F_M1R.matrix[0][3] = -42;
+    F_M1R.matrix[0][3] = -37.5;
     F_M1R.matrix[1][3] = -5;
-    F_M1R.matrix[2][3] = -80;
+    F_M1R.matrix[2][3] = -71.99;
     F_M1R.matrix[0][0] = -1;
     F_M1R.matrix[0][1] = 0;
     F_M1R.matrix[0][2] = 0;
@@ -169,9 +169,6 @@ int main() {
     double mag_tot = 0;
     int num_trials = 0;
     while(true) {
-
-        
-         
         Robot inverse_robot;
         std::string line;
         grid_file >> line;
@@ -191,7 +188,7 @@ int main() {
         position.print(false);
         std::cout << "move robot and take readings?" << std::endl;
         delay_ms(500);
-        //std::cin >> command;
+        std::cin >> command;
         if(command == "q") {
             break;
         }
