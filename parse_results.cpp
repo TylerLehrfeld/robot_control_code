@@ -48,15 +48,32 @@ void parse_beginning(std::ifstream& file) {
 
 int main() {
     std::ifstream results("results.txt");
-    int num_results = 21;
+    std::ifstream grid_file("grid.txt");
+
+    if(!grid_file.is_open()) {
+        std::cout << "grid file not open";
+        return -1;
+    }
+    int num_results = 80;
     std::string line;
     parse_beginning(results);
     NewTransform prev_F_RN_measured;
     NewTransform prev_F_RN_expected;
+    NewTransform prev_F_OM2;
     Point prev_expected_needle;
     Point prev_measured_needle;
-    Point zero = {0,0,0};
+    double prev_y = 0;
+    Point zero = {.00558085, 28.3789, -5.49509};
     for(int i = 0; i < num_results; i++) {
+        std::string line;
+        grid_file >> line;
+        if(line == "") {
+            break;
+        }
+        std::string x = line.substr(1,line.find(",")-1);
+        std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
+        std::cout << x << ", " << y << std::endl;
+        double cur_y = std::stod(y);
         results >> line;
         results >> line;
         NewTransform F_OM1 = get_transform(results, 1);
@@ -78,18 +95,19 @@ int main() {
         //measured_needle.print_desmos();
         //expected_needle.print_desmos();
         if(i != 0) {
-            Point p = (prev_F_RN_measured * zero);
-            p.z = 0;
-            Point adj_measured_base = measured_base;
-            adj_measured_base.z = 0;
-            (p - measured_base).print_desmos();
-            std::cout << (p - measured_base).magnitude() << std::endl;
-            (p - adj_measured_base).print_desmos();
-            std::cout << (p - adj_measured_base).magnitude() << std::endl;
+            std::cout << prev_y - cur_y << std::endl;
+            Point p_0 = (prev_F_OM2 * zero);
+            Point p = (F_OM2 * zero);
+            //p.print_desmos();
+            (p - p_0).print_desmos();
+            std::cout << (p - p_0).magnitude() << std::endl;
+
         }
-        prev_F_RN_measured = F_RN_measured;
-        prev_F_RN_expected = F_RN_expected;
-        prev_expected_needle = expected_needle;
-        prev_measured_needle = measured_needle;
+        prev_F_OM2 = F_OM2;
+        prev_y = cur_y;
+        //prev_F_RN_measured = F_RN_measured;
+        //prev_F_RN_expected = F_RN_expected;
+        //prev_expected_needle = expected_needle;
+        //prev_measured_needle = measured_needle;
     }
 }

@@ -5,12 +5,20 @@
 #include "kinematic_structs.h"
 #include <iostream>
 
+//slider_positions home_positions = {
+//    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+//    20
+//};
+
 slider_positions home_positions = {
-    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
-    20
+    BASE_TO_SLIDER_MAX - 60   ,//- HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 26.79,// - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 23.48,//- HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 60   ,//- HALF_SLIDER_WIDTH,
+    0
 };
 
 void update_robot_forward(slider_positions sliders, Robot& robot) {
@@ -152,9 +160,11 @@ int main() {
     forward_robot.sliders = home_positions;
     Point target_p = get_end_effector(home_positions, forward_robot);
     target_p.print_desmos();
+    forward_robot.bottom_linkage.extended_end_effector.print_desmos();
+    forward_robot.z_prime.print_desmos();
+    
     Point injection_p = target_p + forward_robot.z_prime;
     inverse_kinematics({target_p, injection_p}, inverse_robot);
-    inverse_robot.needle_tip.print_desmos();
     compare_robots(forward_robot, inverse_robot);
 
 }

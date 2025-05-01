@@ -94,9 +94,9 @@ int GoToUpBlocking(double left, double right)
     char buf[G_SMALL_BUFFER]; // traffic buffer
     GSize read_bytes = 0;     // bytes read in GCommand
     int value = 0;
-    // GCommand(g, ("tgtMmA = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    // GCommand(g, ("tgtMmF = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #GoToUp(50,50), 6", buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, ("tgtMmA = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, ("tgtMmF = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #GoToUp, 6", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {

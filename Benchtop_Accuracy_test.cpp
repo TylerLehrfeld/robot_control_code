@@ -188,7 +188,7 @@ int main() {
         position.print(false);
         std::cout << "move robot and take readings?" << std::endl;
         delay_ms(500);
-        std::cin >> command;
+        //std::cin >> command;
         if(command == "q") {
             break;
         }
