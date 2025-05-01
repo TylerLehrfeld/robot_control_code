@@ -2,8 +2,8 @@
 
 int main() {
     
-    init_galil(4);
-    move_slider_A(15);
+    init_galil(3);
+    GoToLowBlocking(25, 25);
     stop_galil();
 
 }

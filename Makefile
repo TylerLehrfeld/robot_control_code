@@ -34,7 +34,7 @@ OBJ = $(SRC:.cpp=.o)
 
 # Output executables
 TARGETS = forward_inverse_kinematic_comparison get_test_grid parse_results#inverse_kinematics_test kinematics_end_effector_analysis_test
-TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test galil_control_test parse_results
+TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test galil_control_test parse_results Relative_test
 
 all: $(TARGETS)
 
@@ -60,6 +60,9 @@ kinematic_grid_error_analysis: kinematic_grid_error_analysis.o forward_kinematic
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 galil_control_test: galil_control_test.o Matrix.o Transform.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
+
+Relative_test: Relative_test.o Matrix.o Transform.o Pivot.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
 
 clean:
