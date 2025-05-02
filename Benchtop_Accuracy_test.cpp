@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "NewTransform.h"
+#include "Point.h"
 #include "PointCloudTransform.h"
 #include "galil_control_calls.h"
 #include <string>
@@ -144,7 +145,11 @@ int main() {
         delay_ms(200);
     }
     NewTransform F_OM1 = get_average_transform(F_OM1_list);
+
     NewTransform F_OM2 = get_average_transform(F_OM2_list);
+    Matrix z(3,1,{0,0,1});
+    F_M2N.to_transform().R_AB * z;
+    
     (F_OM1.inverse() * F_OM2).print();
     (F_OM1.inverse() * F_OM2 * F_M2N).print();
     //5 72 -42.27

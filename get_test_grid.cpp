@@ -26,8 +26,8 @@ int main() {
             no_extension_z = z;
         }
     }
-    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += 20) {
-        for(double y = 350; y <= VERTICAL_RANGE/2; y += 10) {
+    for(double x = -HORIZONTAL_RANGE/2; x <= HORIZONTAL_RANGE/2; x += .5) {
+        for(double y = 350; y <= VERTICAL_RANGE/2; y += .5) {
             std::cout << x << " " << y << std::endl;
             try {
                 if(x == 0 && y == 224) {

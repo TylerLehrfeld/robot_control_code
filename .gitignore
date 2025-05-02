@@ -20,3 +20,7 @@ grid.txt
 sliders.txt
 Benchtop_Accuracy_test
 kinematic_grid_error_analysis
+./scripts/myenv
+./scripts/bin
+./scripts/lib
+./scripts/lib64

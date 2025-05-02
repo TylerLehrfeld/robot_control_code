@@ -54,7 +54,7 @@ int main() {
         std::cout << "grid file not open";
         return -1;
     }
-    int num_results = 80;
+    int num_results = 84;
     std::string line;
     parse_beginning(results);
     NewTransform prev_F_RN_measured;
@@ -72,7 +72,7 @@ int main() {
         }
         std::string x = line.substr(1,line.find(",")-1);
         std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
-        std::cout << x << ", " << y << std::endl;
+        //std::cout << x << ", " << y << std::endl;
         double cur_y = std::stod(y);
         results >> line;
         results >> line;
@@ -95,12 +95,16 @@ int main() {
         //measured_needle.print_desmos();
         //expected_needle.print_desmos();
         if(i != 0) {
-            std::cout << prev_y - cur_y << std::endl;
             Point p_0 = (prev_F_OM2 * zero);
             Point p = (F_OM2 * zero);
+            //std::cout << prev_y - cur_y << std::endl;
+            //std::cout << (p - p_0).magnitude() << std::endl;
+            if(prev_y - cur_y > 0) {
+                std::cout <<  "(" << cur_y << "," << abs((p - p_0).magnitude()) - abs(prev_y - cur_y)<<")" << std::endl;    
+            }
+            //std::cout <<  "(" << cur_y << "," << abs((p - p_0).magnitude()) - abs(prev_y - cur_y)<<")" << std::endl;
             //p.print_desmos();
-            (p - p_0).print_desmos();
-            std::cout << (p - p_0).magnitude() << std::endl;
+            //(p - p_0).print_desmos();
 
         }
         prev_F_OM2 = F_OM2;
