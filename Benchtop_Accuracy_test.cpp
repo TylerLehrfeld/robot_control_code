@@ -46,17 +46,16 @@ int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
     std::ofstream results_file("results.txt");
     
-    //init_galil(1);
-    //std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
-    //std::cin >> up_left_near;
-    //std::cin >> up_right_near;
-    //HomeUpBlocking(up_left_near, up_right_near);
-    //stop_galil();
-    //init_galil(1);
-    //std::cout << "Homing low. Enter 1 if the slider is behind the limit switch: B E" << std::endl;
-    //std::cin >> low_left_near;
-    //std::cin >> low_right_near;
-    //HomeLowBlocking(low_left_near, low_right_near);
+    /*init_galil(1);
+    std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
+    std::cin >> up_left_near;
+    std::cin >> up_right_near;
+    HomeUpBlocking(up_left_near, up_right_near);
+    std::cout << "Homing low. Enter 1 if the slider is behind the limit switch: B E" << std::endl;
+    std::cin >> low_left_near;
+    std::cin >> low_right_near;
+    HomeLowBlocking(low_left_near, low_right_near);
+    stop_galil();*/
     /*init_galil(3);
     GoToUpBlocking(60,60);
     stop_galil();*/
@@ -122,7 +121,7 @@ int main() {
     vector<NewTransform> F_OM2_list;
     NewTransform previous_F_OM1;
     NewTransform previous_F_OM2;
-    init_galil(2);
+    init_galil(3);
     std::cout <<"collect home positions" << std::endl;
     std::cin >> command;
     while(num_measurements_taken < num_measurements_needed) {
@@ -145,6 +144,8 @@ int main() {
     }
     NewTransform F_OM1 = get_average_transform(F_OM1_list);
     NewTransform F_OM2 = get_average_transform(F_OM2_list);
+    NewTransform home_F_OM2 = F_OM2;
+    results_file << "F_OM home" << std::endl << home_F_OM2.to_string();
     (F_OM1.inverse() * F_OM2).print();
     (F_OM1.inverse() * F_OM2 * F_M2N).print();
     //5 72 -42.27
@@ -215,7 +216,8 @@ int main() {
         F_OM2 = get_average_transform(F_OM2s);
         results_file << "F_OM1" <<std::endl << F_OM1.to_string();
         results_file << "F_OM2" <<std::endl << F_OM2.to_string();
-    
+        
+
         Matrix rot(vector<Matrix>({inverse_robot.x_prime.to_matrix(), inverse_robot.y_prime.to_matrix(), inverse_robot.z_prime.to_matrix()}));
         Transform expected_F_RN(rot, inverse_robot.bottom_linkage.extended_end_effector.to_matrix());
         NewTransform New_expected_F_RN(expected_F_RN);
@@ -229,7 +231,6 @@ int main() {
         std::cout << "difference transform" << std::endl;
         (New_expected_F_RN.inverse() * actual_F_RN).print();
         results_file << "F_RN expected" <<std::endl << New_expected_F_RN.to_string();
-        
         Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
         needle.z = -115;
         std::cout << "Expected needle: " << std::endl;

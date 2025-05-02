@@ -78,7 +78,7 @@ int GoToLowBlocking(double left, double right)
     int value = 0;
     GCommand(g, ("tgtMmB = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, ("tgtMmE = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #GoToLow, 1", buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #GoToLow, 7", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {
@@ -96,8 +96,8 @@ int GoToUpBlocking(double left, double right)
     int value = 0;
     GCommand(g, ("tgtMmA = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, ("tgtMmF = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #GoToUp, 6", buf, G_SMALL_BUFFER, &read_bytes);
-    std::this_thread::sleep_for(100ms);
+    GCommand(g, "XQ #GoToUp, 7", buf, G_SMALL_BUFFER, &read_bytes);
+    std::this_thread::sleep_for(300ms);
     do
     {
         GCmdI(g, "dMotion = ?", &value);
@@ -114,7 +114,7 @@ int GoToPosBlocking(double left, double right)
     int value = 0;
     GCommand(g, ("tgtMmB = " + to_string(right)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, ("tgtMmE = " + to_string(left)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #GoToPos, 1", buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #GoToPos, 7", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {
@@ -132,7 +132,7 @@ int HomeUpBlocking(bool msideA, bool msideF)
     int value = 0;
     GCommand(g, ("msideA = " + to_string((int)msideA)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, ("msideF = " + to_string((int)msideF)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #homeUp, 1", buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #homeUp, 0", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {
@@ -151,7 +151,7 @@ int HomeLowBlocking(bool msideB, bool msideE)
     int value = 0;
     GCommand(g, ("msideB = " + to_string((int)msideB)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
     GCommand(g, ("msideE = " + to_string((int)msideE)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
-    GCommand(g, "XQ #homeLow, 1", buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #homeLow, 0", buf, G_SMALL_BUFFER, &read_bytes);
     std::this_thread::sleep_for(100ms);
     do
     {
@@ -201,9 +201,9 @@ void move_robot_with_slider_positions(slider_positions positions)
     std::cout << "continue with motion?" << std::endl;
     // std::cin >> command;
     std::cout << "beginning motion" << std::endl;
-    // GoToLowBlocking(left_middle, right_middle);
-    // GoToUpBlocking(left, right);
-    GoToPosBlocking(left_middle, right_middle);
+    GoToLowBlocking(left_middle, right_middle);
+    GoToUpBlocking(left, right);
+    //GoToPosBlocking(left_middle, right_middle);
     // GoToUpBlocking(upper_left, upper_right);
     std::cout << "finished motion" << std::endl;
 
