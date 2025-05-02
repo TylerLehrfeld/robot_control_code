@@ -105,13 +105,14 @@ int main() {
             //p.print_desmos();
             //(p - p_0).print_desmos();
             if(prev_y - cur_y > 0) {
-                std::cout << "(" << cur_y << ","<< abs((p - p_0).magnitude() - abs(prev_y - cur_y))<<")" <<std::endl;
-                //std::cout << acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude()) << std::endl; 
+                //std::cout << "(" << cur_y << ","<< abs((p - p_0).magnitude() - abs(prev_y - cur_y))<<")" <<std::endl;
+                 
             }
             //std::cout << (p - p_0).magnitude() << std::endl;
             //acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude());
 
         }
+        std::cout << acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude()) << std::endl;
         prev_F_OM2 = F_OM2;
         prev_y = cur_y;
         //prev_F_RN_measured = F_RN_measured;
