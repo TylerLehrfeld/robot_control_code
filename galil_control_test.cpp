@@ -3,7 +3,6 @@
 int main() {
     
     init_galil(3);
-    GoToLowBlocking(25, 25);
+    GoToUpBlocking(40, 40);
     stop_galil();
-
 }
