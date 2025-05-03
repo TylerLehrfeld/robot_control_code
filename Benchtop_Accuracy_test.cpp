@@ -10,12 +10,20 @@
 #include "inverse_kinematics.h"
 #include "forward_kinematics.h"
 
+//slider_positions home_positions = {
+//    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
+//    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
+//    20
+//};
+
 slider_positions home_positions = {
-    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 19.94923 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 16.63853 - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 53.92 - HALF_SLIDER_WIDTH,
-    20
+    BASE_TO_SLIDER_MAX - 60   ,//- HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 26.79,// - HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 23.48,//- HALF_SLIDER_WIDTH,
+    BASE_TO_SLIDER_MAX - 60   ,//- HALF_SLIDER_WIDTH,
+    0
 };
 
 NewTransform get_average_transform(vector<NewTransform> transforms) {
@@ -121,7 +129,6 @@ int main() {
     vector<NewTransform> F_OM2_list;
     NewTransform previous_F_OM1;
     NewTransform previous_F_OM2;
-    init_galil(3);
     std::cout <<"collect home positions" << std::endl;
     std::cin >> command;
     while(num_measurements_taken < num_measurements_needed) {
@@ -150,18 +157,18 @@ int main() {
     (F_OM1.inverse() * F_OM2 * F_M2N).print();
     //5 72 -42.27
     NewTransform F_M1R = F_OM1.inverse() * F_OM2 * F_M2N * F_NR;
-    F_M1R.matrix[0][3] = -37.5;
-    F_M1R.matrix[1][3] = -5;
-    F_M1R.matrix[2][3] = -71.99;
-    F_M1R.matrix[0][0] = -1;
-    F_M1R.matrix[0][1] = 0;
-    F_M1R.matrix[0][2] = 0;
-    F_M1R.matrix[1][0] = 0;
-    F_M1R.matrix[1][1] = -1;
-    F_M1R.matrix[1][2] = 0;
-    F_M1R.matrix[2][0] = 0;
-    F_M1R.matrix[2][1] = 0;
-    F_M1R.matrix[2][2] = 1;
+    //F_M1R.matrix[0][3] = -37.5;
+    //F_M1R.matrix[1][3] = -5;
+    //F_M1R.matrix[2][3] = -71.99;
+    //F_M1R.matrix[0][0] = -1;
+    //F_M1R.matrix[0][1] = 0;
+    //F_M1R.matrix[0][2] = 0;
+    //F_M1R.matrix[1][0] = 0;
+    //F_M1R.matrix[1][1] = -1;
+    //F_M1R.matrix[1][2] = 0;
+    //F_M1R.matrix[2][0] = 0;
+    //F_M1R.matrix[2][1] = 0;
+    //F_M1R.matrix[2][2] = 1;
     results_file << "F_M1R" <<std::endl <<F_M1R.to_string();
     F_RN.print();
     NewTransform F_OM1_inv = F_OM1.inverse();
@@ -169,6 +176,7 @@ int main() {
     Point last_point = {0,0,0};
     double mag_tot = 0;
     int num_trials = 0;
+    init_galil(3);
     while(true) {
         Robot inverse_robot;
         std::string line;
@@ -235,16 +243,16 @@ int main() {
         needle.z = -115;
         std::cout << "Expected needle: " << std::endl;
         Point expected = (New_expected_F_RN * needle); 
-        results_file << "expected needle" <<std::endl << (New_expected_F_RN * needle).to_string();
+        results_file << "expected needle" <<std::endl << (New_expected_F_RN * needle).to_string(false);
         expected.print();
         std::cout << "Actual needle: " << std::endl;
         Point actual = (actual_F_RN * needle); 
-        results_file << "actual needle" <<std::endl << (actual_F_RN * needle).to_string();
+        results_file << "actual needle" <<std::endl << (actual_F_RN * needle).to_string(false);
         actual.print();
         std::cout << "difference vector: " << std::endl;
         (actual - expected).print();
 
-        results_file << "difference vector" <<std::endl << (actual - expected).to_string();
+        results_file << "difference vector" <<std::endl << (actual - expected).to_string(false);
         std::cout << "difference magnitude: " << std::endl;
         std::cout << (actual - expected).magnitude() << std::endl;
 

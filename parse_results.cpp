@@ -1,6 +1,7 @@
 #include <fstream>
 #include "NewTransform.h"
 #include "Matrix.h"
+#include "kinematic_structs.h"
 
 
 NewTransform get_transform(std::ifstream& file, int num_strs) {
@@ -49,14 +50,14 @@ NewTransform parse_beginning(std::ifstream& file) {
 }
 
 int main() {
-    std::ifstream results("results.txt");
+    std::ifstream results("resultsy.txt");
     std::ifstream grid_file("grid.txt");
 
     if(!grid_file.is_open()) {
         std::cout << "grid file not open";
         return -1;
     }
-    int num_results = 200;
+    int num_results = 67;
     std::string line;
     NewTransform F_OM2_home = parse_beginning(results);
     Matrix z(3,1,{0,0,1});
@@ -67,7 +68,8 @@ int main() {
     Point prev_expected_needle;
     Point prev_measured_needle;
     double prev_y = 0;
-    Point zero = {.00558085, 28.3789, -5.49509};
+    NewTransform F_M2N(0,0,M_PI,0.0015843, 28.1358, -5.656892);
+    Point zero = {0,0,0};
     for(int i = 0; i < num_results; i++) {
         std::string line;
         grid_file >> line;
@@ -85,7 +87,7 @@ int main() {
         NewTransform F_RN_measured = get_transform(results, 2);
         NewTransform F_RN_expected = get_transform(results, 2);
         Point measured_base = F_RN_measured * zero;
-        Point expected_base = F_RN_expected * zero;
+        //Point expected_base = F_RN_expected * zero;
         //F_RN_measured.to_transform().p_AB.print_desmos();
         //F_RN_expected.to_transform().p_AB.print_desmos();
         Point expected_needle = get_point(results, 2);
@@ -98,10 +100,15 @@ int main() {
         results >> diff_mag;
         //measured_needle.print_desmos();
         //expected_needle.print_desmos();
-        if(i != 0) {
+        Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
+        needle.z = -115;
+        Point sec = {102.515, 23.8609, 811.329};
+        if(i != -1) {
             //std::cout << prev_y - cur_y << std::endl;
-            Point p_0 = (prev_F_OM2 * zero);
-            Point p = (F_OM2 * zero);
+            (F_OM2 * F_M2N * needle);
+            //Point p_0 = (prev_F_OM2 * zero);
+            Point p = (F_OM2 *F_M2N* zero) - sec;
+            std::cout << cur_y -410 << ", " << p.magnitude() << ";" << std::endl;
             //p.print_desmos();
             //(p - p_0).print_desmos();
             if(prev_y - cur_y > 0) {
@@ -112,7 +119,7 @@ int main() {
             //acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude());
 
         }
-        std::cout << acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude()) << std::endl;
+        //std::cout << acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude()) << std::endl;
         prev_F_OM2 = F_OM2;
         prev_y = cur_y;
         //prev_F_RN_measured = F_RN_measured;
