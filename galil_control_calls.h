@@ -89,6 +89,31 @@ int GoToLowBlocking(double left, double right)
     return 0;
 }
 
+int GoToBothBlocking(slider_positions sliders) {
+    char buf[G_SMALL_BUFFER];
+    char buf2[G_SMALL_BUFFER]; // traffic buffer
+    GSize read_bytes = 0;
+    GSize read_bytes2 = 0;     // bytes read in GCommand
+    int valueU = 0;
+    int valueL = 0;
+    GCommand(g, ("tgtMmB = " + to_string(sliders.right_middle_slider_y)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, ("tgtMmE = " + to_string(sliders.left_middle_slider_y)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, ("tgtMmA = " + to_string(sliders.right_slider_y)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, ("tgtMmF = " + to_string(sliders.left_slider_y)).c_str(), buf, G_SMALL_BUFFER, &read_bytes);
+    GCommand(g, "XQ #GoToLow, 3", buf2, G_SMALL_BUFFER, &read_bytes2);
+    GCommand(g, "XQ #GoToUp, 7", buf, G_SMALL_BUFFER, &read_bytes);
+    std::this_thread::sleep_for(100ms);
+    do
+    {
+        GCmdI(g, "dMotionL = ?", &valueL);
+        GCmdI(g, "dMotionU = ?", &valueU);
+
+        std::this_thread::sleep_for(500ms);
+    } while (!(valueL && valueU));
+    std::this_thread::sleep_for(1750ms);
+    return 0;
+}
+
 int GoToUpBlocking(double left, double right)
 {
     char buf[G_SMALL_BUFFER]; // traffic buffer
@@ -203,6 +228,7 @@ void move_robot_with_slider_positions(slider_positions positions)
     std::cout << "beginning motion" << std::endl;
     GoToLowBlocking(left_middle, right_middle);
     GoToUpBlocking(left, right);
+    //GoToBothBlocking(positions);
     //GoToPosBlocking(left_middle, right_middle);
     // GoToUpBlocking(upper_left, upper_right);
     std::cout << "finished motion" << std::endl;
@@ -233,5 +259,6 @@ void move_robot_with_slider_positions(slider_positions positions)
     } while(!value);
     std::this_thread::sleep_for(1750ms);*/
 }
+
 
 #endif

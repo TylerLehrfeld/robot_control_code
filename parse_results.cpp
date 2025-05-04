@@ -55,9 +55,9 @@ NewTransforms parse_beginning(std::ifstream& file) {
 }
 
 int main() {
-    std::ifstream results("results.txt");
-    std::ifstream grid_file("grid.txt");
-
+    std::ifstream results("resultsy2.txt");
+    std::ifstream grid_file("gridy.txt");
+    vector<double> xs({0,0,5,10,20,30,20,10,5,0,-5,-10,-20,-30,-20,-10,-5,0,5,10,20,30,20,10,5,0,-5,-10,-20,-30,-20,-10,-5,0,5,10,20,30,20,10,5,0,-5,-10,-20,-30,-20,-10,-5,0,5,10,20,30,20,10,5,0,-5,-10,-20,-30,-20,-10,-5,0});
     if(!grid_file.is_open()) {
         std::cout << "grid file not open";
         return -1;
@@ -90,7 +90,7 @@ int main() {
         std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
         //std::cout << x << ", " << y << std::endl;
         double cur_y = std::stod(y);
-        double cur_x = std::stod(x);
+        double cur_x = xs[i];
         results >> line;
         results >> line;
         NewTransform F_OM1 = get_transform(results, 1);
@@ -115,11 +115,15 @@ int main() {
         needle.z = -115;
         //Point sec = {102.446, 23.6629, 811.533};
         //Point sec = {59.2545, -28.4828, 805.778};
-        Point sec = {82.8181, 15.7081, 838.96};
+        //Point sec = {82.8181, 15.7081, 838.96};
+        //Point sec = {204.218, -18.0973, 677.676};
+        //Point sec = {207.606, -23.5237, 685.488};
+        Point sec = {0,0,0};
+        Point vec = {36,22.25+11.6/2, -11.764-5};
         //(F_OM2 *F_M2N* zero).print();
         if(i != -1) {
             //std::cout << prev_y - cur_y << std::endl;
-            (F_OM2 * F_M2N * needle);
+            //(F_OM2 * F_M2N * zero).print();
             //Point p_0 = (prev_F_OM2 * zero);
             //Point expected = (forward * (cur_y- 410));
             Point p = (F_OM2 *F_M2N* zero) - sec;

@@ -52,7 +52,7 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
-    std::ofstream results_file("results.txt");
+    std::ofstream results_file("resultsy2.txt");
     
     /*init_galil(1);
     std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
@@ -67,7 +67,7 @@ int main() {
     /*init_galil(3);
     GoToUpBlocking(60,60);
     stop_galil();*/
-    std::ifstream grid_file("grid.txt");
+    std::ifstream grid_file("gridy.txt");
 
     if(!grid_file.is_open()) {
         std::cout << "grid file not open";
@@ -194,6 +194,7 @@ int main() {
             0
         };
         slider_positions position = inverse_kinematics(def, NewTransform(0,0,0,0,0,0),inverse_robot);
+        inverse_robot.bottom_linkage.extended_end_effector.print_desmos();
         position.print(false);
         std::cout << "move robot and take readings?" << std::endl;
         delay_ms(500);

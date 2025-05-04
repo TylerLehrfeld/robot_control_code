@@ -18,6 +18,7 @@ SRC = inverse_kinematics_test.cpp \
       Matrix.cpp \
       Transform.cpp \
       Home_test.cpp \
+      parse_angle.cpp \
 
 
 # Header files
@@ -36,7 +37,7 @@ OBJ = $(SRC:.cpp=.o)
 
 # Output executables
 TARGETS = forward_inverse_kinematic_comparison get_test_grid parse_results#inverse_kinematics_test kinematics_end_effector_analysis_test
-TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test galil_control_test parse_results Relative_test Home_test
+TARGETS = forward_inverse_kinematic_comparison get_test_grid kinematics_end_effector_analysis_test kinematic_grid_error_analysis  inverse_kinematics_test galil_control_test parse_results Relative_test Home_test parse_angle
 
 all: $(TARGETS)
 
@@ -64,12 +65,17 @@ Parse_home: Parse_home.o Matrix.o Transform.o
 kinematic_grid_error_analysis: kinematic_grid_error_analysis.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-galil_control_test: galil_control_test.o Matrix.o Transform.o
+galil_control_test: galil_control_test.o Matrix.o Transform.o inverse_kinematics.o forward_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
 
-Relative_test: Relative_test.o Matrix.o Transform.o Pivot.o
+Relative_test: Relative_test.o Matrix.o Transform.o Pivot.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
 
+Benchtop_Accuracy_test: Benchtop_Accuracy_test.o Matrix.o Transform.o Pivot.o forward_kinematics.o inverse_kinematics.o
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
+
+parse_angle: parse_angle.o Matrix.o Transform.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 Home_test: Home_test.o Matrix.o Transform.o Pivot.o forward_kinematics.o inverse_kinematics.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(POST_FLAGS)
