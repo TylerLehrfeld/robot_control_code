@@ -41,16 +41,21 @@ Point get_point(std::ifstream& file, int num_strs) {
     
 }
 
-NewTransform parse_beginning(std::ifstream& file) {
+struct NewTransforms {
+    NewTransform F_M2N;
+    NewTransform F_OM_home;
+};
+
+NewTransforms parse_beginning(std::ifstream& file) {
+ NewTransform T1 = get_transform(file,1);
+ NewTransform T2 = get_transform(file, 2);
  get_transform(file,1);
- NewTransform T = get_transform(file, 2);
- get_transform(file,1);
- return T;
+ return {T1, T2};
  
 }
 
 int main() {
-    std::ifstream results("resultsy.txt");
+    std::ifstream results("results.txt");
     std::ifstream grid_file("grid.txt");
 
     if(!grid_file.is_open()) {
@@ -59,7 +64,12 @@ int main() {
     }
     int num_results = 67;
     std::string line;
-    NewTransform F_OM2_home = parse_beginning(results);
+    NewTransforms Ts = parse_beginning(results);
+    NewTransform F_OM2_home = Ts.F_OM_home;
+    NewTransform F_M2N = Ts.F_M2N;
+    Matrix y(3,1,{0,1,0});
+    Matrix forward_vec = F_OM2_home.to_transform().R_AB * F_M2N.to_transform().R_AB * y;
+    Point forward = {forward_vec.matrixArray[0], forward_vec.matrixArray[1], forward_vec.matrixArray[2]};
     Matrix z(3,1,{0,0,1});
     Matrix up = (F_OM2_home.to_transform().R_AB * z);
     NewTransform prev_F_RN_measured;
@@ -68,7 +78,7 @@ int main() {
     Point prev_expected_needle;
     Point prev_measured_needle;
     double prev_y = 0;
-    NewTransform F_M2N(0,0,M_PI,0.0015843, 28.1358, -5.656892);
+    double prev_x = 0;
     Point zero = {0,0,0};
     for(int i = 0; i < num_results; i++) {
         std::string line;
@@ -80,6 +90,7 @@ int main() {
         std::string y = line.substr(line.find(",")+1, line.length() - line.find(",") -2);
         //std::cout << x << ", " << y << std::endl;
         double cur_y = std::stod(y);
+        double cur_x = std::stod(x);
         results >> line;
         results >> line;
         NewTransform F_OM1 = get_transform(results, 1);
@@ -102,18 +113,28 @@ int main() {
         //expected_needle.print_desmos();
         Point needle = LOWER_END_EFFECTOR_TO_NEEDLEPOINT;
         needle.z = -115;
-        Point sec = {102.515, 23.8609, 811.329};
+        //Point sec = {102.446, 23.6629, 811.533};
+        //Point sec = {59.2545, -28.4828, 805.778};
+        Point sec = {82.8181, 15.7081, 838.96};
+        //(F_OM2 *F_M2N* zero).print();
         if(i != -1) {
             //std::cout << prev_y - cur_y << std::endl;
             (F_OM2 * F_M2N * needle);
             //Point p_0 = (prev_F_OM2 * zero);
+            //Point expected = (forward * (cur_y- 410));
             Point p = (F_OM2 *F_M2N* zero) - sec;
-            std::cout << cur_y -410 << ", " << p.magnitude() << ";" << std::endl;
+            //p.print_desmos();
+            //expected.print();
+            //std::cout << (p-expected).magnitude() << std::endl;
             //p.print_desmos();
             //(p - p_0).print_desmos();
-            if(prev_y - cur_y > 0) {
+            if(prev_x - cur_x < 0) {
                 //std::cout << "(" << cur_y << ","<< abs((p - p_0).magnitude() - abs(prev_y - cur_y))<<")" <<std::endl;
-                 
+                //std::cout << cur_y -410 << ", " << p.magnitude() << ";" << std::endl;
+                //std::cout << cur_y -410 <<  ", " <<(F_OM1 * zero - sec).magnitude() << ";"<< std::endl;
+                
+                std::cout << cur_x <<  ", " <<(F_OM2 *F_M2N * zero - sec).magnitude() << ";"<< std::endl;
+        
             }
             //std::cout << (p - p_0).magnitude() << std::endl;
             //acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude());
@@ -121,6 +142,7 @@ int main() {
         }
         //std::cout << acos(((F_OM2.to_transform().R_AB * z).transpose() * up).magnitude()) << std::endl;
         prev_F_OM2 = F_OM2;
+        prev_x = cur_x;
         prev_y = cur_y;
         //prev_F_RN_measured = F_RN_measured;
         //prev_F_RN_expected = F_RN_expected;
