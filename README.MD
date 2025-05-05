@@ -1,6 +1,20 @@
 # Program Overview
 This program includes all of the code used to control the robot, do kinematics and analysis.
 # Files
+ - Slicer_Extension/CIS2_Extension/load_robot/load_robot.py: main extension file
+ - Slicer_Extension/CIS2_Extension/load_robot/Resources/UI/load_robot.ui: extension UI file
+ - Slicer_Extension/CIS2_Extension/load_robot/load_robot.py
+ - scripts/
+   - Makefile: makes executables
+   - geometry2000.ini: defines back marker
+   - geometry99900000.ini: defines needle marker
+   - geometryOriginal.ini: original needle marker before orientation;
+   - get_rot.cpp: tests pivot calibration to make sure that the y direcion is forward
+   - img.csv: kinematic error analysis based on slider offset data
+   - ini_helpers.h: scripts helper function
+   - ini_to_desmos.cpp: turn an ini file to desmos points
+   - map2.py: generate error heatmap script
+   - orient_ini.cpp: rotate needle marker to 
  - 3D_slicer_interface.h: Gets and sends information from and to 3D slicer.
  - 3D_Slicer_Transforms.h and 3D_Slicer_Transforms.cpp: Defines and implements classes related to positioning STL files in 3D slicer.
  - Benchtop_Accuracy_test.cpp: main file for running the experiment and collecting data.
@@ -11,14 +25,10 @@ This program includes all of the code used to control the robot, do kinematics a
     - Takes measurements at each position.
         - Relative frames.
         - expected vs. measured needle position.
-        - positional error.
+        - positional error. (absolute error is meaningless in the most recent results)
+ - Home_test.cpp: run home while tracking
  - Kinematics.pdf: a description of the kinematics of the robot, along with the associated error.
  - Makefile: make all the executables.
-    - forward_inverse_kinematic_comparison.
-    - get_test_grid .
-    - kinematics_end_effector_analysis_test.
-    - kinematic_grid_error_analysis.
- - Makefile: makes the executables listed above.
  - Matrix-test.h: a module that tests the matrix class.
  - Matrix.cpp: a module that implements the matrix class.
  - Matrix.h: a module that defines the matrix class.
@@ -55,18 +65,22 @@ This program includes all of the code used to control the robot, do kinematics a
  - scripts/ini_helpers.h: implements a basic ini parser.
  - scripts/ini_to_desmos.cpp: turns an ini file to a desmos coordinate set.
  - scripts/pivot_needle.h: calls pivot calibration on transformlist.
+ - scripts/pivot_robot.h: depracated--used to use the plane of the lower linkage to calibrate back marker;
  - scripts/map2.py: generates a heatmap based on error.
  - scripts/orient_ini.cpp: orients a four pronged marker to be aligned with the z-x axis.
+ - Parse_home.cpp: parse home results
+ - angular_results_pitch.txt, angular_results_yaw.txt: USED TEST DATA
  - Eigen/Dense: in dependencies, there is a folder called eigen-3.4.0. It contains a library that I use for SVD. Here is the link: https://eigen.tuxfamily.org/dox/GettingStarted.html
 
  # instructions
+First ensure that the cmake file in $ATRACSYS_SDK_HOME/samples can target get_frames_in_output_file.cpp exactly like sample5.
+
 ```
 cd robot_control_code
 make
 ./make.sh
 cd scripts
 make
-
 cp get_frames_in_output_file.cpp $ATRACSYS_SDK_HOME/samples
 cd $ATRACSYS_SDK_HOME/samples
 make
