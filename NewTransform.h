@@ -240,7 +240,8 @@ public:
       }
       ss << std::endl;
     }
-    return ss.str();  
+    std::string s = ss.str();
+    return s;  
   }
   /**
    * @brief print a transform so that it is readable

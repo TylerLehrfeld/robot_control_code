@@ -25,9 +25,13 @@ struct Point {
    * 
    */
   void print() { std::cout << x << " " << y << " " << z << std::endl; }
-  std::string to_string() {
+  std::string to_string(bool semi) {
     std::stringstream ss;
-    ss << x << " " << y << " " <<z <<std::endl;
+    if(semi) {
+      ss << x << " " << y << " " <<z <<";" << std::endl;
+    } else {
+      ss << x << " " << y << " " <<z <<std::endl;
+    }
     return ss.str();
   }
   void print_desmos() {

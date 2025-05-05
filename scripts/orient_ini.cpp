@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     std::vector<Point> fiducials = parse_ini_file(filepath);
     std::vector<Matrix> Matrix_fiducials;
     Point rotation_axis_point = {0,0,1};
-    double theta = 1* M_PI / 180;
+    double theta = 1.1* M_PI / 180;
     Matrix R = rotation_from_axis_and_angle(rotation_axis_point, theta); 
     Point middle = fiducials[1];
     for (int i = 0; i < fiducials.size(); i++)
