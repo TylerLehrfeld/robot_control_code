@@ -52,9 +52,9 @@ NewTransform get_average_transform(vector<NewTransform> transforms) {
 
 int main() {
     bool up_left_near, up_right_near, low_left_near, low_right_near;
-    std::ofstream results_file("resultsy2.txt");
+    std::ofstream results_file("dummy.txt");
     
-    /*init_galil(1);
+    init_galil(1);
     std::cout << "Homing high. Enter 1 if the slider is behind the limit switch: A F" << std::endl;
     std::cin >> up_left_near;
     std::cin >> up_right_near;
@@ -63,7 +63,7 @@ int main() {
     std::cin >> low_left_near;
     std::cin >> low_right_near;
     HomeLowBlocking(low_left_near, low_right_near);
-    stop_galil();*/
+    stop_galil();
     /*init_galil(3);
     GoToUpBlocking(60,60);
     stop_galil();*/
