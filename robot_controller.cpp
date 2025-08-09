@@ -49,6 +49,15 @@ void home_behind(slider_positions home) {
     HomeLowBlocking(right_middle_behind, left_middle_behind);
     HomeUpBlocking(right_behind, left_behind);
 }
+
+
+void robot_controller::move_no_compensation(slider_positions sliders) {
+	GoToBothBlocking(sliders);
+	cur_positions = sliders;
+
+}
+
+
 void robot_controller::move(slider_positions positions) {
     init_galil(init_types::up_or_down);
     slider_positions stage_1_positions = positions;

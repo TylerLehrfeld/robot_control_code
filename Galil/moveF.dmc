@@ -1,0 +1,44 @@
+##
+##
+#M
+ACF=2000;
+SPF=1000;
+//DCF=1000;
+//PRF=1000;
+MTF=-1;
+//JGF=2000;
+SHF;
+PR 5000;
+CB8;
+BGF;
+WT5000;
+JS #s
+EN
+
+#s
+SB8;
+tgtCT = 10000;
+//JS #startF(tgtCT);
+EN
+
+#startF
+STF; //stop F
+MOF; //turn F off
+MTF = 1; //set as servo type and forward direction
+
+FtgtCT = ^a;
+tgtF = curPosF + FtgtCT;
+
+#whileF
+curPosF = _TPF;
+errF = curPosF - tgtF;
+absErrF = @ABS[errF];
+IF absErrF < 2;
+	JS #quit;
+
+
+#quit
+	SB8; SB16;
+	STF; 
+	MOF;
+

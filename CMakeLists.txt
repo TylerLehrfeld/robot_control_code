@@ -11,6 +11,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0/Eigen)
+# Atracsys SDK paths
+set(ATRACSYS_INCLUDE_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/include)
+set(ATRACSYS_LIB_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/lib)
+set(ATRACSYS_LIBS ftk ftkHelper)  # Adjust if your lib names differ
+
+include_directories(${ATRACSYS_INCLUDE_DIR})
+include_directories(/home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/samples)
+link_directories(${ATRACSYS_LIB_DIR})
+set(CMAKE_BUILD_RPATH ${ATRACSYS_LIB_DIR})
 # Add optional linking libraries
 set(POST_LIBS gclib pthread gclibo)
 

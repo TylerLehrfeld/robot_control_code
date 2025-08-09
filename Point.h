@@ -47,7 +47,7 @@ struct Point {
   Point operator+(Point &p2) {
     return {.x = this->x + p2.x, .y = this->y + p2.y, .z = this->z + p2.z};
   }
-
+ 
   /**
    * @brief subtract p2 from p1 (this)
    * 
