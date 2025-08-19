@@ -1,16 +1,17 @@
 /**
  * @file kinematic_structs.h
  * @author Tyler Lehrfeld
- * @brief This file will hold struct definitions and constants needed for forward and inverse kinematics
+ * @brief This file will hold struct definitions and constants needed for
+ * forward and inverse kinematics
  * @version 0.1
  * @date 2025-03-04
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 
- #ifndef KINEMATIC_STRUCTS
- #define KINEMATIC_STRUCTS
+#ifndef KINEMATIC_STRUCTS
+#define KINEMATIC_STRUCTS
 
 #include "Point.h"
 #include <ostream>
@@ -37,35 +38,35 @@ const double BASE_TO_SLIDER_MIN = 48;
 const double BASE_TO_SLIDER_MAX = 173;
 const double HALF_SLIDER_WIDTH = 6.35;
 const double MIN_NEEDLE_EXTENSION = 0;
-//TODO: make this accurate
+// TODO: make this accurate
 const double MAX_NEEDLE_EXTENSION = 150;
-//TODO: make this accurate
+// TODO: make this accurate
 const double MAX_LINKAGE_END_EFFECTOR_DISTANCE = 50;
-
 
 /**
  * @brief A struct that defines how the robot will approach a target
- * 
+ *
  */
- struct approach_definition {
-  //in mm
+struct approach_definition {
+  // in mm
   Point target;
   /**
-   * Imagine looking at the workspace from behind the robot such that the motors are close and the needle is far.
-   * z is up, x is right, and y is forward.
+   * Imagine looking at the workspace from behind the robot such that the motors
+   * are close and the needle is far. z is up, x is right, and y is forward.
    * Using spherical angle coordinates
-   * theta is the angle of the approach away from the z axis: the polar angle θ between the radial line (needle) and a given polar axis (z).
-   * phi is the angle to rotate on the x-y plane:  the angle of rotation of the radial line (needle) around the polar axis (z).
-   * angles are in degrees
+   * theta is the angle of the approach away from the z axis: the polar angle θ
+   * between the radial line (needle) and a given polar axis (z). phi is the
+   * angle to rotate on the x-y plane:  the angle of rotation of the radial line
+   * (needle) around the polar axis (z). angles are in degrees
    */
   double theta;
   double phi;
 };
 
 /**
-* @brief A struct that defines how the robot will approach a target
-* 
-*/
+ * @brief A struct that defines how the robot will approach a target
+ *
+ */
 struct target_and_injection_point_approach {
   Point target;
   Point injection_point;
@@ -81,35 +82,40 @@ struct slider_positions {
   double right_middle_slider_y;
   double right_slider_y;
   double needle_extension;
-  
+
   std::string get_slider_string(bool my_coords) {
     std::stringstream slider_string_stream;
-    if(my_coords) {
-      slider_string_stream << left_slider_y << std::endl << left_middle_slider_y << std::endl << right_middle_slider_y << std::endl << right_slider_y << std::endl << needle_extension << std::endl;
-    
+    if (my_coords) {
+      slider_string_stream << left_slider_y << std::endl
+                           << left_middle_slider_y << std::endl
+                           << right_middle_slider_y << std::endl
+                           << right_slider_y << std::endl
+                           << needle_extension << std::endl;
+
     } else {
-      double _right = BASE_TO_SLIDER_MAX -right_slider_y - HALF_SLIDER_WIDTH;
+      double _right = BASE_TO_SLIDER_MAX - right_slider_y - HALF_SLIDER_WIDTH;
       double _left = BASE_TO_SLIDER_MAX - left_slider_y - HALF_SLIDER_WIDTH;
-      double _right_middle = BASE_TO_SLIDER_MAX -right_middle_slider_y - HALF_SLIDER_WIDTH;
-      double _left_middle = BASE_TO_SLIDER_MAX - left_middle_slider_y - HALF_SLIDER_WIDTH;
-    
-      slider_string_stream << _left << std::endl << _left_middle << std::endl << _right_middle << std::endl << _right << std::endl << needle_extension << std::endl;
-    
+      double _right_middle =
+          BASE_TO_SLIDER_MAX - right_middle_slider_y - HALF_SLIDER_WIDTH;
+      double _left_middle =
+          BASE_TO_SLIDER_MAX - left_middle_slider_y - HALF_SLIDER_WIDTH;
+
+      slider_string_stream << _left << std::endl
+                           << _left_middle << std::endl
+                           << _right_middle << std::endl
+                           << _right << std::endl
+                           << needle_extension << std::endl;
     }
     return slider_string_stream.str();
   }
-  
-  void print(bool my_coords) {
-    std::cout << get_slider_string(my_coords);
-  }
-};
 
+  void print(bool my_coords) { std::cout << get_slider_string(my_coords); }
+};
 
 struct linkage_end_effectors {
   Point upper;
   Point lower;
 };
-
 
 struct linkage_array {
   Point extended_end_effector;

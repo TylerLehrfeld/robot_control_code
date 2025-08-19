@@ -1,90 +1,182 @@
 #include "kinematics.h"
+#include "templated_classes/Templated_Point.h"
+#include "templated_classes/Templated_Transform.h"
 #include <cmath>
 
-NewTransform get_end_effector(Thetas thetas, Parameters parameters) {
-    Tunable_parameters tunable_params = parameters.tunable_params;
-    Point lower_P = get_lower_linkage_P(thetas, parameters);
-    Point upper_P = get_upper_linkage_P(thetas, parameters);
-    Point n_vec = (upper_P - parameters.upper_base).normalize();
-    Point lower_E =
-        (n_vec * tunable_params.bottom_needle_to_holder_distance) + lower_P;
-    Point upper_E =
-        (n_vec * tunable_params.top_needle_to_holder_distance) + upper_P;
-    Point needle_x = (lower_E - upper_E).normalize();
-    Point end_effector_point =
-        needle_x * (thetas.theta_5 + tunable_params.needle_offset) + lower_E;
-    vector<Matrix> columns;
-    columns.push_back(needle_x.to_matrix());
-    columns.push_back(cross(n_vec, needle_x).to_matrix());
-    columns.push_back(n_vec.to_matrix());
-    Matrix R(columns);
-    Transform EE(R, end_effector_point.to_matrix());
-    return EE;
+template <typename T>
+Transform<T> get_end_effector(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> E1 = get_upper_linkage_E<T>(thetas, parameters);
+  Point<T> E2 = get_lower_linkage_E<T>(thetas, parameters);
+  Point<T> diff = (E2 - E1).normalize();
+  Point<T> N =
+      E2 + (parameters.tunable_params.needle_offset + thetas.theta_5) * (diff);
+  Point<T> n_vec = get_upper_linkage_n_vec<T>(thetas, parameters);
+  Point<T> z = -diff;
+  Point<T> y = cross(n_vec, z).normalize();
+  Point<T> x = cross(y, z);
+  Transform<T> EE_frame(x, y, z, N);
+  return EE_frame;
 }
 
-Point get_lower_linkage_P(Thetas thetas, Parameters parameters) {
-    Point lower_C = get_linkage_C(thetas.theta_2, thetas.theta_3,
-                                  parameters.tunable_params.loop_parameters[2],
-                                  parameters.tunable_params.loop_parameters[3],
-                                  parameters.upper_base);
-    Point lower_left_B = get_linkage_B(
-        thetas.theta_2, parameters.tunable_params.loop_parameters[2],
-        parameters.lower_base);
-    Point P =
-        (lower_C - lower_left_B).normalize() *
-            (parameters.tunable_params.loop_parameters[2].distal_link_length +
-             parameters.tunable_params.bottom_needle_to_holder_distance) +
-        lower_left_B;
-    return P;
+template <typename T>
+Point<T> get_upper_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> P1 = get_upper_linkage_P(thetas, parameters);
+  Point<T> P2 = get_lower_linkageP(thetas, parameters);
+  Point<T> diff = (P2 - P1);
+  Point<T> z = {T(0), T(0), T(1)};
+  Point<T> n_vec = get_upper_linkage_n_vec<T>(thetas, parameters);
+  T e1 = parameters.tunable_params.top_needle_to_holder_distance;
+  return P1 +
+         e1 * (-(diff * z) * n_vec + (diff * n_vec) * z) / diff.magnitude();
 }
 
-Point get_upper_linkage_P(Thetas thetas, Parameters parameters) {
-    Point upper_C = get_linkage_C(thetas.theta_1, thetas.theta_1,
-                                  parameters.tunable_params.loop_parameters[0],
-                                  parameters.tunable_params.loop_parameters[1],
-                                  parameters.upper_base);
-    Point P = (upper_C - parameters.upper_base).normalize() *
-                  parameters.tunable_params.top_needle_to_holder_distance +
-              upper_C;
-    return P;
+template <typename T>
+Point<T> get_lower_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> P1 = get_upper_linkage_P(thetas, parameters);
+  Point<T> P2 = get_lower_linkage_P(thetas, parameters);
+  Point<T> diff = (P2 - P1);
+  Point<T> z = {T(0), T(0), T(1)};
+  Point<T> n_vec = get_upper_linkage_n_vec<T>(thetas, parameters);
+  T e2 = parameters.tunable_params.bottom_needle_to_holder_distance;
+  return P2 +
+         e2 * (-(diff * z) * n_vec + (diff * n_vec) * z) / diff.magnitude();
 }
 
-Point get_linkage_C(float left_theta, float right_theta,
-                    Loop_parameters left_parameters,
-                    Loop_parameters right_parameters, Point base) {
-    Point left_B = get_linkage_B(left_theta, left_parameters, base);
-
-    Point right_B = get_linkage_B(right_theta, right_parameters, base);
-    Point diff = right_B - left_B;
-    float d1 = left_parameters.distal_link_length;
-    float d2 = right_parameters.distal_link_length;
-    float d3 = diff.magnitude();
-    float cos_phi = (d1 * d1 + d3 * d3 - d2 * d2) / (2 * d1 * d3);
-    float sin_phi = std::sqrt(1 - cos_phi * cos_phi);
-    Point rotated = {.x = diff.x * cos_phi + diff.y * -sin_phi,
-                     .y = diff.x * sin_phi + diff.y * cos_phi,
-                     .z = 0};
-    rotated = rotated.normalize() * d1;
-    Point C = rotated + left_B;
-    return C;
+template <typename T>
+Point<T> get_upper_linkage_n_vec(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> upper_C = get_linkage_C(thetas, parameters, TOP_LEFT);
+  Point<T> D = get_D(thetas, parameters);
+  return (upper_C - D).normalize();
 }
 
-Point get_linkage_B(float theta, Loop_parameters parameters, Point base) {
-    Point S = {parameters.x_slider_offset, theta, base.z};
-    Point diff = base - S;
-    float d1 = parameters.transmission_link_length;
-    float d2 = parameters.proximal_link_midpoint;
-    float d3 = diff.magnitude();
-    float cos_phi = (d1 * d1 + d3 * d3 - d2 * d2) / (2 * d1 * d3);
-    float sin_phi = std::sqrt(1 - cos_phi * cos_phi);
-    Point rotated = {.x = diff.x * cos_phi + diff.y * -sin_phi,
-                     .y = diff.x * sin_phi + diff.y * cos_phi,
-                     .z = 0};
-
-    rotated = rotated.normalize() * d1;
-    Point M = rotated + S;
-    Point B = ((M - base) * (parameters.proximal_link_length /
-                             parameters.proximal_link_midpoint)) +
-              base;
-    return B;
+template <typename T>
+Point<T> get_D(Thetas<T> thetas, Parameters<T> parameters) {
+  Point upper_C =
+      get_linkage_C(thetas.theta_1, thetas.theta_2,
+                    parameters.tunable_params.loop_parameters[TOP_LEFT],
+                    parameters.tunable_params.loop_parameters[TOP_RIGHT]);
+  T ratio1 =
+      parameters.tunable_params.D1 /
+      parameters.tunable_params.loop_parameters[TOP_LEFT].distal_link_length;
+  T ratio2 =
+      parameters.tunable_params.D2 /
+      parameters.tunable_params.loop_parameters[TOP_RIGHT].distal_link_length;
+  Point<T> B_1 = get_linkage_B(thetas, parameters, TOP_LEFT);
+  Point<T> B_2 = get_linkage_B(thetas, parameters, TOP_RIGHT);
+  Point<T> Q1 = (1 - ratio1) * upper_C + ratio1 * B_1;
+  Point<T> Q2 = (1 - ratio2) * upper_C + ratio2 * B_2;
+  return third_point_in_triangle(Q2, Q1, parameters.tunable_params.D3,
+                                 parameters.tunable_params.D4);
 }
+
+template <typename T>
+Point<T> get_lower_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> lower_C = get_linkage_C(thetas, parameters);
+  Point<T> lower_left_B = get_linkage_B(thetas, parameters, BOTTOM_LEFT);
+  Point<T> P =
+      lower_C + ((lower_C - lower_left_B) *
+                 (parameters.tunable_params.loop_parameters[BOTTOM_LEFT] +
+                  parameters.tunable_params.bottom_holder_to_linkage_distance) /
+                 parameters.tunable_params.loop_parameters[BOTTOM_LEFT]);
+  return P;
+}
+
+template <typename T>
+Point<T> get_upper_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
+  Point<T> upper_C = get_linkage_C(thetas, parameters, TOP_RIGHT);
+  Point<T> D = get_D(thetas, parameters);
+  T n1 = parameters.tunable_params.top_holder_to_linkage_distance;
+  return upper_C + (upper_C - D) * n1 / (upper_C - D).magnitude();
+}
+
+template <typename T>
+Point<T> get_linkage_C(Thetas<T> thetas, Parameters<T> parameters,
+                       linkage_values val) {
+  Point<T> B_j;
+  Point<T> B_k;
+  T d_j;
+  T d_k;
+  if (val == TOP_RIGHT || val == TOP_LEFT) {
+    B_j = get_linkage_B(thetas, parameters, TOP_LEFT);
+    B_k = get_linkage_B(thetas, parameters, TOP_RIGHT);
+    d_j =
+        parameters.tunable_params.loop_parameters[TOP_LEFT].distal_link_length;
+    d_k =
+        parameters.tunable_params.loop_parameters[TOP_RIGHT].distal_link_length;
+  } else if (val == BOTTOM_LEFT || val == BOTTOM_RIGHT) {
+    B_j = get_linkage_B(thetas, parameters, BOTTOM_LEFT);
+    B_k = get_linkage_B(thetas, parameters, BOTTOM_RIGHT);
+    d_j = parameters.tunable_params.loop_parameters[BOTTOM_LEFT]
+              .distal_link_length;
+    d_k = parameters.tunable_params.loop_parameters[BOTTOM_RIGHT]
+              .distal_link_length;
+  }
+  return third_point_in_triangle(B_j, B_k, d_k, d_j);
+}
+
+template <typename T>
+Point<T> get_linkage_B(Thetas<T> thetas, Parameters<T> parameters,
+                       linkage_values val) {
+  Point<T> base;
+  Point<T> S_i;
+  if (val == TOP_RIGHT || val == TOP_LEFT) {
+    base = parameters.upper_base;
+    base.z += parameters.tunable_params.upper_base_z_offset;
+    if (val == TOP_RIGHT) {
+      S_i = {
+          parameters.tunable_params.loop_parameters[TOP_RIGHT].x_slider_offset,
+          thetas.theta_2 + parameters.tunable_params.loop_parameters[TOP_RIGHT]
+                               .y_slider_offset,
+          base.z};
+    } else if (val == TOP_LEFT) {
+      S_i = {
+          parameters.tunable_params.loop_parameters[TOP_LEFT].x_slider_offset,
+          thetas.theta_1 + parameters.tunable_params.loop_parameters[TOP_LEFT]
+                               .y_slider_offset,
+          base.z};
+    }
+  } else if (val == BOTTOM_LEFT || val == BOTTOM_RIGHT) {
+    base = parameters.lower_base;
+    base.z += parameters.tunable_params.lower_base_z_offset;
+    if (val == BOTTOM_LEFT) {
+      S_i = {parameters.tunable_params.loop_parameters[BOTTOM_LEFT]
+                 .x_slider_offset,
+             thetas.theta_3 +
+                 parameters.tunable_params.loop_parameters[BOTTOM_LEFT]
+                     .y_slider_offset,
+             base.z};
+    } else if (val == BOTTOM_RIGHT) {
+      S_i = {parameters.tunable_params.loop_parameters[BOTTOM_RIGHT]
+                 .x_slider_offset,
+             thetas.theta_1 +
+                 parameters.tunable_params.loop_parameters[BOTTOM_RIGHT]
+                     .y_slider_offset,
+             base.z};
+    }
+  }
+  T proximal_link_length =
+      parameters.tunable_params.loop_parameters[val].proximal_link_length;
+  T proximal_link_midpoint =
+      parameters.tunable_params.loop_parameters[val].proximal_link_midpoint;
+  T transmission_link_length =
+      parameters.tunable_params.loop_parameters[val].transmission_link_length;
+  Point<T> M;
+  if (val == BOTTOM_LEFT || val == TOP_LEFT) {
+    M = third_point_in_triangle(S_i, base, proximal_link_midpoint,
+                                transmission_link_length);
+  } else if (val == BOTTOM_RIGHT || val == TOP_RIGHT) {
+    M = third_point_in_triangle(base, S_i, transmission_link_length,
+                                proximal_link_midpoint);
+  }
+  T ratio = proximal_link_length / proximal_link_midpoint;
+  Point<T> B_i = ratio * (M - base) + base;
+  return B_i;
+}
+// Thetas inverse_kinematics(Parameters parameters, NewTransform T) {
+//	parameters.upper_base.z +=
+// parameters.tunable_params.upper_base_z_offset; 	parameters.lower_base.z
+// += parameters.tunable_params.lower_base_z_offset; 	Thetas t; 	Point
+// upper_P = T.p(); //TODO 	Point lower_P; //TODO
+// update_upper_linkage_thetas(parameters, upper_P, t);
+// update_lower_linkage_thetas(parameters, lower_P, t); 	return t;
+// }

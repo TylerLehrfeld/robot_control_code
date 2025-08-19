@@ -9,17 +9,16 @@
  *
  */
 
-#ifndef POINT
-#define POINT
+#ifndef TEMPLATE_POINT
+#define TEMPLATE_POINT
 
-#include "Matrix.h"
 #include <cmath>
 #include <iostream>
 #include <sstream>
-struct Point {
-  double x;
-  double y;
-  double z;
+template <typename T> struct Point {
+  T x;
+  T y;
+  T z;
   /**
    * @brief print out the point
    *
@@ -65,7 +64,7 @@ struct Point {
    * @param m
    * @return Point
    */
-  friend Point operator*(double scalar, Point &m) {
+  friend Point operator*(T scalar, Point &m) {
     return {.x = m.x * scalar, .y = m.y * scalar, .z = m.z * scalar};
   }
 
@@ -76,7 +75,7 @@ struct Point {
    * @param p2
    * @return double
    */
-  friend double operator*(Point p1, Point &p2) {
+  friend T operator*(const Point p1, const Point &p2) {
     return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
   }
 
@@ -86,7 +85,7 @@ struct Point {
    * @param scalar
    * @return Point
    */
-  Point operator*(double scalar) {
+  Point operator*(const T scalar) const {
     return {
         .x = this->x * scalar, .y = this->y * scalar, .z = this->z * scalar};
   }
@@ -94,11 +93,9 @@ struct Point {
   /**
    * @brief get the magnitude of a vector
    *
-   * @return double
+   * @return T
    */
-  double magnitude() {
-    return std::sqrt(std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2));
-  }
+  T magnitude() { return sqrt(x * x + y * y + z * z); }
 
   /**
    * @brief normalize a vector
@@ -106,26 +103,31 @@ struct Point {
    * @return Point
    */
   Point normalize() {
-    double magnitude = this->magnitude();
+    T magnitude = this->magnitude();
     return {.x = this->x / magnitude,
             .y = this->y / magnitude,
             .z = this->z / magnitude};
   }
 
-  Matrix to_matrix() { return Matrix(3, 1, {x, y, z}); }
+  /**
+   * @brief return the cross product of two vectors
+   *
+   * @param p1
+   * @param p2
+   * @return Point
+   */
+  friend Point cross(const Point p1, const Point p2) {
+    return {.x = p1.y * p2.z - p1.z * p2.y,
+            .y = p1.z * p2.x - p1.x * p2.z,
+            .z = p1.x * p2.y - p1.y * p2.x};
+  }
+  template <typename U> Point<U> convert() const {
+    Point<U> point;
+    point.x = U(x);
+    point.y = U(y);
+    point.z = U(z);
+    return point;
+  }
 };
-
-/**
- * @brief return the cross product of two vectors
- *
- * @param p1
- * @param p2
- * @return Point
- */
-inline Point cross(Point p1, Point p2) {
-  return {.x = p1.y * p2.z - p1.z * p2.y,
-          .y = p1.z * p2.x - p1.x * p2.z,
-          .z = p1.x * p2.y - p1.y * p2.x};
-}
 
 #endif

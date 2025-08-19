@@ -11,6 +11,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0/Eigen)
+include_directories(${CMAKE_SOURCE_DIR}/kinematic_calibration)
+find_package(Ceres REQUIRED)
 # Atracsys SDK paths
 set(ATRACSYS_INCLUDE_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/include)
 set(ATRACSYS_LIB_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/lib)
@@ -29,6 +31,15 @@ set(SRC_SHARED
     inverse_kinematics.cpp
     Matrix.cpp
     Transform.cpp
+)
+set(SRC_SIMULATION
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Point.h
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Transform.h
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/jacobian.cpp
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/kinematics.cpp
+	inverse_kinematics.cpp
+	Matrix.cpp
+	Transform.cpp
 )
 
 # If Pivot.cpp is needed
@@ -107,4 +118,11 @@ add_executable(Home_test
     ${SRC_PIVOT}
 )
 target_link_libraries(Home_test PRIVATE ${POST_LIBS})
+
+add_executable(simulation
+    ${CMAKE_SOURCE_DIR}/kinematic_calibration/simulation.cpp
+    ${SRC_SIMULATION}
+)
+
+target_link_libraries(simulation ceres)
 
