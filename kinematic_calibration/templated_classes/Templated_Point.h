@@ -11,6 +11,11 @@
 
 #ifndef TEMPLATE_POINT
 #define TEMPLATE_POINT
+#include <cmath>
+inline bool isclose(double a, double b) {
+	return std::abs(a -b) < .0001;
+
+}
 
 #include <cmath>
 #include <iostream>
@@ -53,7 +58,7 @@ template <typename T> struct Point {
    * @param p2
    * @return Point
    */
-  Point operator-(Point &p2) {
+  Point operator-(const Point &p2) const {
     return {.x = this->x - p2.x, .y = this->y - p2.y, .z = this->z - p2.z};
   }
 
@@ -64,7 +69,7 @@ template <typename T> struct Point {
    * @param m
    * @return Point
    */
-  friend Point operator*(T scalar, Point &m) {
+  friend Point operator*(const T scalar, const Point &m) {
     return {.x = m.x * scalar, .y = m.y * scalar, .z = m.z * scalar};
   }
 
@@ -88,6 +93,10 @@ template <typename T> struct Point {
   Point operator*(const T scalar) const {
     return {
         .x = this->x * scalar, .y = this->y * scalar, .z = this->z * scalar};
+  }
+
+  bool operator==(const Point<double> p) const {
+    return isclose(p.x, x) && isclose(p.y, y) && isclose(p.z, z);
   }
 
   /**

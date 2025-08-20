@@ -36,10 +36,10 @@ set(SRC_SIMULATION
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Point.h
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Transform.h
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/jacobian.cpp
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/kinematics.cpp
 	inverse_kinematics.cpp
 	Matrix.cpp
 	Transform.cpp
+	
 )
 
 # If Pivot.cpp is needed
@@ -126,3 +126,10 @@ add_executable(simulation
 
 target_link_libraries(simulation ceres)
 
+add_executable(test_forward_kinematics
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_forward_kinematics.cpp
+	${SRC_SIMULATION}
+)
+
+
+target_link_libraries(test_forward_kinematics ceres)

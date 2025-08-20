@@ -24,9 +24,9 @@ public:
     T sx = sin(theta_x);
     T sy = sin(theta_y);
     T sz = sin(theta_z);
-    T X_matrix[3][3] = {{T(1), T(0), T(0)}, {T(0), -cx, sx}, {T(0), sx, cx}};
-    T Y_matrix[3][3] = {-cy, T(0), sy, T(0), T(1), T(0), sy, T(0), cy};
-    T Z_matrix[3][3] = {-cz, sz, T(0), sz, cx, T(0), T(0), T(0), T(1)};
+    T X_matrix[3][3] = {{T(1), T(0), T(0)}, {T(0), cx, -sx}, {T(0), sx, cx}};
+    T Y_matrix[3][3] = {{cy, T(0), sy}, {T(0), T(1), T(0)}, {-sy, T(0), cy}};
+    T Z_matrix[3][3] = {{cz, -sz, T(0)}, {sz, cx, T(0)}, {T(0), T(0), T(1)}};
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
@@ -35,7 +35,7 @@ public:
         Z.matrix[i][j] = Z_matrix[i][j];
       }
     }
-    Rotation<T> R = X * Y * Z;
+    Rotation<T> R = Z * Y * X;
     *this = R;
   }
 
@@ -50,6 +50,7 @@ public:
     Rotation<T> ret;
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
+        ret.matrix[i][j] = T(0);
         for (int k = 0; k < 3; k++) {
           ret.matrix[i][j] += matrix[i][k] * R1.matrix[k][j];
         }
@@ -98,15 +99,15 @@ public:
   }
   Transform<T>(Point<T> x_hat, Point<T> y_hat, Point<T> z_hat,
                Point<T> translation) {
-    R.matrix[0][0] = x_hat[0];
-    R.matrix[1][0] = x_hat[1];
-    R.matrix[2][0] = x_hat[2];
-    R.matrix[0][1] = y_hat[0];
-    R.matrix[1][1] = y_hat[1];
-    R.matrix[2][1] = y_hat[2];
-    R.matrix[0][2] = z_hat[0];
-    R.matrix[1][2] = z_hat[1];
-    R.matrix[2][2] = z_hat[2];
+    R.matrix[0][0] = x_hat.x;
+    R.matrix[1][0] = x_hat.y;
+    R.matrix[2][0] = x_hat.z;
+    R.matrix[0][1] = y_hat.x;
+    R.matrix[1][1] = y_hat.y;
+    R.matrix[2][1] = y_hat.z;
+    R.matrix[0][2] = z_hat.x;
+    R.matrix[1][2] = z_hat.y;
+    R.matrix[2][2] = z_hat.z;
     p = translation;
   }
 

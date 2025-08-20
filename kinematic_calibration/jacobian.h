@@ -3,6 +3,7 @@
 #include "kinematics.h"
 #include "templated_classes/Templated_Point.h"
 #include "templated_classes/Templated_Transform.h"
+#include <strings.h>
 #include <vector>
 
 template <typename T> Transform<T> F_M1R();
@@ -26,9 +27,10 @@ struct Error_Residual {
   Measurement<double> measurement;
   Thetas<double> thetas;
   linkage_values val;
-
-  Error_Residual(Measurement<double> m, Thetas<double> t, linkage_values v)
-      : measurement(m), thetas(t), val(v) {}
+  int index;
+  Error_Residual(Measurement<double> m, Thetas<double> t, linkage_values v,
+                 int i)
+      : measurement(m), thetas(t), val(v), index(i) {}
 
   template <typename T>
   bool operator()(const T *const params, T *residual) const {
@@ -37,6 +39,9 @@ struct Error_Residual {
     Thetas<T> thetas_T = thetas.template convert<T>();
     T e = error(thetas_T, paramaters, measurement_T, val);
     residual[0] = e;
+    if (index != -1) {
+      // std::cout << "Residual " << index << " = " << residual[0] << "\n";
+    }
     return true;
   }
 };

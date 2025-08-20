@@ -1,7 +1,7 @@
 #include "inverse_kinematics.h"
+#include "NewTransform.h"
 #include "Point.h"
 #include "Robot.h"
-#include "NewTransform.h"
 #include "kinematic_structs.h"
 #include <cassert>
 #include <cmath>
@@ -19,7 +19,7 @@
  */
 slider_positions
 inverse_kinematics(approach_definition needle_to_patient_approach,
-                   NewTransform T_RP, Robot& robot) {
+                   NewTransform T_RP, Robot &robot) {
   Point mock_injection_point = {sin(needle_to_patient_approach.phi) *
                                     cos(needle_to_patient_approach.theta),
                                 sin(needle_to_patient_approach.phi) *
@@ -29,7 +29,8 @@ inverse_kinematics(approach_definition needle_to_patient_approach,
   mock_injection_point =
       mock_injection_point + needle_to_patient_approach.target;
   return inverse_kinematics(
-      {T_RP * needle_to_patient_approach.target, T_RP * mock_injection_point}, robot);
+      {T_RP * needle_to_patient_approach.target, T_RP * mock_injection_point},
+      robot);
 }
 
 /**
@@ -44,9 +45,10 @@ inverse_kinematics(approach_definition needle_to_patient_approach,
  */
 slider_positions invinverse_kinematics(
     target_and_injection_point_approach needle_to_patient_approach,
-    NewTransform T_RP, Robot& robot) {
+    NewTransform T_RP, Robot &robot) {
   return inverse_kinematics({T_RP * needle_to_patient_approach.injection_point,
-                             T_RP * needle_to_patient_approach.target}, robot);
+                             T_RP * needle_to_patient_approach.target},
+                            robot);
 }
 
 /**
@@ -57,16 +59,18 @@ slider_positions invinverse_kinematics(
  * @return slider_positions
  */
 slider_positions inverse_kinematics(
-    target_and_injection_point_approach needle_to_patient_approach, Robot& robot) {
-  
+    target_and_injection_point_approach needle_to_patient_approach,
+    Robot &robot) {
+
   double needle_extension = 0;
-  linkage_end_effectors end_effectors =  get_linkage_end_effector(
-      needle_to_patient_approach, LOWER_LINKAGE_Z, UPPER_LINKAGE_Z, needle_extension, robot);
-robot.top_linkage.linkage_end_effector = end_effectors.upper;
-robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
-  //std::cout << "lower and upper end effectors" << std::endl;
-  //end_effectors.lower.print();
-  //end_effectors.upper.print();
+  linkage_end_effectors end_effectors =
+      get_linkage_end_effector(needle_to_patient_approach, LOWER_LINKAGE_Z,
+                               UPPER_LINKAGE_Z, needle_extension, robot);
+  robot.top_linkage.linkage_end_effector = end_effectors.upper;
+  robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
+  // std::cout << "lower and upper end effectors" << std::endl;
+  // end_effectors.lower.print();
+  // end_effectors.upper.print();
   slider_positions sliders;
   sliders.needle_extension = needle_extension;
   get_slider_positions(sliders, end_effectors.lower, false, robot);
@@ -75,20 +79,29 @@ robot.bottom_linkage.linkage_end_effector = end_effectors.lower;
   return sliders;
 }
 
-
-void check_end_effector_dists(Point upper_end_effector, Point lower_end_effector) {
+void check_end_effector_dists(Point upper_end_effector,
+                              Point lower_end_effector) {
   Point base = UPPER_BASE;
-  if((upper_end_effector - base).magnitude() > UPPER_DISTAL_LENGTH + UPPER_PROXIMAL_LENGTH + static_cast<Point>(UPPER_END_EFFECTOR_VECTOR).magnitude()) {
+  if ((upper_end_effector - base).magnitude() >
+      UPPER_DISTAL_LENGTH + UPPER_PROXIMAL_LENGTH +
+          static_cast<Point>(UPPER_END_EFFECTOR_VECTOR).magnitude()) {
     throw std::runtime_error("The upper linkage is too far from the robot");
   }
   base = LOWER_BASE;
-  if((lower_end_effector - base).magnitude() > LOWER_DISTAL_LENGTH + LOWER_PROXIMAL_LENGTH + static_cast<Point>(LOWER_END_EFFECTOR_VECTOR).magnitude()) {
+  if ((lower_end_effector - base).magnitude() >
+      LOWER_DISTAL_LENGTH + LOWER_PROXIMAL_LENGTH +
+          static_cast<Point>(LOWER_END_EFFECTOR_VECTOR).magnitude()) {
     throw std::runtime_error("The lower linkage is too far from the robot");
   }
-  if(lower_end_effector.y < LOWER_BASE.y || upper_end_effector.y < LOWER_BASE.y) {
+  if (lower_end_effector.y < LOWER_BASE.y ||
+      upper_end_effector.y < LOWER_BASE.y) {
     throw std::runtime_error("The end effectors are too close to the robot");
   }
-  
+  // TODO change 50 to a correct number
+  if ((upper_end_effector - lower_end_effector).magnitude() > 50) {
+    throw std::runtime_error(
+        "The end effectors are too far appart from each other");
+  }
 };
 /**
  * @brief Get the linkage end effector based on its z value. See kinematics
@@ -101,8 +114,10 @@ void check_end_effector_dists(Point upper_end_effector, Point lower_end_effector
  * (upper: true, lower: false)
  * @return Point
  */
-linkage_end_effectors get_linkage_end_effector(
-    target_and_injection_point_approach robot_approach, double z_lower, double z_upper, double &needle_extension, Robot& robot) {
+linkage_end_effectors
+get_linkage_end_effector(target_and_injection_point_approach robot_approach,
+                         double z_lower, double z_upper,
+                         double &needle_extension, Robot &robot) {
   Point base = LOWER_BASE;
   base.z = z_lower;
   Point upper_base = UPPER_BASE;
@@ -114,7 +129,7 @@ linkage_end_effectors get_linkage_end_effector(
           ((UPPER_LINKAGE_Z - robot_approach.target.z) /
            ((robot_approach.injection_point - robot_approach.target).z)) +
       robot_approach.target;
-  if((needle_at_z - base).magnitude() == 0) {
+  if ((needle_at_z - base).magnitude() == 0) {
     throw std::runtime_error("can't be on top of lower base");
   }
   Point x_prime = cross((needle_at_z - upper_base), z_prime).normalize();
@@ -123,39 +138,41 @@ linkage_end_effectors get_linkage_end_effector(
   robot.y_prime = y_prime;
   robot.z_prime = z_prime;
   double z_needle = (-robot_approach.target.z +
-                    (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y * y_prime).z) /
-                   z_prime.z;
+                     (LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y * y_prime).z) /
+                    z_prime.z;
   needle_extension = z_needle + LOWER_END_EFFECTOR_TO_NEEDLEPOINT.z;
   x_prime = x_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.x;
   y_prime = y_prime * LOWER_END_EFFECTOR_TO_NEEDLEPOINT.y;
   // we can only vary the needle's z coordinate in the needle frame
   z_prime = z_prime * -z_needle;
-  Point lower_end_effector = robot_approach.target - x_prime - y_prime - z_prime;
+  Point lower_end_effector =
+      robot_approach.target - x_prime - y_prime - z_prime;
   z_prime = z_prime.normalize();
-  Point upper_end_effector = (((z_upper-z_lower)/z_prime.z)) * z_prime + lower_end_effector;
+  Point upper_end_effector =
+      (((z_upper - z_lower) / z_prime.z)) * z_prime + lower_end_effector;
   robot.top_linkage.extended_end_effector = upper_end_effector;
   robot.bottom_linkage.extended_end_effector = lower_end_effector;
   check_end_effector_dists(upper_end_effector, lower_end_effector);
-  assert(isclose(lower_end_effector.z,z_lower));
+  assert(isclose(lower_end_effector.z, z_lower));
   assert(isclose(upper_end_effector.z, z_upper));
   upper_end_effector.z = 0;
   upper_base.z = 0;
   Point upper_end_effector_vector = UPPER_END_EFFECTOR_VECTOR;
   upper_end_effector = ((upper_end_effector - upper_base).normalize() *
-                  ((upper_end_effector - upper_base).magnitude() -
-                   upper_end_effector_vector.magnitude())) +
-                 upper_base;
-  
+                        ((upper_end_effector - upper_base).magnitude() -
+                         upper_end_effector_vector.magnitude())) +
+                       upper_base;
+
   Point lower_end_effector_vector = LOWER_END_EFFECTOR_VECTOR;
   lower_end_effector.z = 0;
   Point left_joint = intersection_of_two_circles(
-        lower_end_effector, LOWER_BASE,
-        LOWER_DISTAL_LENGTH + lower_end_effector_vector.magnitude(),
-        LOWER_PROXIMAL_LENGTH, true);
-    
+      lower_end_effector, LOWER_BASE,
+      LOWER_DISTAL_LENGTH + lower_end_effector_vector.magnitude(),
+      LOWER_PROXIMAL_LENGTH, true);
+
   lower_end_effector =
-        (lower_end_effector - left_joint).normalize() * LOWER_DISTAL_LENGTH +
-        left_joint;
+      (lower_end_effector - left_joint).normalize() * LOWER_DISTAL_LENGTH +
+      left_joint;
   lower_end_effector.z = z_lower;
   upper_end_effector.z = z_upper;
   return {upper_end_effector, lower_end_effector};
@@ -178,16 +195,16 @@ linkage_end_effectors get_linkage_end_effector(
 Point intersection_of_two_circles(Point center_a, Point center_b,
                                   double radius_a, double radius_b,
                                   bool left_point) {
-  
+
   center_a.z = 0;
   center_b.z = 0;
-  if((center_a - center_b).magnitude() >= radius_a + radius_b) {
+  // plus 3 for assurance that we are making triangles. Almost never should
+  // our linkages be that close to eachother.
+  double d = (center_a - center_b).magnitude();
+  if (d + 3> radius_b + radius_b || radius_b + 3> d + radius_a ||
+      radius_a + 3> d + radius_b) {
     throw std::runtime_error("The circles do not intersect.");
   }
-  if((center_a - center_b).magnitude() <= abs(radius_a - radius_b)) {
-    throw std::runtime_error("the circles are within each other");
-  }
-  double d = (center_a - center_b).magnitude();
   double a = (pow(radius_a, 2) - pow(radius_b, 2) + pow(d, 2)) / (2 * d);
   double h = std::sqrt(pow(radius_a, 2) - pow(a, 2));
   Point P2 = (center_b - center_a) * (a / d) + center_a;
@@ -215,7 +232,7 @@ Point intersection_of_two_circles(Point center_a, Point center_b,
  * @return double
  */
 double get_y_of_slider_based_on_midpoint_location(Point midpoint, double x,
-                                                 double transmission_length) {
+                                                  double transmission_length) {
   assert(midpoint.z == 0);
   return -1 * sqrt(pow(transmission_length, 2) - pow(x - midpoint.x, 2)) +
          midpoint.y;
@@ -230,43 +247,43 @@ double get_y_of_slider_based_on_midpoint_location(Point midpoint, double x,
  * @param upper
  */
 void get_slider_positions(slider_positions &slider_positions_struct,
-                          Point end_effector, bool upper, Robot& robot) {
+                          Point end_effector, bool upper, Robot &robot) {
   end_effector.z = 0;
   Point left_joint = intersection_of_two_circles(
       end_effector, upper ? UPPER_BASE : LOWER_BASE,
       upper ? UPPER_DISTAL_LENGTH : LOWER_DISTAL_LENGTH,
       upper ? UPPER_PROXIMAL_LENGTH : LOWER_PROXIMAL_LENGTH, true);
-  //std::cout << "left joint" << std::endl;
-  //left_joint.print();
+  // std::cout << "left joint" << std::endl;
+  // left_joint.print();
   Point right_joint = intersection_of_two_circles(
       end_effector, upper ? UPPER_BASE : LOWER_BASE,
       upper ? UPPER_DISTAL_LENGTH : LOWER_DISTAL_LENGTH,
       upper ? UPPER_PROXIMAL_LENGTH : LOWER_PROXIMAL_LENGTH, false);
-  //std::cout << "right joint" << std::endl;
-  //right_joint.print();
-  
+  // std::cout << "right joint" << std::endl;
+  // right_joint.print();
+
   Point base = upper ? UPPER_BASE : LOWER_BASE;
   double midpoint_distance =
       upper ? UPPER_MIDPOINT_DISTANCE : LOWER_MIDPOINT_DISTANCE;
   Point left_midpoint =
       ((left_joint - base).normalize() * midpoint_distance) + base;
-  //std::cout << "left midpoint" << std::endl;
-  //left_midpoint.print();
+  // std::cout << "left midpoint" << std::endl;
+  // left_midpoint.print();
   Point right_midpoint =
       ((right_joint - base).normalize() * midpoint_distance) + base;
-    if(upper) {
-        robot.top_linkage.right_joint = right_joint;
-        robot.top_linkage.left_joint = left_joint;
-        robot.top_linkage.left_midpoint = left_midpoint;
-        robot.top_linkage.right_midpoint = right_midpoint;
-    } else {
-        robot.bottom_linkage.right_joint = right_joint;
-        robot.bottom_linkage.left_joint = left_joint;
-        robot.bottom_linkage.left_midpoint = left_midpoint;
-        robot.bottom_linkage.right_midpoint = right_midpoint;
-    }
-  //std::cout << "right midpoint" << std::endl;
-  //right_joint.print();
+  if (upper) {
+    robot.top_linkage.right_joint = right_joint;
+    robot.top_linkage.left_joint = left_joint;
+    robot.top_linkage.left_midpoint = left_midpoint;
+    robot.top_linkage.right_midpoint = right_midpoint;
+  } else {
+    robot.bottom_linkage.right_joint = right_joint;
+    robot.bottom_linkage.left_joint = left_joint;
+    robot.bottom_linkage.left_midpoint = left_midpoint;
+    robot.bottom_linkage.right_midpoint = right_midpoint;
+  }
+  // std::cout << "right midpoint" << std::endl;
+  // right_joint.print();
   if (upper) {
     slider_positions_struct.left_slider_y =
         get_y_of_slider_based_on_midpoint_location(left_midpoint, sliderXs[0],
