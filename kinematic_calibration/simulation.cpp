@@ -1,9 +1,11 @@
 #include "jacobian.h"
 #include "kinematics.h"
+#include <ceres/jet.h>
 #include <chrono>
 #include <cmath>
 #include <random>
 #include <stdexcept>
+#include <string>
 #include <vector>
 namespace External {
 #include "../inverse_kinematics.cpp"
@@ -71,10 +73,10 @@ Parameters<double> adjust_params(Parameters<double> params) {
   params.tunable_params.needle_offset += dist(rng);
   params.tunable_params.lower_base_z_offset += dist(rng);
   params.tunable_params.upper_base_z_offset += dist(rng);
-  params.tunable_params.D1 += dist(rng);
-  params.tunable_params.D2 += dist(rng);
-  params.tunable_params.D3 += dist(rng);
-  params.tunable_params.D4 += dist(rng);
+  // params.tunable_params.D1 += dist(rng);
+  // params.tunable_params.D2 += dist(rng);
+  // params.tunable_params.D3 += dist(rng);
+  // params.tunable_params.D4 += dist(rng);
 
   return params;
 }
@@ -101,12 +103,12 @@ void compare_params(Parameters<double> actual, Parameters<double> optimized) {
   double *arr_1 = Parameters_to_array<double>(actual);
   double *arr_2 = Parameters_to_array<double>(optimized);
   double mse_tot = 0;
-  for (int i = 0; i < 35; i++) {
+  for (int i = 0; i < 31; i++) {
     double diff = arr_1[i] - arr_2[i];
     std::cout << "difference in parameter " << i << " = " << diff << std::endl;
     mse_tot += diff * diff;
   }
-  mse_tot /= 35;
+  mse_tot /= 31;
   std::cout << "Mean squared error = " << mse_tot << std::endl;
 }
 
@@ -124,8 +126,15 @@ double get_error_cost(std::vector<Measurement<double>> &measurements,
   return mse / 2;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+  int num_tunables = 35;
+  if (argc == 2) {
+    num_tunables = std::stoi(argv[1]);
+  }
+  Parameters<double>::num_tunamble_params = num_tunables;
+  Parameters<ceres::Jet<double, 0>>::num_tunamble_params = num_tunables;
   Parameters<double> guess = get_default_parameters<double>();
+
   Parameters<double> actual = adjust_params(guess);
   compare_params(actual, guess);
   std::vector<Thetas<double>> thetas;

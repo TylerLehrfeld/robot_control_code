@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #define num_loops 4
+
 enum linkage_values {
   TOP_LEFT = 0,
   TOP_RIGHT = 1,
@@ -73,6 +74,7 @@ template <typename T> struct Tunable_parameters {
 };
 
 template <typename T> struct Parameters {
+  inline static int num_tunamble_params;
   Tunable_parameters<T> tunable_params;
   Point<T> upper_base;
   Point<T> lower_base;
@@ -110,7 +112,7 @@ template <typename T> Parameters<T> get_default_parameters() {
 }
 
 template <typename T> inline T *Parameters_to_array(Parameters<T> parameters) {
-  T *array = new T[35];
+  T *array = new T[parameters.num_tunamble_params];
   Tunable_parameters<T> tunables = parameters.tunable_params;
   for (int i = 0; i < num_loops; ++i) {
     array[i * 6 + 0] = tunables.loop_parameters[i].x_slider_offset;
@@ -120,13 +122,13 @@ template <typename T> inline T *Parameters_to_array(Parameters<T> parameters) {
     array[i * 6 + 4] = tunables.loop_parameters[i].proximal_link_midpoint;
     array[i * 6 + 5] = tunables.loop_parameters[i].distal_link_length;
   }
-  array[24] = tunables.top_needle_to_holder_distance;
-  array[25] = tunables.bottom_needle_to_holder_distance;
-  array[26] = tunables.top_holder_to_linkage_distance;
-  array[27] = tunables.bottom_holder_to_linkage_distance;
-  array[28] = tunables.needle_offset;
-  array[29] = tunables.lower_base_z_offset;
-  array[30] = tunables.upper_base_z_offset;
+  array[24] = tunables.top_holder_to_linkage_distance;
+  array[25] = tunables.bottom_holder_to_linkage_distance;
+  array[26] = tunables.needle_offset;
+  array[27] = tunables.lower_base_z_offset;
+  array[28] = tunables.upper_base_z_offset;
+  array[29] = tunables.top_needle_to_holder_distance;
+  array[30] = tunables.bottom_needle_to_holder_distance;
   array[31] = tunables.D1;
   array[32] = tunables.D2;
   array[33] = tunables.D3;
@@ -151,13 +153,13 @@ inline Parameters<T> array_to_Parameters(T const *tunable_params) {
     p.tunable_params.loop_parameters[i].distal_link_length =
         tunable_params[i * 6 + 5];
   }
-  p.tunable_params.top_needle_to_holder_distance = tunable_params[24];
-  p.tunable_params.bottom_needle_to_holder_distance = tunable_params[25];
-  p.tunable_params.top_holder_to_linkage_distance = tunable_params[26];
-  p.tunable_params.bottom_holder_to_linkage_distance = tunable_params[27];
-  p.tunable_params.needle_offset = tunable_params[28];
-  p.tunable_params.lower_base_z_offset = tunable_params[29];
-  p.tunable_params.upper_base_z_offset = tunable_params[30];
+  p.tunable_params.top_holder_to_linkage_distance = tunable_params[24];
+  p.tunable_params.bottom_holder_to_linkage_distance = tunable_params[25];
+  p.tunable_params.needle_offset = tunable_params[26];
+  p.tunable_params.lower_base_z_offset = tunable_params[27];
+  p.tunable_params.upper_base_z_offset = tunable_params[28];
+  p.tunable_params.top_needle_to_holder_distance = tunable_params[29];
+  p.tunable_params.bottom_needle_to_holder_distance = tunable_params[30];
   p.tunable_params.D1 = tunable_params[31];
   p.tunable_params.D2 = tunable_params[32];
   p.tunable_params.D3 = tunable_params[33];
@@ -187,7 +189,7 @@ Point<T> get_upper_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
 template <typename T>
 Point<T> get_lower_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
   Point<T> P1 = get_upper_linkage_P(thetas, parameters);
-  Point<T> P2 = get_lower_linkage_P(thetas, parameters);
+	Point<T> P2 = get_lower_linkage_P(thetas, parameters);
   Point<T> diff = (P2 - P1);
   Point<T> z = {T(0), T(0), T(1)};
   Point<T> n_vec = get_upper_linkage_n_vec<T>(thetas, parameters);

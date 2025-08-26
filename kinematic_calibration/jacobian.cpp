@@ -44,13 +44,13 @@ Parameters<double> ceres_solve(std::vector<Measurement<double>> measurements,
     for (int j = 0; j < num_loops; j++) {
       // minimize tunable parameters wrt error for each loop for each
       ceres::CostFunction *cf =
-          new ceres::AutoDiffCostFunction<Error_Residual, 1, 35>(
+          new ceres::AutoDiffCostFunction<Error_Residual, 1, 31>(
               new Error_Residual(measurements[i], thetas[i],
                                  static_cast<linkage_values>(j), i));
       problem.AddResidualBlock(cf, nullptr, param_arr);
     }
   }
-  for (int k = 0; k < 35; ++k) {
+  for (int k = 0; k < 31; ++k) {
     problem.SetParameterLowerBound(param_arr, k, param_arr[k] - 0.1);
     problem.SetParameterUpperBound(param_arr, k, param_arr[k] + 0.1);
   }
