@@ -21,6 +21,7 @@ Thetas<double> to_thetas(External::slider_positions s) {
   return t;
 }
 
+
 int get_positions(std::vector<Thetas<double>> &positions) {
   External::Robot robot;
   int X_WIDTH = 100;

@@ -1,73 +1,66 @@
-#include "../forward_kinematics.h"
-#include "../inverse_kinematics.h"
-#include "../robot_controller.h"
+#include "atracsys_functions.h"
 #include "kinematics.h"
+#include "templated_classes/Templated_Transform.h"
 #include <vector>
-#define pi 3.141592653
+namespace External {
+#include "../inverse_kinematics.cpp"
+#include "../robot_controller.h"
+} // namespace External
 
-int get_positions(std::vector<slider_positions> &positions) {
-  Robot robot;
-  int X_WIDTH = 200;
+const int num_measurements_per_pose = 10;
+
+int get_positions(std::vector<External::slider_positions> &positions) {
+  External::Robot robot;
+  int X_WIDTH = 100;
   int Y_HEIGHT = 500;
+  int Y_MIN = 300;
   for (float x = -X_WIDTH; x <= X_WIDTH; x += 10) {
-    for (float y = 0; y < Y_HEIGHT; y += 10) {
+    for (float y = Y_MIN; y < Y_HEIGHT; y += 10) {
       for (int i = 0; i < 5; i++) {
         float theta;
         float phi = 0;
         if (i == 0) {
           theta = 0;
         } else {
-          theta = pi / 4;
-          phi += pi / 2;
+          theta = M_PI / 4;
+          phi += M_PI / 2;
         }
-        approach_definition def = {{x, y, -50}, theta, phi};
-        positions.push_back(
-            inverse_kinematics(def, NewTransform(0, 0, 0, 0, 0, 0), robot));
+        External::approach_definition def = {{x, y, -100}, theta, phi};
+        try {
+          External::slider_positions sliders = External::inverse_kinematics(
+              def, External::NewTransform(0, 0, 0, 0, 0, 0), robot);
+          positions.push_back(sliders);
+        } catch (std::runtime_error e) {
+        }
       }
     }
   }
   return positions.size();
 }
 
-Parameters get_default_params() {
-  // TODO
-}
-
-Tunable_parameters get_best_params(vector<Measurement> &measurement_array,
-                                   vector<slider_positions> positions,
-                                   NewTransform F_MR, NewTransform F_MN,
-                                   int NR_max_iters = 750) {
-  Parameters parameters = get_default_params();
-  for (int NR_iter = 0; NR_iter < NR_max_iters; NR_iter++) {
-    // loop over each position
-
-    for (Measurement measurement : measurement_array) {
-      // loop over each linkage loop
-      for (int i = 0; i < 4; i++) {
-        // calculate f_i,j
-      }
-    }
-    Matrix J();
-    w = update_w(w, J_M);
-  }
-}
-
-static const slider_positions home_positions = {
-    BASE_TO_SLIDER_MAX - 60,    //- HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 26.79, // - HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 23.48, //- HALF_SLIDER_WIDTH,
-    BASE_TO_SLIDER_MAX - 60,    //- HALF_SLIDER_WIDTH,
+static const External::slider_positions home_positions = {
+    External::BASE_TO_SLIDER_MAX - 60,    //- HALF_SLIDER_WIDTH,
+    External::BASE_TO_SLIDER_MAX - 26.79, // - HALF_SLIDER_WIDTH,
+    External::BASE_TO_SLIDER_MAX - 23.48, //- HALF_SLIDER_WIDTH,
+    External::BASE_TO_SLIDER_MAX - 60,    //- HALF_SLIDER_WIDTH,
     0};
-static const NewTransform F_MR(0, 0, 0, 0, 0, 0);
-static const NewTransform F_MN(0, 0, 0, 0, 0, 0);
+static const Transform<double> F_MR(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+static const Transform<double> F_MN(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 int main() {
-  vector<slider_positions> positions;
+  std::vector<External::slider_positions> positions;
   int num_positions = get_positions(positions);
-  robot_controller rc(home_positions);
-  vector<Measurement> measurement_array;
-  for (slider_positions position : positions) {
+  External::robot_controller rc(home_positions);
+  std::vector<Measurement<double>> measurement_array;
+  for (External::slider_positions position : positions) {
     // go to position
+    rc.move(position);
     // read values
+	std::vector<Measurement<double>> averaging_vec;
+    for (int measurement_idx = 0; measurement_idx < num_measurements_per_pose;
+         measurement_idx++) {
+       averaging_vec.push_back(get_atracsys_measurement(BOTH));
+			
+    }
     // write values to file
   }
 

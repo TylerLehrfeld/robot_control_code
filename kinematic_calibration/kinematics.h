@@ -4,6 +4,7 @@
 #include "./templated_classes/Templated_Point.h"
 #include "./templated_classes/Templated_Transform.h"
 #include <stdexcept>
+#include <vector>
 
 #define num_loops 4
 
@@ -168,14 +169,16 @@ inline Parameters<T> array_to_Parameters(T const *tunable_params) {
 }
 
 template <typename T>
-Point<T> get_upper_linkage_n_vec(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_upper_linkage_n_vec(const Thetas<T> &thetas,
+                                 const Parameters<T> &parameters) {
   Point<T> upper_C = get_linkage_C(thetas, parameters, TOP_LEFT);
   Point<T> D = get_D(thetas, parameters);
   return (upper_C - D).normalize();
 }
 
 template <typename T>
-Point<T> get_upper_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_upper_linkage_E(const Thetas<T> &thetas,
+                             const Parameters<T> &parameters) {
   Point<T> P1 = get_upper_linkage_P(thetas, parameters);
   Point<T> P2 = get_lower_linkage_P(thetas, parameters);
   Point<T> diff = (P2 - P1);
@@ -187,9 +190,10 @@ Point<T> get_upper_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Point<T> get_lower_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_lower_linkage_E(const Thetas<T> &thetas,
+                             const Parameters<T> &parameters) {
   Point<T> P1 = get_upper_linkage_P(thetas, parameters);
-	Point<T> P2 = get_lower_linkage_P(thetas, parameters);
+  Point<T> P2 = get_lower_linkage_P(thetas, parameters);
   Point<T> diff = (P2 - P1);
   Point<T> z = {T(0), T(0), T(1)};
   Point<T> n_vec = get_upper_linkage_n_vec<T>(thetas, parameters);
@@ -199,7 +203,8 @@ Point<T> get_lower_linkage_E(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Transform<T> get_end_effector(Thetas<T> thetas, Parameters<T> parameters) {
+Transform<T> get_end_effector(const Thetas<T> &thetas,
+                              const Parameters<T> &parameters) {
   Point<T> E1 = get_upper_linkage_E<T>(thetas, parameters);
   Point<T> E2 = get_lower_linkage_E<T>(thetas, parameters);
   Point<T> diff = (E2 - E1).normalize();
@@ -214,7 +219,7 @@ Transform<T> get_end_effector(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Point<T> get_D(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_D(const Thetas<T> &thetas, const Parameters<T> &parameters) {
   Point upper_C = get_linkage_C(thetas, parameters, TOP_LEFT);
   T ratio1 =
       parameters.tunable_params.D1 /
@@ -231,7 +236,8 @@ Point<T> get_D(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Point<T> get_upper_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_upper_linkage_P(const Thetas<T> &thetas,
+                             const Parameters<T> &parameters) {
   Point<T> upper_C = get_linkage_C(thetas, parameters, TOP_RIGHT);
   Point<T> D = get_D(thetas, parameters);
   T n1 = parameters.tunable_params.top_holder_to_linkage_distance;
@@ -239,7 +245,7 @@ Point<T> get_upper_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Point<T> get_linkage_C(Thetas<T> thetas, Parameters<T> parameters,
+Point<T> get_linkage_C(const Thetas<T> &thetas, const Parameters<T> &parameters,
                        linkage_values val) {
   Point<T> B_j;
   Point<T> B_k;
@@ -264,7 +270,8 @@ Point<T> get_linkage_C(Thetas<T> thetas, Parameters<T> parameters,
 }
 
 template <typename T>
-Point<T> get_lower_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
+Point<T> get_lower_linkage_P(const Thetas<T> &thetas,
+                             const Parameters<T> &parameters) {
   Point<T> lower_C = get_linkage_C(thetas, parameters, BOTTOM_LEFT);
   Point<T> lower_left_B = get_linkage_B(thetas, parameters, BOTTOM_LEFT);
   Point<T> P =
@@ -278,7 +285,7 @@ Point<T> get_lower_linkage_P(Thetas<T> thetas, Parameters<T> parameters) {
 }
 
 template <typename T>
-Point<T> get_linkage_B(Thetas<T> thetas, Parameters<T> parameters,
+Point<T> get_linkage_B(const Thetas<T> &thetas, const Parameters<T> &parameters,
                        linkage_values val) {
   Point<T> base;
   Point<T> S_i;
@@ -369,4 +376,5 @@ inline Point<T> third_point_in_triangle(Point<T> P1, Point<T> P2, T l1, T l2) {
   return P3;
 };
 
+int get_positions(std::vector<Thetas<double>> &positions);
 #endif // CAL_KINEMATICS
