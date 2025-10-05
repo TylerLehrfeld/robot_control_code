@@ -4,7 +4,7 @@ project(kinematics_project LANGUAGES CXX)
 # Set C++ standard and flags
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Include Eigen
@@ -12,16 +12,33 @@ include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0/Eigen)
 include_directories(${CMAKE_SOURCE_DIR}/kinematic_calibration)
+include_directories(${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/auto_diff_class)
 find_package(Ceres REQUIRED)
 # Atracsys SDK paths
 set(ATRACSYS_INCLUDE_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/include)
-set(ATRACSYS_LIB_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/lib)
-set(ATRACSYS_LIBS ftk ftkHelper)  # Adjust if your lib names differ
+set(ATRACSYS_SDK_INSTALL_PATH ${ATRACSYS_INCLUDE_DIR}/..)
+#set(ATRACSYS_LIB_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/lib)
+# Atracsys SDK libraries
 
+# Atracsys SDK API This will be only used to display the headers in Visual Studio
+set(api_SRCS
+    "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkErrors.h" "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkTypes.h"
+    "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkErrors.h" "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkInterface.h"
+    "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkPlatform.h" "${ATRACSYS_SDK_INSTALL_PATH}/include/ftkOptions.h")
+
+# Helpers dedicated to the samples
+set(additional_SRCS
+    "${ATRACSYS_SDK_INSTALL_PATH}/samples/helpers.cpp" "${ATRACSYS_SDK_INSTALL_PATH}/samples/helpers.hpp"
+    "${ATRACSYS_SDK_INSTALL_PATH}/samples/geometryHelper.hpp"
+    "${ATRACSYS_SDK_INSTALL_PATH}/samples/geometryHelper.cpp")
+
+set(Atracsys_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/cmake/Atracsys/)
+set(ATRACSYS_LIBS fusionTrack64 calibrationClient64 device64 AtracsysDataExchangeLib64 atnetLib64)
 include_directories(${ATRACSYS_INCLUDE_DIR})
 include_directories(/home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/samples)
 link_directories(${ATRACSYS_LIB_DIR})
 set(CMAKE_BUILD_RPATH ${ATRACSYS_LIB_DIR})
+find_package(Atracsys REQUIRED COMPONENTS SDK AdvancedAPI)
 # Add optional linking libraries
 set(POST_LIBS gclib pthread gclibo)
 
@@ -35,11 +52,12 @@ set(SRC_SHARED
 set(SRC_SIMULATION
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Point.h
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Transform.h
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/jacobian.cpp
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/jacobian.h
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/auto_diff_class/auto.h
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/atracsys_functions.h
 	inverse_kinematics.cpp
 	Matrix.cpp
 	Transform.cpp
-	
 )
 
 # If Pivot.cpp is needed
@@ -49,8 +67,18 @@ set(SRC_PIVOT
 
 # Targets
 
+add_executable(test_auto
+    ${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_auto.cpp
+    ${SRC_SIMULATION}
+)
+
 add_executable(inverse_kinematics_test
     inverse_kinematics_test.cpp
+    ${SRC_SHARED}
+)
+
+add_executable(kinematics_test
+    kinematics_test.cpp
     ${SRC_SHARED}
 )
 
@@ -129,7 +157,28 @@ target_link_libraries(simulation ceres)
 add_executable(test_forward_kinematics
 	${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_forward_kinematics.cpp
 	${SRC_SIMULATION}
+	${SRC_SHARED}
 )
 
-
 target_link_libraries(test_forward_kinematics ceres)
+
+add_executable(test_inverse_kinematics
+	${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_inverse_kinematics.cpp
+	${SRC_SIMULATION}
+	${SRC_SHARED}
+)
+
+target_link_libraries(test_inverse_kinematics ceres)
+
+
+
+add_executable(data_collection
+    ${CMAKE_SOURCE_DIR}/kinematic_calibration/data_collection.cpp
+    ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
+)
+
+target_link_libraries(data_collection PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)

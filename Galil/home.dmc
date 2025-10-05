@@ -4,8 +4,8 @@
 ## msideAXIS = 1 means that motor A is closer to the motor than the far wall
 msideA = 1; msideF = 1;
 JS #homeUp
-// msideB = 1; msideE = 1;
-// JS #homeLow
+msideB =0; msideE = 0;
+//JS #homeLow
 EN
 
 
@@ -47,18 +47,18 @@ EN
 aFIN = 0;
 OFA=0.1;
 ACA=256000; DCA=256000; JGA=6000;
-BGA; CB9; 
-WT durA; SB9;SB1; STA; WT1500; 
+BGA; CB10; 
+WT durA; SB10;SB2; STA; WT1500; 
 //find home
-SHA; FEA; BGA; CB1;  
-AMA;SB1; 
+SHA; FEA; BGA; CB2;  
+AMA;SB2; 
 PRA=1000; SPA=1300;
-BGA; CB9;AM A;SB9;SB1; WT500;
+BGA; CB10;AMA;SB10;SB2; WT500;
 //pass two, slower
-TLA=.3;SHA; FEA; BGA; CB1; 
+TLA=.3;SHA; FEA; BGA; CB2; 
 AMA;
 DPA=0;
-SB1;TLA=3.2;SHA;WT500;
+SB2;TLA=3.2;SHA;WT500;
 MOA;
 aFIN = 1;
 EN
@@ -67,21 +67,21 @@ EN
 fFIN = 0;
 //pass one
 ACF=256000; DCF=256000;OFF=0.1;
-JGF=6000;BGF; CB16;
+JGF=6000;BGF; CB15;
 WT durF;
-SB16;SB8; STF; WT1500;
+SB15;SB7; STF; WT1500;
 //find home
-SHF; FEF; BGF; CB8; 
-AM F;SB8; 
+SHF; FEF; BGF; CB7; 
+AM F;SB7; 
 PRF=1000; SPF=1300;
 BGF; 
-CB16;AM F;SB16;SB8; WT500;
+CB15;AM F;SB15;SB7; WT500;
 //pass two, slower
 TLF=.3;
-SHF; FEF; BGF; CB8; 
+SHF; FEF; BGF; CB7; 
 AM F;
 DPF=0;
-SB8;TLF=3.2; SHF;WT500;
+SB7;TLF=3.2; SHF;WT500;
 MOF;
 fFIN = 1;
 EN
@@ -109,20 +109,20 @@ EN
 bFIN =0;
 //pass one
 ACB=256000; DCB=256000; 
-JGB=6000;BGB; CB10;
-WT durB;SB10;SB2;STB;WT500;
+JGB=6000;BGB; CB9;
+WT durB;SB9;SB1;STB;WT500;
 //find home
-SHB; FEB; BGB; CB2; 
-AMB;SB2; 
+SHB; FEB; BGB; CB1; 
+AMB;SB1; 
 PRB=1000; SPB=1300;
-BGB; CB10;AM B;SB10;SB2; WT500;
+BGB; CB9;AM B;SB9;SB1; WT500;
 //pass two, slower
-TLB=.3;SHB; FEB; BGB; CB2; 
+TLB=.3;SHB; FEB; BGB; CB1; 
 AMB;
 DPB=0;
-SB2;TLB=3.2;SHB;WT500;
+SB1;TLB=3.2;SHB;WT500;
 MOB;
 bFIN = 1;
 EN
 
-##include "/home/amiro/Documents/Galil/helpers.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/helpers.dmc"

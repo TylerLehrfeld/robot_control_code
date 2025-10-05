@@ -5,11 +5,18 @@
 //LEFT, RIGHT
 // JS #GoToLow(30.06, 23.91)
 JS #GoToUp(70.285, 65.285);
+//JS #MoveFT;
 JS #waitALL;
 MG "DONE"
 EN
 
-
+//#MoveFT
+//CtF=_TPF;
+//move forward 10mm
+//TL 3.2,3.2,3.2,3.2,3.2,3.2;
+//tgtCtF=CtF+9485.86925;
+//XQ #GoToF, 5;
+//EN
 
 #GoToLow
 TL 3.2,3.2,3.2,3.2,3.2,3.2;

@@ -26,7 +26,7 @@ public:
     T sz = sin(theta_z);
     T X_matrix[3][3] = {{T(1), T(0), T(0)}, {T(0), cx, -sx}, {T(0), sx, cx}};
     T Y_matrix[3][3] = {{cy, T(0), sy}, {T(0), T(1), T(0)}, {-sy, T(0), cy}};
-    T Z_matrix[3][3] = {{cz, -sz, T(0)}, {sz, cx, T(0)}, {T(0), T(0), T(1)}};
+    T Z_matrix[3][3] = {{cz, -sz, T(0)}, {sz, cz, T(0)}, {T(0), T(0), T(1)}};
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
@@ -78,7 +78,7 @@ public:
     Rotation<U> rot;
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
-        rot.matrix[i][j] = U(rot.matrix[i][j]);
+        rot.matrix[i][j] = U(matrix[i][j]);
       }
     }
     return rot;
@@ -111,6 +111,19 @@ public:
     p = translation;
   }
 
+  void print() {
+    std::cout << "R:" << std::endl;
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
+
+        std::cout << R.matrix[i][j] << " ";
+      }
+      std::cout << std::endl;
+    }
+
+    std::cout << "p:" << std::endl;
+    std::cout << p.x << " " << p.y << " " << p.z << std::endl;
+  }
   Transform<T> operator*(const Transform<T> &transform) const {
     Transform<T> ret;
     ret.R = R * transform.R;

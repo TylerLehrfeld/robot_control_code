@@ -12,7 +12,7 @@
 #ifndef TEMPLATE_POINT
 #define TEMPLATE_POINT
 #include <cmath>
-inline bool isclose(double a, double b) {
+inline bool is_close(double a, double b) {
 	return std::abs(a -b) < .0001;
 
 }
@@ -96,7 +96,7 @@ template <typename T> struct Point {
   }
 
   bool operator==(const Point<double> p) const {
-    return isclose(p.x, x) && isclose(p.y, y) && isclose(p.z, z);
+    return is_close(p.x, x) && is_close(p.y, y) && is_close(p.z, z);
   }
 
   /**

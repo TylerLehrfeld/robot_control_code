@@ -25,7 +25,7 @@ const double LOWER_TRANSMISSION_LENGTH = 110;
 const double LOWER_PROXIMAL_LENGTH = 92;
 const double LOWER_DISTAL_LENGTH = 99;
 const double LOWER_MIDPOINT_DISTANCE = 46;
-const double UPPER_LINKAGE_Z = 31.96;
+const double UPPER_LINKAGE_Z = 31.5;
 const double LOWER_LINKAGE_Z = 0;
 const Point LOWER_END_EFFECTOR_TO_NEEDLEPOINT = {.x = 0, .y = 47.7, .z = -64.9};
 const double UPPER_TO_LOWER_BASE_LENGTH = 38;

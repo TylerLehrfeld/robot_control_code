@@ -43,9 +43,9 @@ ENDIF;
 EN
 
 
-##include "/home/amiro/Documents/Galil/gotoB.dmc"
-##include "/home/amiro/Documents/Galil/gotoE.dmc"
-##include "/home/amiro/Documents/Galil/helpers.dmc"
-##include "/home/amiro/Documents/Galil/calibration.dmc"
-##include "/home/amiro/Documents/Galil/A.dmc"
-##include "/home/amiro/Documents/Galil/F.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/gotoB.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/gotoE.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/helpers.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/calibration.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/A.dmc"
+##include "/home/tyler/projects/robot_control_code/Galil/F.dmc"

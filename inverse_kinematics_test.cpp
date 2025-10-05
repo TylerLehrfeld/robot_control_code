@@ -52,7 +52,7 @@ void test_overall_kinematics() {
     Point right = {sliderXs[3], right_slider_y, 0};
 
     get_end_effector(left, left_middle, right_middle, right, UPPER_BASE, LOWER_BASE, 0).print();*/
-    approach_definition def = {{0,440,-65},M_PI/2,M_PI/6};
+    approach_definition def = {{0,375,-65},0,0};
     NewTransform t(0,0,0,0,0,0);
     slider_positions injection_positions = inverse_kinematics(def, t, inverse_robot);
     left = {sliderXs[0], injection_positions.left_slider_y, 0};

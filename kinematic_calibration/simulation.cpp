@@ -1,15 +1,18 @@
 #include "jacobian.h"
 #include "kinematics.h"
+#include <cassert>
 #include <ceres/jet.h>
 #include <chrono>
 #include <cmath>
 #include <random>
 #include <stdexcept>
-#include <string>
 #include <vector>
+// We bring this in for our initial guess because I haven't implemented
+// templated inverse_kinematics yet
 namespace External {
 #include "../inverse_kinematics.cpp"
 }
+
 Thetas<double> to_thetas(External::slider_positions s) {
 
   Thetas<double> t;
@@ -20,7 +23,6 @@ Thetas<double> to_thetas(External::slider_positions s) {
   t.theta_5 = s.needle_extension;
   return t;
 }
-
 
 int get_positions(std::vector<Thetas<double>> &positions) {
   External::Robot robot;
@@ -51,44 +53,12 @@ int get_positions(std::vector<Thetas<double>> &positions) {
   return positions.size();
 }
 
-Parameters<double> adjust_params(Parameters<double> params) {
-  std::mt19937_64 rng(
-      std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
-  std::uniform_real_distribution<double> dist(-0.1, 0.1);
-
-  for (int i = 0; i < num_loops; i++) {
-    params.tunable_params.loop_parameters[i].x_slider_offset += dist(rng);
-    params.tunable_params.loop_parameters[i].y_slider_offset += dist(rng);
-    params.tunable_params.loop_parameters[i].transmission_link_length +=
-        dist(rng);
-    params.tunable_params.loop_parameters[i].proximal_link_midpoint +=
-        dist(rng);
-    params.tunable_params.loop_parameters[i].proximal_link_length += dist(rng);
-    params.tunable_params.loop_parameters[i].distal_link_length += dist(rng);
-  }
-  params.tunable_params.top_needle_to_holder_distance += dist(rng);
-  params.tunable_params.bottom_needle_to_holder_distance += dist(rng);
-  params.tunable_params.top_holder_to_linkage_distance += dist(rng);
-  params.tunable_params.bottom_holder_to_linkage_distance += dist(rng);
-  params.tunable_params.needle_offset += dist(rng);
-  params.tunable_params.lower_base_z_offset += dist(rng);
-  params.tunable_params.upper_base_z_offset += dist(rng);
-  // params.tunable_params.D1 += dist(rng);
-  // params.tunable_params.D2 += dist(rng);
-  // params.tunable_params.D3 += dist(rng);
-  // params.tunable_params.D4 += dist(rng);
-
-  return params;
-}
 
 void get_simulated_measurements(std::vector<Measurement<double>> &measurements,
                                 std::vector<Thetas<double>> &thetas,
                                 Parameters<double> params) {
   for (int i = 0; i < thetas.size(); ++i) {
-    //    if (i == 32) {
-    //      std::cout << "here" << std::endl;
-    //    }
     Transform<double> I = Transform<double>(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     Transform<double> f_M1R = F_M1R<double>();
     Transform<double> ee = get_end_effector(thetas[i], params);
@@ -100,17 +70,23 @@ void get_simulated_measurements(std::vector<Measurement<double>> &measurements,
   }
 }
 
-void compare_params(Parameters<double> actual, Parameters<double> optimized) {
-  double *arr_1 = Parameters_to_array<double>(actual);
-  double *arr_2 = Parameters_to_array<double>(optimized);
+void compare_params(Parameters<double> actual, Parameters<double> optimized,
+                    const int ct) {
+  double *arr_1 = new double[ct];
+  int count = Parameters_to_array<double>(actual, arr_1);
+  assert(count == ct);
+  double *arr_2 = new double[ct];
+  Parameters_to_array<double>(optimized, arr_2);
   double mse_tot = 0;
-  for (int i = 0; i < 31; i++) {
+  for (int i = 0; i < count; i++) {
     double diff = arr_1[i] - arr_2[i];
     std::cout << "difference in parameter " << i << " = " << diff << std::endl;
     mse_tot += diff * diff;
   }
-  mse_tot /= 31;
+  mse_tot /= count;
   std::cout << "Mean squared error = " << mse_tot << std::endl;
+  delete[] arr_2;
+  delete[] arr_1;
 }
 
 double get_error_cost(std::vector<Measurement<double>> &measurements,
@@ -128,16 +104,10 @@ double get_error_cost(std::vector<Measurement<double>> &measurements,
 }
 
 int main(int argc, char *argv[]) {
-  int num_tunables = 35;
-  if (argc == 2) {
-    num_tunables = std::stoi(argv[1]);
-  }
-  Parameters<double>::num_tunamble_params = num_tunables;
-  Parameters<ceres::Jet<double, 0>>::num_tunamble_params = num_tunables;
-  Parameters<double> guess = get_default_parameters<double>();
-
+  constexpr Parameters<double> guess = get_default_parameters<double>();
+  constexpr int ct = get_num_tunable_params(guess);
   Parameters<double> actual = adjust_params(guess);
-  compare_params(actual, guess);
+  compare_params(actual, guess, ct);
   std::vector<Thetas<double>> thetas;
   std::vector<Measurement<double>> measurements;
   get_positions(thetas);
@@ -146,9 +116,9 @@ int main(int argc, char *argv[]) {
   double minimal_mse = get_error_cost(measurements, thetas, actual);
   std::cout << "unoptimized_cost: " << unoptimized_mse
             << " minimal_cost(should be zero): " << minimal_mse << std::endl;
-  Parameters<double> optimized = ceres_solve(measurements, thetas, guess);
+  Parameters<double> optimized = ceres_solve<ct>(measurements, thetas, guess);
   double optimized_mse = get_error_cost(measurements, thetas, optimized);
 
   std::cout << "optimized_cost: " << optimized_mse << std::endl;
-  compare_params(actual, optimized);
+  compare_params(actual, optimized, ct);
 }
