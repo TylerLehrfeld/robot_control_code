@@ -3,7 +3,6 @@
 #include "NewTransform.h"
 #include "PointCloudTransform.h"
 #include "forward_kinematics.h"
-#include "galil_control_calls.h"
 #include "inverse_kinematics.h"
 #include <fstream>
 #include <iostream>
@@ -44,55 +43,59 @@ int main() {
   bool up_left_near, up_right_near, low_left_near, low_right_near;
   std::ofstream results_file("dummy.txt");
 
-  init_galil(1);
+  // init_galil(1);
   std::cout
       << "Homing high. Enter 1 if the slider is behind the limit switch: A F"
       << std::endl;
   std::cin >> up_left_near;
   std::cin >> up_right_near;
-  HomeUpBlocking(up_left_near, up_right_near);
+  // HomeUpBlocking(up_left_near, up_right_near);
   std::cout
       << "Homing low. Enter 1 if the slider is behind the limit switch: B E"
       << std::endl;
   std::cin >> low_left_near;
   std::cin >> low_right_near;
-  HomeLowBlocking(low_left_near, low_right_near);
-  stop_galil();
+  // HomeLowBlocking(low_left_near, low_right_near);
+  // stop_galil();
   /*init_galil(3);
   GoToUpBlocking(60,60);
   stop_galil();*/
-  std::ifstream grid_file("gridy.txt");
+//  std::ifstream grid_file("gridy.txt");
 
-  if (!grid_file.is_open()) {
-    std::cout << "grid file not open";
-    return -1;
-  }
-  std::ifstream slider_file("sliders.txt");
-  if (!slider_file.is_open()) {
-    std::cout << "slider file not open";
-    return -1;
-  }
+ // if (!grid_file.is_open()) {
+ //   std::cout << "grid file not open";
+ //   return -1;
+ // }
+ // std::ifstream slider_file("sliders.txt");
+ // if (!slider_file.is_open()) {
+ //   std::cout << "slider file not open";
+ //   return -1;
+ // }
   std::string command = "";
   // std::cout << "Begin needle marker calibration? After continuing, start
   // pivoting the needle such that new optical frames can be read." <<
   // std::endl;
   std::cin >> command;
   std::cout << "getting transforms from out.txt" << std::endl;
-  /*vector<NewTransform> F_M2Ns;
+  vector<NewTransform> F_M2Ns;
   Matrix p_bottom_linkage_home_in_optical_coordinates;
   do {
-      NewTransform F_M2N =
-  get_needle_pivot_transform(p_bottom_linkage_home_in_optical_coordinates);
-      F_M2N.print();
-      std::cout << "Begin needle marker calibration again (r: redo, a: add
-  another, c: continue to robot pivot)? After continuing, start pivoting the
-  needle such that new optical frames can be read" << std::endl; std::cin >>
-  command; if(command == "a" || command == "c") { F_M2Ns.push_back(F_M2N);
-      }
-  } while(command != "c");
+    NewTransform F_M2N = get_needle_pivot_transform(
+        p_bottom_linkage_home_in_optical_coordinates);
+    F_M2N.print();
+    std::cout
+        << "Begin needle marker calibration again (r: redo, a: add  another, "
+           "c: continue to robot pivot)? After continuing, start pivoting the  "
+           "needle such that new optical frames can be read"
+        << std::endl;
+    std::cin >> command;
+    if (command == "a" || command == "c") {
+      F_M2Ns.push_back(F_M2N);
+    }
+  } while (command != "c");
 
-  NewTransform F_M2N = get_average_transform(F_M2Ns);*/
-  NewTransform F_M2N(0, 0, M_PI, .00558085, 28.3789, -5.49509);
+  NewTransform F_M2N = get_average_transform(F_M2Ns);
+  // NewTransform F_M2N(0, 0, M_PI, .00558085, 28.3789, -5.49509);
   results_file << "F_M2N" << std::endl << F_M2N.to_string();
   // NewTransform F_M2N = F_M2Ns[0];
   /*vector<NewTransform> F_M1Rs;
@@ -110,10 +113,10 @@ int main() {
   // HomeUpBlocking(1,1);
   // stop_galil();
   Robot forward_robot;
-  Point target = get_end_effector(home_positions, forward_robot);
-  home_positions.needle_extension -= 1;
-  Point injection = get_end_effector(home_positions, forward_robot);
-  inverse_kinematics({target, injection}, forward_robot);
+  // Point target = get_end_effector(home_positions, forward_robot);
+  // home_positions.needle_extension -= 1;
+  // Point injection = get_end_effector(home_positions, forward_robot);
+  // inverse_kinematics({target, injection}, forward_robot);
   Matrix rot(vector<Matrix>({forward_robot.x_prime.to_matrix(),
                              forward_robot.y_prime.to_matrix(),
                              forward_robot.z_prime.to_matrix()}));
@@ -175,11 +178,11 @@ int main() {
   Point last_point = {0, 0, 0};
   double mag_tot = 0;
   int num_trials = 0;
-  init_galil(3);
+  //init_galil(3);
   while (true) {
     Robot inverse_robot;
     std::string line;
-    grid_file >> line;
+    //grid_file >> line;
     if (line == "") {
       break;
     }
@@ -200,7 +203,7 @@ int main() {
       break;
     }
 
-    move_robot_with_slider_positions(position);
+    //move_robot_with_slider_positions(position);
     vector<NewTransform> F_OM1s;
     vector<NewTransform> F_OM2s;
     NewTransform F_OM1(0, 0, 0, 0, 0, 0);
@@ -273,6 +276,6 @@ int main() {
   }
   // std::cout << "average error over " << num_trials-1 << " trials of 10
   // samples for each trial: " << mag_tot / (num_trials-1) << std::endl;
-  stop_galil();
+  //stop_galil();
   return 0;
 }

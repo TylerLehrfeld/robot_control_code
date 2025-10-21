@@ -1,11 +1,15 @@
 ##
 ##
 
-FtgtCT = 948.586925*.4;
-BtgtCT = 0000;
-EtgtCT = 0000;
-AtgtCT = 947.419292*0;
+FtgtCT = 948.586925*0;
+BtgtCT = 948.586925*0;
+EtgtCT = 948.586925*0;
+AtgtCT = 947.419292*-5;
 
+//EtgtCT = 2000;
+//EtgtCT = EtgtCT + (948.586925*0.1724);
+
+MG BtgtCT;
 #MoveAll
 dirA=1;
 dirF=1;
@@ -15,6 +19,11 @@ dirB=1;
 dMotion=0;
 #motors
 STF;
+STB;
+STE;
+STA;
+WT 100;
+
 MOF;
 SPF=2000;
 SHF;
@@ -31,7 +40,6 @@ ELSE
 	ENDIF
 ENDIF
 
-STB;
 MOB;
 SPB=2000;
 SHB;
@@ -48,7 +56,6 @@ ELSE
 	ENDIF
 ENDIF
 
-STE;
 MOE;
 SPE=2000;
 SHE;
@@ -60,12 +67,12 @@ ELSE
 	IF (EtgtCT < 0)
 		MTE=-1;
 		CB13;
+
 		SB5;
 		dirE=-1
 	ENDIF
 ENDIF
 
-STA;
 MOA;
 SPA=2000;
 SHA;

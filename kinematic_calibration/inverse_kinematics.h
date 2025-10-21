@@ -1,6 +1,7 @@
 #include "auto.h"
 #include "kinematics.h"
 #include "templated_classes/Templated_Point.h"
+#include <stdexcept>
 namespace External {
 #include "../inverse_kinematics.cpp"
 }
@@ -49,6 +50,14 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
   External::slider_positions guess_pos =
       External::inverse_kinematics(approach, inverse_robot);
   Thetas<Auto<5, T>> guess = to_thetas<T>(guess_pos);
+  guess.theta_1 -= differentiable_params.tunable_params.loop_parameters[0]
+                       .y_slider_offset.value;
+  guess.theta_2 -= differentiable_params.tunable_params.loop_parameters[1]
+                       .y_slider_offset.value;
+  guess.theta_3 -= differentiable_params.tunable_params.loop_parameters[2]
+                       .y_slider_offset.value;
+  guess.theta_4 -= differentiable_params.tunable_params.loop_parameters[3]
+                       .y_slider_offset.value;
   Transform<Auto<5, T>> cur_T;
   Auto<5, T> loss(1);
   int iter = 0;
@@ -67,6 +76,10 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
     loss = translational_diff.x * translational_diff.x +
            translational_diff.y * translational_diff.y +
            translational_diff.z * translational_diff.z + cos_sim;
+    if (iter == 0) {
+      //std::cout << "loss on inverse_kinematics: " << loss.val
+      //          << " on iter: " << iter << std::endl;
+    }
     T grad_magnitude = sqrt(
         loss.epsilon[0] * loss.epsilon[0] + loss.epsilon[1] * loss.epsilon[1] +
         loss.epsilon[2] * loss.epsilon[2] + loss.epsilon[3] * loss.epsilon[3] +
@@ -84,7 +97,10 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
     //             << " " << loss.epsilon[2] << " " << loss.epsilon[3] << " "
     //             << loss.epsilon[4] << " " << std::endl;
     iter++;
-    if (iter == 3000) {
+    if (iter == 5000) {
+
+      //std::cout << "loss on inverse_kinematics: " << loss.val
+      //          << " on iter: " << iter << std::endl;
       loss = 0;
     }
   }
@@ -94,6 +110,12 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
   final_guess.theta_3 = guess.theta_3.val;
   final_guess.theta_4 = guess.theta_4.val;
   final_guess.theta_5 = guess.theta_5.val;
+  if (final_guess.theta_1 < 95 || final_guess.theta_2 < 95 ||
+      final_guess.theta_3 < 95 || final_guess.theta_4 < 95) {
+    throw std::runtime_error("thetas are too close to robot");
+  }
+  //std::cout << "loss on inverse_kinematics: " << loss.val
+  //          << " on iter: " << iter << std::endl;
   return final_guess;
 }
 

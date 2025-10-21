@@ -4,8 +4,8 @@
 ## msideAXIS = 1 means that motor A is closer to the motor than the far wall
 msideA = 1; msideF = 1;
 JS #homeUp
-msideB =0; msideE = 0;
-//JS #homeLow
+msideB = 1; msideE = 1;
+JS #homeLow
 EN
 
 
@@ -100,7 +100,9 @@ BGE; CB13;AM E;SB13;SB5;WT500;
 //pass two, slower
 TLE=.3;
 SHE; FEE; BGE; CB5; 
-AM E;DPE=0; SB5;TLE=3.2; SHE; WT500;
+AM E;
+DPE=0; 
+SB5;TLE=3.2; SHE; WT500;
 MOE;
 eFIN = 1;
 EN
@@ -108,15 +110,18 @@ EN
 #homeB
 bFIN =0;
 //pass one
+MG "pass one"
 ACB=256000; DCB=256000; 
 JGB=6000;BGB; CB9;
 WT durB;SB9;SB1;STB;WT500;
 //find home
+MG "find home"
 SHB; FEB; BGB; CB1; 
 AMB;SB1; 
 PRB=1000; SPB=1300;
 BGB; CB9;AM B;SB9;SB1; WT500;
 //pass two, slower
+MG "pass two"
 TLB=.3;SHB; FEB; BGB; CB1; 
 AMB;
 DPB=0;

@@ -1,9 +1,9 @@
 /**
- * @file Point.h
+ * @file Templated_Point.h
  * @author Tyler Lehrfeld
  * @brief Define the point class and its operations
  * @version 0.1
- * @date 2025-03-08
+ * @date 2025-10-18
  *
  * @copyright Copyright (c) 2025
  *

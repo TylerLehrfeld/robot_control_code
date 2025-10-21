@@ -53,8 +53,6 @@ int get_positions(std::vector<Thetas<double>> &positions) {
   return positions.size();
 }
 
-
-
 void get_simulated_measurements(std::vector<Measurement<double>> &measurements,
                                 std::vector<Thetas<double>> &thetas,
                                 Parameters<double> params) {
@@ -62,10 +60,12 @@ void get_simulated_measurements(std::vector<Measurement<double>> &measurements,
     Transform<double> I = Transform<double>(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     Transform<double> f_M1R = F_M1R<double>();
     Transform<double> ee = get_end_effector(thetas[i], params);
-    Transform<double> f_M2N = F_M2N<double>(thetas[i].theta_5, params);
+    Transform<double> f_M2N = F_M2N<double>(0 /*thetas[i].theta_5*/, params);
     // changed to identity transforms for simplicity.
     // Measurement<double> m = {I, f_M1R * ee * f_M2N.inverse()};
-    Measurement<double> m = {I, ee};
+    Measurement<double> m = {f_M1R.inverse(),
+                             ee * F_NEE(thetas[i], params).inverse() *
+                                 f_M2N.inverse()};
     measurements.push_back(m);
   }
 }
@@ -89,19 +89,7 @@ void compare_params(Parameters<double> actual, Parameters<double> optimized,
   delete[] arr_1;
 }
 
-double get_error_cost(std::vector<Measurement<double>> &measurements,
-                      std::vector<Thetas<double>> &thetas,
-                      Parameters<double> guess) {
-  double mse = 0;
-  for (int i = 0; i < measurements.size(); ++i) {
-    for (int j = 0; j < num_loops; ++j) {
-      double err = error<double>(thetas[i], guess, measurements[i],
-                                 static_cast<linkage_values>(j));
-      mse += err * err;
-    }
-  }
-  return mse / 2;
-}
+
 
 int main(int argc, char *argv[]) {
   constexpr Parameters<double> guess = get_default_parameters<double>();

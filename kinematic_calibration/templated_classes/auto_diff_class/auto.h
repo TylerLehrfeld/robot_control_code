@@ -1,3 +1,6 @@
+#ifndef AUTO
+#define AUTO
+
 #include "cmath"
 template <int N, typename T> class Auto {
 public:
@@ -121,3 +124,5 @@ template <int N, typename T> Auto<N, T> acos(const Auto<N, T> &a) {
   }
   return ret;
 }
+
+#endif // !AUTO

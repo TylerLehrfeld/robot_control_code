@@ -47,6 +47,9 @@ std::string to_string(double d) {
 }
 
 void init_galil(int home_reho_or_updown) {
+  if (init_mode == home_reho_or_updown) {
+    return;
+  }
   if (init_mode != -1) {
     stop_galil();
   }
@@ -238,8 +241,9 @@ move_robot_with_slider_positions(Thetas<double> positions) {
   double right = positions.theta_2 - home_positions.theta_2;
   double left_middle = positions.theta_3 - home_positions.theta_3;
   double right_middle = positions.theta_4 - home_positions.theta_4;
-  std::cout << left << " " << left_middle << " " << right_middle << " " << right
-            << std::endl;
+  // std::cout << left << " " << left_middle << " " << right_middle << " " <<
+  // right
+  //           << std::endl;
   int encoder_countA, encoder_countF, encoder_countE, encoder_countB = 0;
   check(GCmdI(g, "MG _TPA", &encoder_countA));
   check(GCmdI(g, "MG _TPF", &encoder_countF));
@@ -257,7 +261,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
   int cts_diffF = encoder_countF + int(desired_ctsF);
   int cts_diffE = encoder_countE + int(desired_ctsE);
   int cts_diffB = encoder_countB + int(desired_ctsB);
-  std::cout << "beginning motion" << std::endl;
+  //std::cout << "beginning motion" << std::endl;
   check(GCommand(g, ("AtgtCT = " + to_string(cts_diffA)).c_str(), buf,
                  G_SMALL_BUFFER, &read_bytes));
   check(GCommand(g, ("FtgtCT = " + to_string(cts_diffF)).c_str(), buf,
@@ -273,8 +277,8 @@ move_robot_with_slider_positions(Thetas<double> positions) {
     GCmdI(g, "dMotion= ?", &done);
     std::this_thread::sleep_for(500ms);
     time += 500;
-    if (time > 1 * 1000) {
-      std::cout << "motors stalled, trying to get them going" << std::endl;
+    if (time > .25 * 1000) {
+      // std::cout << "motors stalled, trying to get them going" << std::endl;
       GCommand(g, ("STA; SHA;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
       GCommand(g, ("STF; SHF;" + to_string(cts_diffA)).c_str(), buf,
@@ -287,7 +291,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
     }
   } while (!done);
 
-  std::cout << "finished motion" << std::endl;
+  //std::cout << "finished motion" << std::endl;
   check(GCmdI(g, "MG _TPA", &encoder_countA));
   check(GCmdI(g, "MG _TPF", &encoder_countF));
   check(GCmdI(g, "MG _TPE", &encoder_countE));
@@ -296,7 +300,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
   double FmmErr = (-encoder_countF - desired_ctsF) / ctsPermmF;
   double EmmErr = (-encoder_countE - desired_ctsE) / ctsPermmE;
   double BmmErr = (-encoder_countB - desired_ctsB) / ctsPermmB;
-  std::cout << "A: desired ct: " << desired_ctsA
+  /*std::cout << "A: desired ct: " << desired_ctsA
             << " actual ct: " << encoder_countA << " error in mm: " << AmmErr
             << std::endl;
   std::cout << "F: desired ct: " << desired_ctsF
@@ -307,7 +311,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
             << std::endl;
   std::cout << "B: desired ct: " << desired_ctsB
             << " actual ct: " << encoder_countB << " error in mm: " << BmmErr
-            << std::endl;
+            << std::endl;*/
   return {AmmErr, FmmErr, EmmErr, BmmErr};
 }
 

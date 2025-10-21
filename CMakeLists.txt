@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
+set(project_dir /${CMAKE_CURRENT_SOURCE_DIR})
 # Include Eigen
-include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0)
-include_directories(${CMAKE_SOURCE_DIR}/dependencies)
-include_directories(${CMAKE_SOURCE_DIR}/dependencies/eigen-3.4.0/Eigen)
-include_directories(${CMAKE_SOURCE_DIR}/kinematic_calibration)
-include_directories(${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/auto_diff_class)
+include_directories(${project_dir}/dependencies/eigen-3.4.0)
+include_directories(${project_dir}/dependencies)
+include_directories(${project_dir}/dependencies/eigen-3.4.0/Eigen)
+include_directories(${project_dir}/kinematic_calibration)
+include_directories(${project_dir}/kinematic_calibration/templated_classes/auto_diff_class)
 find_package(Ceres REQUIRED)
 # Atracsys SDK paths
 set(ATRACSYS_INCLUDE_DIR /home/tyler/Downloads/fusionTrack_x64_public_v4.10.1/fusionTrack_SDK-v4.10.1-linux64/include)
@@ -50,11 +50,11 @@ set(SRC_SHARED
     Transform.cpp
 )
 set(SRC_SIMULATION
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Point.h
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/Templated_Transform.h
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/jacobian.h
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/templated_classes/auto_diff_class/auto.h
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/atracsys_functions.h
+        ${project_dir}/kinematic_calibration/templated_classes/Templated_Point.h
+        ${project_dir}/kinematic_calibration/templated_classes/Templated_Transform.h
+        ${project_dir}/kinematic_calibration/jacobian.h
+        ${project_dir}/kinematic_calibration/templated_classes/auto_diff_class/auto.h
+        ${project_dir}/kinematic_calibration/atracsys_functions.h
 	inverse_kinematics.cpp
 	Matrix.cpp
 	Transform.cpp
@@ -65,10 +65,36 @@ set(SRC_PIVOT
     Pivot.cpp
 )
 
+# --- Kinematics core library (for external projects) ---
+add_library(kinematics_core STATIC
+    ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
+)
+
+# Include paths required by this library
+target_include_directories(kinematics_core PUBLIC
+    ${project_dir}
+    ${project_dir}/kinematic_calibration
+    ${project_dir}/kinematic_calibration/templated_classes
+    ${project_dir}/kinematic_calibration/templated_classes/auto_diff_class
+    ${project_dir}/dependencies/eigen-3.4.0
+    ${project_dir}/dependencies/eigen-3.4.0/Eigen
+    ${ATRACSYS_INCLUDE_DIR}
+)
+
+# Link dependencies needed by the core functionality
+target_link_libraries(kinematics_core PUBLIC
+    ceres
+    Atracsys::AdvancedAPI
+    ${POST_LIBS}
+)
 # Targets
 
 add_executable(test_auto
-    ${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_auto.cpp
+    ${project_dir}/kinematic_calibration/test/test_auto.cpp
     ${SRC_SIMULATION}
 )
 
@@ -134,6 +160,15 @@ add_executable(Benchtop_Accuracy_test
 )
 target_link_libraries(Benchtop_Accuracy_test PRIVATE ${POST_LIBS})
 
+add_executable(pivot
+    ${project_dir}/kinematic_calibration/pivot_calibration.cpp
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${SRC_SIMULATION}
+)
+target_link_libraries(pivot PRIVATE ${POST_LIBS})
+
+
 add_executable(parse_angle
     parse_angle.cpp
     Matrix.cpp
@@ -148,14 +183,14 @@ add_executable(Home_test
 target_link_libraries(Home_test PRIVATE ${POST_LIBS})
 
 add_executable(simulation
-    ${CMAKE_SOURCE_DIR}/kinematic_calibration/simulation.cpp
+    ${project_dir}/kinematic_calibration/simulation.cpp
     ${SRC_SIMULATION}
 )
 
 target_link_libraries(simulation ceres)
 
 add_executable(test_forward_kinematics
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_forward_kinematics.cpp
+        ${project_dir}/kinematic_calibration/test/test_forward_kinematics.cpp
 	${SRC_SIMULATION}
 	${SRC_SHARED}
 )
@@ -163,7 +198,7 @@ add_executable(test_forward_kinematics
 target_link_libraries(test_forward_kinematics ceres)
 
 add_executable(test_inverse_kinematics
-	${CMAKE_SOURCE_DIR}/kinematic_calibration/test/test_inverse_kinematics.cpp
+        ${project_dir}/kinematic_calibration/test/test_inverse_kinematics.cpp
 	${SRC_SIMULATION}
 	${SRC_SHARED}
 )
@@ -173,7 +208,7 @@ target_link_libraries(test_inverse_kinematics ceres)
 
 
 add_executable(data_collection
-    ${CMAKE_SOURCE_DIR}/kinematic_calibration/data_collection.cpp
+    ${project_dir}/kinematic_calibration/data_collection.cpp
     ${SRC_SIMULATION}
     ${SRC_SHARED}
     ${SRC_PIVOT}
@@ -182,3 +217,24 @@ add_executable(data_collection
 )
 
 target_link_libraries(data_collection PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
+
+add_executable(precision
+    ${project_dir}/kinematic_calibration/precision.cpp
+    ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
+)
+
+target_link_libraries(precision PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
+
+add_executable(read_csv
+    ${project_dir}/kinematic_calibration/read_csv.cpp
+    ${SRC_SIMULATION}
+)
+
+
+install(TARGETS kinematics_core EXPORT kinematicsTargets)
+install(EXPORT kinematicsTargets FILE kinematicsTargets.cmake NAMESPACE kinematics:: DESTINATION lib/cmake/kinematics)
+install(DIRECTORY kinematic_calibration/ DESTINATION include/kinematic_calibration)

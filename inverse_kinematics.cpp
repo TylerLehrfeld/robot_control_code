@@ -98,8 +98,15 @@ void check_end_effector_dists(Point upper_end_effector,
     throw std::runtime_error("The end effectors are too close to the robot");
   }
   // TODO change 50 to a correct number
-  if ((upper_end_effector - lower_end_effector).magnitude() > 50) {
+  Point upper_end_effector_flattened = upper_end_effector;
+  upper_end_effector_flattened.z = 0;
+  double mag = (upper_end_effector_flattened - lower_end_effector).magnitude();
+  if (mag > 19) {
+    std::cout << mag
+              << ": too big of difference between lower and upper end effectors"
+              << std::endl;
     throw std::runtime_error(
+
         "The end effectors are too far appart from each other");
   }
 };
@@ -201,8 +208,8 @@ Point intersection_of_two_circles(Point center_a, Point center_b,
   // plus 3 for assurance that we are making triangles. Almost never should
   // our linkages be that close to eachother.
   double d = (center_a - center_b).magnitude();
-  if (d + 3> radius_b + radius_b || radius_b + 3> d + radius_a ||
-      radius_a + 3> d + radius_b) {
+  if (d + 3 > radius_b + radius_b || radius_b + 3 > d + radius_a ||
+      radius_a + 3 > d + radius_b) {
     throw std::runtime_error("The circles do not intersect.");
   }
   double a = (pow(radius_a, 2) - pow(radius_b, 2) + pow(d, 2)) / (2 * d);

@@ -45,8 +45,9 @@ template <typename T> struct Thetas {
     return thetas;
   }
   void print() {
-    std::cout << "left slider y: " << theta_1 << "right slider y: " << theta_2 << "left middle slider y:" << theta_3 << "right middle slider y: " << theta_4
-              << std::endl;
+    std::cout << "left slider y: " << theta_1 << " right slider y: " << theta_2
+              << " left middle slider y:" << theta_3
+              << " right middle slider y: " << theta_4 << std::endl;
   }
 };
 
@@ -86,6 +87,8 @@ template <typename T> struct Tunable_parameters {
   Param<T> D2;
   Param<T> D3;
   Param<T> D4;
+  Param<T> lower_slope;
+  Param<T> upper_slope;
 };
 
 template <typename T> struct Parameters {
@@ -94,45 +97,54 @@ template <typename T> struct Parameters {
   Point<Param<T>> lower_base;
 };
 
+//-3.96485
+// 6
+// 1.28137
+// 0.549444
 template <typename T> constexpr Parameters<T> get_default_parameters() {
   Parameters<T> params;
   Param<T> val;
   T sliderXs[num_loops] = {T(-63), T(63), T(-21), T(21)};
+
+  T sliderYs_offset[num_loops] = {T(0), T(0), T(0), T(0)};
   for (int i = 0; i < num_loops; i++) {
     params.tunable_params.loop_parameters[i].x_slider_offset = {sliderXs[i],
-                                                                true};
-    params.tunable_params.loop_parameters[i].y_slider_offset = {T(0), true};
+                                                                false};
+    params.tunable_params.loop_parameters[i].y_slider_offset = {
+        sliderYs_offset[i] /*T(0)*/, true};
     params.tunable_params.loop_parameters[i].transmission_link_length =
-        i < 2 ? Param<T>(T(115), true) : Param<T>(T(110), true);
+        i < 2 ? Param<T>(T(115), false) : Param<T>(T(110), false);
     params.tunable_params.loop_parameters[i].proximal_link_midpoint =
-        i < 2 ? Param<T>(T(58), true) : Param<T>(T(46), true);
+        i < 2 ? Param<T>(T(58), false) : Param<T>(T(46), false);
     params.tunable_params.loop_parameters[i].proximal_link_length =
-        i < 2 ? Param<T>(T(116), true) : Param<T>(T(92), true);
+        i < 2 ? Param<T>(T(116), false) : Param<T>(T(92), false);
     params.tunable_params.loop_parameters[i].distal_link_length =
-        i < 2 ? Param<T>(T(125), true) : Param<T>(T(99), true);
+        i < 2 ? Param<T>(T(125), false) : Param<T>(T(99), false);
   }
-  params.tunable_params.top_needle_to_holder_distance = Param<T>(T(47.7), true);
+  params.tunable_params.top_needle_to_holder_distance =
+      Param<T>(T(47.7), false);
   params.tunable_params.bottom_needle_to_holder_distance =
-      Param<T>(T(47.7), true);
+      Param<T>(T(47.7), false);
   params.tunable_params.top_holder_to_linkage_distance =
-      Param<T>(T(19.25), true);
+      Param<T>(T(19.25), false);
   params.tunable_params.bottom_holder_to_linkage_distance =
-      Param<T>(T(14), true);
-  params.tunable_params.needle_offset = Param<T>(T(64.9), true);
-  params.tunable_params.lower_base_z_offset = Param<T>(T(0), true);
+      Param<T>(T(14), false);
+  params.tunable_params.needle_offset = Param<T>(T(64.9), false);
+  params.tunable_params.lower_base_z_offset = Param<T>(T(0), false);
   // check what true value is:
-  params.tunable_params.upper_base_z_offset = Param<T>(T(31.5), true);
-  params.tunable_params.D1 = Param<T>(T(62.5), true);
-  params.tunable_params.D2 = Param<T>(T(62.5), true);
-  params.tunable_params.D3 = Param<T>(T(62.5), true);
-  params.tunable_params.D4 = Param<T>(T(62.5), true);
-  params.lower_base.x = Param<T>(T(0), true);
-  params.lower_base.y = Param<T>(T(224), true);
+  params.tunable_params.upper_base_z_offset = Param<T>(T(31.5), false);
+  params.tunable_params.D1 = Param<T>(T(62.5), false);
+  params.tunable_params.D2 = Param<T>(T(62.5), false);
+  params.tunable_params.D3 = Param<T>(T(62.5), false);
+  params.tunable_params.D4 = Param<T>(T(62.5), false);
+  params.tunable_params.upper_slope = Param<T>(T(0), false);
+  params.tunable_params.lower_slope = Param<T>(T(0), true);
+  params.lower_base.x = Param<T>(T(0), false);
+  params.lower_base.y = Param<T>(T(224), false);
   params.lower_base.z = Param<T>(T(0), false);
-  params.upper_base.x = Param<T>(T(0), true);
-  params.upper_base.y = Param<T>(T(186), true);
+  params.upper_base.x = Param<T>(T(0), false);
+  params.upper_base.y = Param<T>(T(186), false);
   params.upper_base.z = Param<T>(T(0), false);
-
   return params;
 }
 
@@ -174,6 +186,8 @@ constexpr int get_num_tunable_params(const Parameters<T> parameters) {
   num_tunables += parameters.lower_base.x.tunable;
   num_tunables += parameters.lower_base.y.tunable;
   num_tunables += parameters.lower_base.z.tunable;
+  num_tunables += parameters.tunable_params.lower_slope.tunable;
+  num_tunables += parameters.tunable_params.upper_slope.tunable;
   return num_tunables;
 }
 
@@ -209,12 +223,15 @@ constexpr inline int Parameters_to_array(Parameters<T> parameters, T *array) {
   set_val(&count, &tunables.D2, array);
   set_val(&count, &tunables.D3, array);
   set_val(&count, &tunables.D4, array);
+  set_val(&count, &tunables.upper_slope, array);
+  set_val(&count, &tunables.lower_slope, array);
   set_val(&count, &parameters.upper_base.x, array);
   set_val(&count, &parameters.upper_base.y, array);
   set_val(&count, &parameters.upper_base.z, array);
   set_val(&count, &parameters.lower_base.x, array);
   set_val(&count, &parameters.lower_base.y, array);
   set_val(&count, &parameters.lower_base.z, array);
+
   return count;
 }
 
@@ -259,6 +276,8 @@ inline Parameters<T> array_to_Parameters(T const *tunable_params) {
   set_param<T>(&p.tunable_params.D2, &count, tunable_params);
   set_param<T>(&p.tunable_params.D3, &count, tunable_params);
   set_param<T>(&p.tunable_params.D4, &count, tunable_params);
+  set_param<T>(&p.tunable_params.lower_slope, &count, tunable_params);
+  set_param<T>(&p.tunable_params.upper_slope, &count, tunable_params);
   set_param<T>(&p.upper_base.x, &count, tunable_params);
   set_param<T>(&p.upper_base.y, &count, tunable_params);
   set_param<T>(&p.upper_base.z, &count, tunable_params);
@@ -271,7 +290,7 @@ inline Parameters<T> array_to_Parameters(T const *tunable_params) {
 Parameters<double> adjust_params(Parameters<double> params) {
   std::mt19937_64 rng(
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
-  std::uniform_real_distribution<double> dist(-0.1, 0.1);
+  std::uniform_real_distribution<double> dist(-1.0, 1.0);
   int num_params = get_num_tunable_params(params);
   double *arr = new double[num_params];
   Parameters_to_array(params, arr);
@@ -389,7 +408,11 @@ Point<T> get_upper_linkage_P(const Thetas<T> &thetas,
   Point<T> upper_C = get_linkage_C(thetas, parameters, TOP_RIGHT);
   Point<T> D = get_D(thetas, parameters);
   T n1 = parameters.tunable_params.top_holder_to_linkage_distance.value;
-  return upper_C + (upper_C - D) * (n1 / (upper_C - D).magnitude());
+  Point<T> P = upper_C + (upper_C - D) * (n1 / (upper_C - D).magnitude());
+  Point<T> base = {parameters.upper_base.x.value, parameters.upper_base.y.value,
+                   parameters.upper_base.z.value};
+  P.z -= parameters.tunable_params.upper_slope.value * (P - base).magnitude();
+  return P;
 }
 
 template <typename T>
@@ -428,6 +451,9 @@ Point<T> get_lower_linkage_P(const Thetas<T> &thetas,
       parameters.tunable_params.bottom_holder_to_linkage_distance.value;
   T ratio = (dll + extension) / dll;
   Point<T> P = lower_left_B + (lower_C - lower_left_B) * ratio;
+  Point<T> base = {parameters.lower_base.x.value, parameters.lower_base.y.value,
+                   parameters.lower_base.z.value};
+  P.z -= parameters.tunable_params.lower_slope.value * (P - base).magnitude();
   return P;
 }
 
@@ -482,12 +508,20 @@ Point<T> get_linkage_B(const Thetas<T> &thetas, const Parameters<T> &parameters,
   T transmission_link_length = parameters.tunable_params.loop_parameters[val]
                                    .transmission_link_length.value;
   Point<T> M;
-  if (val == BOTTOM_LEFT || val == TOP_LEFT) {
-    M = third_point_in_triangle(S_i, base, proximal_link_midpoint,
-                                transmission_link_length);
-  } else if (val == BOTTOM_RIGHT || val == TOP_RIGHT) {
-    M = third_point_in_triangle(base, S_i, transmission_link_length,
-                                proximal_link_midpoint);
+  try {
+    if (val == BOTTOM_LEFT || val == TOP_LEFT) {
+      M = third_point_in_triangle(S_i, base, proximal_link_midpoint,
+                                  transmission_link_length);
+    } else if (val == BOTTOM_RIGHT || val == TOP_RIGHT) {
+      M = third_point_in_triangle(base, S_i, transmission_link_length,
+                                  proximal_link_midpoint);
+    }
+  } catch (std::runtime_error &e) {
+    if constexpr (std::is_same_v<T, double>) {
+      std::cout << thetas.theta_1 << " " << thetas.theta_2 << " "
+                << thetas.theta_3 << " " << thetas.theta_4 << std::endl;
+    }
+    throw std::runtime_error(e.what());
   }
   T ratio = proximal_link_length / proximal_link_midpoint;
   Point<T> B_i = ratio * (M - base) + base;
@@ -528,4 +562,21 @@ inline Point<T> third_point_in_triangle(Point<T> P1, Point<T> P2, T l1, T l2) {
 };
 
 int get_positions(std::vector<Thetas<double>> &positions);
+
+template <typename T>
+Transform<T> F_NEE(const Thetas<T> &thetas, const Parameters<T> &params) {
+  Point P1 = get_upper_linkage_P(thetas, params);
+  Point P2 = get_lower_linkage_P(thetas, params);
+  Point<T> z = (P1 - P2).normalize();
+  Point<T> x = cross(get_upper_linkage_n_vec(thetas, params), z).normalize();
+  Point<T> y = cross(z, x);
+  Transform<T> N_Frame(x, y, z, P2);
+  Transform<T> EE_frame = get_end_effector(thetas, params);
+  return N_Frame.inverse() * EE_frame;
+}
+
+template <typename T> Transform<T> F_NEE(const Thetas<T> &thetas) {
+  return F_NEE(thetas, get_default_parameters<T>());
+};
+
 #endif // CAL_KINEMATICS

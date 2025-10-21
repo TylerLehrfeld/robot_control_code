@@ -1,4 +1,9 @@
+#ifndef ATRACSYS_FUNCTIONS
+#define ATRACSYS_FUNCTIONS
+
 #include "ftkInterface.h"
+#include <thread>
+#include <chrono>
 #include "geometryHelper.hpp"
 #include "helpers.hpp"
 #include "kinematics.h"
@@ -126,7 +131,8 @@ public:
         break;
       }
       std::cerr << "frame not found" << std::endl;
-      sleep(500); // .25ms
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     ftkMarker *markerOne = nullptr;
@@ -144,9 +150,11 @@ public:
     }
     if (!markerOne) {
       std::cerr << "Warning: M1 marker not visible this frame\n";
+      return -1;
     }
     if (!markerTwo) {
       std::cerr << "Warning: M2 marker not visible this frame\n";
+      return -1;
     }
 
     if ((mask == FOM1 && !markerOne) || (mask == FOM2 && !markerTwo) ||
@@ -275,3 +283,5 @@ private:
 //   ftkDeleteFrame(frame);
 //   return 0;
 // }
+
+#endif // !define ATRACSYS_FUNCTIONS
