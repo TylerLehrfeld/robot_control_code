@@ -228,6 +228,16 @@ add_executable(precision
 )
 
 target_link_libraries(precision PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
+add_executable(absolute_accuracy
+    ${project_dir}/kinematic_calibration/absolute_accuracy.cpp
+    ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
+)
+
+target_link_libraries(absolute_accuracy PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
 
 add_executable(read_csv
     ${project_dir}/kinematic_calibration/read_csv.cpp

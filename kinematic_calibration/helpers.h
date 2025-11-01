@@ -9,7 +9,49 @@
 #include <cmath>
 #include <iomanip>
 #include "jacobian.h"
+template <typename T>
+double theta_distance(const Thetas<T> &a, const Thetas<T> &b) {
+  return std::sqrt(
+      std::pow(a.theta_1 - b.theta_1, 2) + std::pow(a.theta_2 - b.theta_2, 2) +
+      std::pow(a.theta_3 - b.theta_3, 2) + std::pow(a.theta_4 - b.theta_4, 2));
+}
+template <typename T>
+std::vector<Thetas<T>>
+sort_min_travel(const std::vector<Thetas<T>> &positions) {
+  if (positions.empty())
+    return {};
 
+  std::vector<Thetas<T>> sorted;
+  sorted.reserve(positions.size());
+
+  std::vector<bool> visited(positions.size(), false);
+  int current = 0; // start arbitrarily at index 0
+  sorted.push_back(positions[current]);
+  visited[current] = true;
+
+  for (size_t step = 1; step < positions.size(); ++step) {
+    double best_dist = std::numeric_limits<double>::max();
+    int best_idx = -1;
+
+    for (size_t i = 0; i < positions.size(); ++i) {
+      if (visited[i])
+        continue;
+      double d = theta_distance(positions[current], positions[i]);
+      if (d < best_dist) {
+        best_dist = d;
+        best_idx = i;
+      }
+    }
+
+    if (best_idx == -1)
+      break;
+    sorted.push_back(positions[best_idx]);
+    visited[best_idx] = true;
+    current = best_idx;
+  }
+
+  return sorted;
+}
 void open_log_file(std::ofstream &logfile) {
   logfile << "index," << "target_x,target_y,target_z,"
           << "actual_x,actual_y,actual_z,"
@@ -44,7 +86,7 @@ void open_log_file(std::ofstream &logfile) {
         logfile << ",";
     }
 
-  logfile << "\n";
+  logfile << std::endl;
 
   logfile << std::fixed << std::setprecision(6);
 }
@@ -92,7 +134,7 @@ void write_to_log_file(std::ofstream &logfile, const Transform<double> &F_OM1,
         logfile << ",";
     }
 
-  logfile << "\n";
+  logfile << std::endl;
 }
 
 void get_errors(Measurement<double> &atracsys_measurement,

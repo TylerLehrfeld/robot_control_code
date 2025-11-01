@@ -16,7 +16,13 @@ struct LogEntry {
   Transform<double> F_OM1;
   Transform<double> F_OM2;
 };
-
+const std::vector<std::vector<int>> vec_inliers = {
+    {0, 1, 1, 1, 1, 1, 1, 0, 0, 1}, {0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 1, 1, 1, 1, 0, 1, 1, 1, 1}, {0, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+    {0, 1, 1, 1, 1, 1, 1, 0, 0, 1}, {0, 1, 1, 1, 1, 1, 1, 0, 0, 1},
+    {0, 1, 1, 1, 1, 1, 1, 0, 0, 1}, {0, 1, 1, 1, 1, 1, 1, 0, 0, 1}};
+const int num_positions = 10;
 std::vector<LogEntry> read_log_file(const std::string &filename) {
   std::ifstream file(filename);
   if (!file.is_open()) {
@@ -139,7 +145,7 @@ get_angular_diffs(const Point<double> &avg,
 
     z = {transform.R.matrix[0][2], transform.R.matrix[1][2],
          transform.R.matrix[2][2]};
-    ret.push_back(std::acos((avg * z)));
+    ret.push_back(std::acos(std::clamp<double>(avg * z, -1, 1)));
   }
   return ret;
 }
@@ -155,36 +161,56 @@ get_position_diffs(const Point<double> &average_translation,
 }
 
 void get_precision(const std::vector<Transform<double>> &transforms) {
+  std::cout << "translation over time:" << std::endl;
+  for (int i = 0; i < transforms.size(); i++) {
+    std::cout << transforms[i].p.x << ", " << transforms[i].p.y << ", "
+              << transforms[i].p.z << std::endl;
+  }
+  std::cout << "end ToT." << std::endl;
   Point<double> average_rotation = get_average_rotation(transforms);
   Point<double> average_translation = get_average_translation(transforms);
   std::vector<double> angles = get_angular_diffs(average_rotation, transforms);
   std::vector<Point<double>> diffs =
       get_position_diffs(average_translation, transforms);
+
   for (int i = 0; i < transforms.size(); i++) {
+    Point<double> z = {transforms[i].R.matrix[0][2],
+                       transforms[i].R.matrix[1][2],
+                       transforms[i].R.matrix[2][2]};
+
+    double needle_vec_len = std::sqrt(115 * 115 + 47.7 * 47.7);
+    double needle_error =
+        (needle_vec_len * (average_rotation + (-1 *z))).magnitude() + diffs[i].magnitude();
     std::cout << angles[i] << ", " << diffs[i].x << ", " << diffs[i].y << ", "
-              << diffs[i].z << std::endl;
+              << diffs[i].z << ", " << needle_error << std::endl;
   }
 }
 
 int main() {
   std::vector<LogEntry> entries;
   try {
-    entries = read_log_file("precision3.csv");
+    entries = read_log_file("precision_many_points4.csv");
     std::cout << "Loaded " << entries.size() << " entries.\n";
   } catch (const std::exception &ex) {
     std::cerr << "Error: " << ex.what() << "\n";
   }
-  std::vector<Transform<double>> homes;
-  std::vector<Transform<double>> targets;
-  for (int i = 0; i < entries.size(); i += 2) {
-    homes.push_back(entries[i].F_OM1.inverse() * entries[i].F_OM2 *
-                    F_M2N<double>());
-    targets.push_back(entries[i + 1].F_OM1.inverse() * entries[i + 1].F_OM2 *
-                      F_M2N<double>());
+  // std::vector<Transform<double>> homes;
+  // std::vector<Transform<double>> targets;
+  std::vector<std::vector<Transform<double>>> vecs;
+  for (int i = 0; i < num_positions; i++) {
+    vecs.push_back(std::vector<Transform<double>>());
+  }
+  for (int i = 0; i < entries.size() / num_positions; i++) {
+    for (int j = 0; j < num_positions; j++) {
+      vecs[j].push_back(entries[i * num_positions + j].F_OM1.inverse() *
+                        entries[i * num_positions + j].F_OM2 * F_M2N<double>());
+      // vecs[j].push_back(entries[i * num_positions + j].F_OM1.inverse() *
+      //                   entries[i * num_positions + j].F_OM2);
+    }
   }
 
   // get precision of these transforms:
-  get_precision(homes);
-  std::cout << "targets" << std::endl;
-  get_precision(targets);
+  for (int i = 0; i < num_positions; i++) {
+    get_precision(vecs[i]);
+  }
 }

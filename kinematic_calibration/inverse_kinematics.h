@@ -77,15 +77,15 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
            translational_diff.y * translational_diff.y +
            translational_diff.z * translational_diff.z + cos_sim;
     if (iter == 0) {
-      //std::cout << "loss on inverse_kinematics: " << loss.val
-      //          << " on iter: " << iter << std::endl;
+      // std::cout << "loss on inverse_kinematics: " << loss.val
+      //           << " on iter: " << iter << std::endl;
     }
     T grad_magnitude = sqrt(
         loss.epsilon[0] * loss.epsilon[0] + loss.epsilon[1] * loss.epsilon[1] +
         loss.epsilon[2] * loss.epsilon[2] + loss.epsilon[3] * loss.epsilon[3] +
         loss.epsilon[4] * loss.epsilon[4]);
     T learning_rate = 0.01 / (1.0 + 0.01 * iter);
-    if (grad_magnitude > 1e-10) {
+    if (loss.val >= .0001 && grad_magnitude > 1e-10) {
       guess.theta_1.val -= learning_rate * loss.epsilon[0] / grad_magnitude;
       guess.theta_2.val -= learning_rate * loss.epsilon[1] / grad_magnitude;
       guess.theta_3.val -= learning_rate * loss.epsilon[2] / grad_magnitude;
@@ -99,8 +99,8 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
     iter++;
     if (iter == 5000) {
 
-      //std::cout << "loss on inverse_kinematics: " << loss.val
-      //          << " on iter: " << iter << std::endl;
+      // std::cout << "loss on inverse_kinematics: " << loss.val
+      //           << " on iter: " << iter << std::endl;
       loss = 0;
     }
   }
@@ -110,7 +110,7 @@ Thetas<T> get_thetas(Transform<T> EE_transform, Parameters<T> parameters) {
   final_guess.theta_3 = guess.theta_3.val;
   final_guess.theta_4 = guess.theta_4.val;
   final_guess.theta_5 = guess.theta_5.val;
-  if (final_guess.theta_1 < 95 || final_guess.theta_2 < 95 ||
+  if (final_guess.theta_1 < 87 || final_guess.theta_2 < 87 ||
       final_guess.theta_3 < 95 || final_guess.theta_4 < 95) {
     throw std::runtime_error("thetas are too close to robot");
   }

@@ -2,10 +2,11 @@
 ##
 #HOME
 ## msideAXIS = 1 means that motor A is closer to the motor than the far wall
-msideA = 1; msideF = 1;
-JS #homeUp
 msideB = 1; msideE = 1;
 JS #homeLow
+msideA = 1; msideF = 1;
+JS #homeUp
+
 EN
 
 
@@ -14,7 +15,9 @@ dHome = 0
 STA; STF; WT225; MOA; MOF;
 MTA=1;MTF=1; SHA; SHF; WT100;
 TLA=3.2;
-TLF=3.2;
+TLF=5;
+//TLF=2;
+//TLA=2;
 IF msideA; durA = 1000; ELSE; durA = 5000; ENDIF;
 IF msideF; durF = 1000; ELSE; durF = 5000; ENDIF;
 XQ #homeF, 5;
@@ -55,9 +58,9 @@ AMA;SB2;
 PRA=1000; SPA=1300;
 BGA; CB10;AMA;SB10;SB2; WT500;
 //pass two, slower
-TLA=.3;SHA; FEA; BGA; CB2; 
+TLA=.5;SHA; FEA; BGA; CB2; 
 AMA;
-DPA=0;
+//DPA=0;
 SB2;TLA=3.2;SHA;WT500;
 MOA;
 aFIN = 1;
@@ -77,11 +80,11 @@ PRF=1000; SPF=1300;
 BGF; 
 CB15;AM F;SB15;SB7; WT500;
 //pass two, slower
-TLF=.3;
+TLF=2;
 SHF; FEF; BGF; CB7; 
 AM F;
-DPF=0;
-SB7;TLF=3.2; SHF;WT500;
+//DPF=0;
+SB7;TLF=2; SHF;WT500;
 MOF;
 fFIN = 1;
 EN
@@ -89,7 +92,8 @@ EN
 #homeE
 eFIN = 0;
 //pass one
-ACE=256000; DCE=256000; 
+ACE=256000; DCE=256000;
+TLE=3
 JGE=6000;BGE; CB13;
 WT durE;SB13;SB5;STE; WT500;
 //find home
@@ -101,7 +105,7 @@ BGE; CB13;AM E;SB13;SB5;WT500;
 TLE=.3;
 SHE; FEE; BGE; CB5; 
 AM E;
-DPE=0; 
+//DPE=0; 
 SB5;TLE=3.2; SHE; WT500;
 MOE;
 eFIN = 1;
@@ -111,6 +115,7 @@ EN
 bFIN =0;
 //pass one
 MG "pass one"
+TLB=3;
 ACB=256000; DCB=256000; 
 JGB=6000;BGB; CB9;
 WT durB;SB9;SB1;STB;WT500;
@@ -124,7 +129,7 @@ BGB; CB9;AM B;SB9;SB1; WT500;
 MG "pass two"
 TLB=.3;SHB; FEB; BGB; CB1; 
 AMB;
-DPB=0;
+//DPB=0;
 SB1;TLB=3.2;SHB;WT500;
 MOB;
 bFIN = 1;

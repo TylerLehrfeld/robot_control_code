@@ -32,8 +32,8 @@ template <typename T> Transform<T> F_M1R() {
  */
 template <typename T> Transform<T> F_M2N(T theta_5, Parameters<T> parameters) {
   //smaller holder transform
-  Transform<T> pivot(T(0), T(0), T(M_PI), T(.00558085), T(28.3789),
-                     T(-5.49509));
+  Transform<T> pivot(T(0), T(0), T(M_PI), T(0.23229840), T(28.466635780600036),
+                     T(-5.4535636457480088));
   //this is big holder transform
   //Transform<T> pivot(T(0), T(0), T(M_PI), T(-0.0308035), T(28.3232666667),
   //                   T(-9.07299));

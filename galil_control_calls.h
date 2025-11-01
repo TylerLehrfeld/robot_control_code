@@ -277,15 +277,15 @@ move_robot_with_slider_positions(Thetas<double> positions) {
     GCmdI(g, "dMotion= ?", &done);
     std::this_thread::sleep_for(500ms);
     time += 500;
-    if (time > .25 * 1000) {
-      // std::cout << "motors stalled, trying to get them going" << std::endl;
-      GCommand(g, ("STA; SHA;" + to_string(cts_diffA)).c_str(), buf,
+    if (false && time > 1 * 1000) {
+      std::cout << "motors stalled, trying to get them going" << std::endl;
+      GCommand(g, ("STA; SHA; BGA;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
-      GCommand(g, ("STF; SHF;" + to_string(cts_diffA)).c_str(), buf,
+      GCommand(g, ("STF; SHF; BGF;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
-      GCommand(g, ("STE; SHE;" + to_string(cts_diffA)).c_str(), buf,
+      GCommand(g, ("STE; SHE; BGE;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
-      GCommand(g, ("STB; SHB;" + to_string(cts_diffA)).c_str(), buf,
+      GCommand(g, ("STB; SHB; BGB;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
       time = 0;
     }

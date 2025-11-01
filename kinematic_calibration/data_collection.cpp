@@ -109,7 +109,7 @@ double total_theta_distance(const std::vector<Thetas<T>> &path) {
 int main() {
   constexpr Parameters<double> params = get_default_parameters<double>();
   constexpr int ct = get_num_tunable_params(params);
-  std::ofstream logfile("yes_backlash_2.csv");
+  std::ofstream logfile("targetting_final.csv");
   open_log_file(logfile);
   // get F_M1R
   // get F_M2EE
@@ -117,38 +117,36 @@ int main() {
   bool backlash_compensation = true;
   // targeting positions in vector
   std::vector<Thetas<double>> positions;
-  int k = 0;
-  int j = 0;
-  // for (int k = 0; k < 5; k++) {
-  // for (int j = -25; j <= 25; j += 10) {
-  for (int i = 0; i < 20; i++) {
-    // polar coordinate representation
-    double theta, phi = 0;
-    // switch (k) {
-    // case 4:
-    //   theta = 0;
-    //   phi = 0;
-    //   break;
-    // default:
-    //   theta = M_PI / 2 * k;
-    //   phi = M_PI / 6;
-    //   break;
-    // }
-    try {
-      Transform<double> target_transform(phi, 0, theta, i % 2 == 0 ? -5 : 5,
-                                         375, -115);
-      Thetas<double> opt = get_thetas(target_transform);
-      positions.push_back(opt);
-      std::cout << "thetas i j k: " << i << " " << j << " " << k << std::endl;
-    } catch (std::runtime_error e) {
+  for (int k = 0; k < 5; k++) {
+    for (int j = -30; j <= 30; j += 30) {
+      for (int i = -40; i <= 40; i += 20) {
+        // polar coordinate representation
+        double theta, phi = 0;
+        switch (k) {
+        case 4:
+          theta = 0;
+          phi = 0;
+          break;
+        default:
+          theta = M_PI / 2 * k;
+          phi = 25 * M_PI / 180.0;
+          break;
+        }
+        try {
+          Transform<double> target_transform(phi, 0, theta, i, 405 + j, -115);
+          Thetas<double> opt = get_thetas(target_transform);
+          positions.push_back(opt);
+          std::cout << "thetas i j k: " << i << " " << j << " " << k
+                    << std::endl;
+        } catch (const std::runtime_error &e) {
+        }
+      }
     }
-    //}
-    //}
   }
 
-  //  std::cout << total_theta_distance(positions) << std::endl;
-  //  positions = sort_min_travel(positions);
-  //  std::cout << total_theta_distance(positions) << std::endl;
+  std::cout << total_theta_distance(positions) << std::endl;
+  positions = sort_min_travel(positions);
+  std::cout << total_theta_distance(positions) << std::endl;
   AtracsysTracker<double> atracsys("geometry100000.ini", "geometry999.ini");
   RobotController robot(backlash_compensation);
   //  robot.home();
@@ -169,36 +167,31 @@ int main() {
     // go to targetted position based on inverse kinematics
     // get encoder position error to account for it
     std::cout << "starting motion" << std::endl;
-    // Thetas<double> errs = robot.move(thetas, atracsys);
-    encoder_error_struct errs = robot.move(thetas);
-    // adjustments.push_back(errs);
+    Thetas<double> errs = robot.move(thetas, atracsys);
+    // encoder_error_struct errs = robot.move(thetas);
+    adjustments.push_back(errs);
     std::cout << "ending motion" << std::endl;
     // calculate expected F_EE
     Thetas<double> encoder_adjusted_thetas = thetas;
-    // encoder_adjusted_thetas.theta_1 += errs.theta_1;
-    // encoder_adjusted_thetas.theta_2 += errs.theta_2;
-    // encoder_adjusted_thetas.theta_3 += errs.theta_3;
-    // encoder_adjusted_thetas.theta_4 += errs.theta_4;
+    encoder_adjusted_thetas.theta_1 += errs.theta_1;
+    encoder_adjusted_thetas.theta_2 += errs.theta_2;
+    encoder_adjusted_thetas.theta_3 += errs.theta_3;
+    encoder_adjusted_thetas.theta_4 += errs.theta_4;
 
-    encoder_adjusted_thetas.theta_1 += errs.mmErrLeft;
-
-    encoder_adjusted_thetas.theta_2 += errs.mmErrRight;
-    encoder_adjusted_thetas.theta_3 += errs.mmErrLeftMiddle;
-    encoder_adjusted_thetas.theta_4 += errs.mmErrRightMiddle;
-    // Transform<double> expected_F_EE = get_end_effector(thetas);
-    Transform<double> expected_F_EE = get_end_effector(encoder_adjusted_thetas);
-    //  get measurement
+    // encoder_adjusted_thetas.theta_1 += errs.mmErrLeft;
+    // encoder_adjusted_thetas.theta_2 += errs.mmErrRight;
+    // encoder_adjusted_thetas.theta_3 += errs.mmErrLeftMiddle;
+    // encoder_adjusted_thetas.theta_4 += errs.mmErrRightMiddle;
+    Transform<double> expected_F_EE = get_end_effector(thetas);
+    // Transform<double> expected_F_EE =
+    // get_end_effector(encoder_adjusted_thetas);
+    //   get measurement
     Measurement<double> atracsys_measurement;
     Point<double> cur;
-    Dist = 0;
-    while (Dist < 6 || (index != 0 && Dist > 15)) {
-      while (atracsys.getMeasurement(BOTH, atracsys_measurement) < 0) {
-        std::this_thread::sleep_for(750ms);
-      };
-      cur = atracsys_measurement.F_OM2 * zero;
-      Dist = (cur - prev).magnitude();
-    }
-    dists.push_back(Dist);
+    while (atracsys.getMeasurement(BOTH, atracsys_measurement) < 0) {
+      std::this_thread::sleep_for(750ms);
+    };
+    cur = atracsys_measurement.F_OM2 * zero;
     prev = cur;
     std::mt19937_64 rng;
     uint64_t timeSeed =
@@ -249,21 +242,22 @@ int main() {
     index++;
     std::cout << "position " << index << "/" << positions.size() << std::endl;
   } // exit loop
-  std::cout << "begginning calibration: " << measurements.size() << " "
-            << true_positions.size() << std::endl;
+  // std::cout << "begginning calibration: " << measurements.size() << " "
+  //           << true_positions.size() << std::endl;
 
-  Parameters<double> new_params = ceres_solve_with_validation<ct>(
-      measurements, true_positions, validation_measurements,
-      validation_positions, params);
+  // Parameters<double> new_params = ceres_solve_with_validation<ct>(
+  //     measurements, true_positions, validation_measurements,
+  //     validation_positions, params);
 
-  compare_params(params, new_params, ct);
-  for (int i = 0; i < 4; i++) {
-    std::cout
-        << new_params.tunable_params.loop_parameters[i].y_slider_offset.value
-        << std::endl;
-  }
-  std::cout << new_params.tunable_params.upper_base_z_offset.value << " "
-            << new_params.tunable_params.lower_base_z_offset.value << std::endl;
+  // compare_params(params, new_params, ct);
+  // for (int i = 0; i < 4; i++) {
+  //   std::cout
+  //       << new_params.tunable_params.loop_parameters[i].y_slider_offset.value
+  //       << std::endl;
+  // }
+  // std::cout << new_params.tunable_params.upper_base_z_offset.value << " "
+  //           << new_params.tunable_params.lower_base_z_offset.value <<
+  //           std::endl;
   for (int i = 0; i < adjustments.size(); i++) {
     adjustments[i].print();
   }
