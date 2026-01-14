@@ -218,6 +218,19 @@ add_executable(data_collection
 
 target_link_libraries(data_collection PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
 
+add_executable(z_graph
+    ${project_dir}/kinematic_calibration/z_graph.cpp
+    ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
+)
+
+target_link_libraries(z_graph PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
+
+
+
 add_executable(precision
     ${project_dir}/kinematic_calibration/precision.cpp
     ${SRC_SIMULATION}
