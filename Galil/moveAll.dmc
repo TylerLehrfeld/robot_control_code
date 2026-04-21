@@ -2,11 +2,14 @@
 ##
 
 FtgtCT = 948.586925*0;
-BtgtCT = 948.586925*1;
+BtgtCT = 948.586925*0;
 EtgtCT = 948.586925*0;
 AtgtCT = 947.419292*0;
 
-//EtgtCT = 2000;
+BtgtCT=348
+//AtgtCT =-2821
+//FtgtCT=-2819
+//EtgtCT= -2312
 //EtgtCT = EtgtCT + (948.586925*0.1724);
 
 #MoveAll
@@ -77,10 +80,10 @@ SHA;
 
 WT100;
 JGF=6000;
-TLF=2;
+TLF=1;
 
 JGA=6000;
-TLA=1.2;
+TLA=1;
 
 JGE=6000;
 TLE=1.2;
@@ -184,6 +187,7 @@ absErrE = @ABS[errE];
 curPosF = _TPF;
 errF = curPosF - tgtF;
 absErrF = @ABS[errF];
+
 
 curPosA = _TPA;
 errA = curPosA - tgtA;

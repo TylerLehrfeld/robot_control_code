@@ -31,24 +31,26 @@ template <typename T> Transform<T> F_M1R() {
  * @return
  */
 template <typename T> Transform<T> F_M2N(T theta_5, Parameters<T> parameters) {
-  //smaller holder transform
-  Transform<T> pivot(T(0), T(0), T(M_PI), T(0.23229840), T(28.466635780600036),
-                     T(-5.4535636457480088));
-  //this is big holder transform
-  //Transform<T> pivot(T(0), T(0), T(M_PI), T(-0.0308035), T(28.3232666667),
-  //                   T(-9.07299));
-  // Replace 0s pivot calibration
-  // Transform<T> pivot;
-  // return pivot *
-  //       Transform<T>(
-  //           T(0), T(0), T(0), T(0),
-  //           parameters.tunable_params.bottom_needle_to_holder_distance.value,
-  //           parameters.tunable_params.needle_offset.value + theta_5);
+  // smaller holder transform
+  Transform<T> pivot(T(0), T(0), T(M_PI),
+                     T(parameters.tunable_params.pivot_x.value),
+                     T(parameters.tunable_params.pivot_y.value),
+                     T(parameters.tunable_params.pivot_z.value));
+  // this is big holder transform
+  // Transform<T> pivot(T(0), T(0), T(M_PI), T(-0.0308035), T(28.3232666667),
+  //                    T(-9.07299));
+  //  Replace 0s pivot calibration
+  //  Transform<T> pivot;
+  //  return pivot *
+  //        Transform<T>(
+  //            T(0), T(0), T(0), T(0),
+  //            parameters.tunable_params.bottom_needle_to_holder_distance.value,
+  //            parameters.tunable_params.needle_offset.value + theta_5);
   return pivot;
 };
 
 template <typename T> Transform<T> F_M2N() {
-  //smaller holder transform
+  // smaller holder transform
   Transform<T> pivot(T(0), T(0), T(M_PI), T(.00558085), T(28.3789),
                      T(-5.49509));
   return pivot;

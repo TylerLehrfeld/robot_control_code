@@ -44,33 +44,33 @@ int main() {
   std::ofstream results_file("dummy.txt");
 
   // init_galil(1);
-  std::cout
-      << "Homing high. Enter 1 if the slider is behind the limit switch: A F"
-      << std::endl;
-  std::cin >> up_left_near;
-  std::cin >> up_right_near;
-  // HomeUpBlocking(up_left_near, up_right_near);
-  std::cout
-      << "Homing low. Enter 1 if the slider is behind the limit switch: B E"
-      << std::endl;
-  std::cin >> low_left_near;
-  std::cin >> low_right_near;
-  // HomeLowBlocking(low_left_near, low_right_near);
-  // stop_galil();
+  // std::cout
+  //    << "Homing high. Enter 1 if the slider is behind the limit switch: A F"
+  //    << std::endl;
+  // std::cin >> up_left_near;
+  // std::cin >> up_right_near;
+  //// HomeUpBlocking(up_left_near, up_right_near);
+  // std::cout
+  //     << "Homing low. Enter 1 if the slider is behind the limit switch: B E"
+  //     << std::endl;
+  // std::cin >> low_left_near;
+  // std::cin >> low_right_near;
+  //  HomeLowBlocking(low_left_near, low_right_near);
+  //  stop_galil();
   /*init_galil(3);
   GoToUpBlocking(60,60);
   stop_galil();*/
-//  std::ifstream grid_file("gridy.txt");
+  //  std::ifstream grid_file("gridy.txt");
 
- // if (!grid_file.is_open()) {
- //   std::cout << "grid file not open";
- //   return -1;
- // }
- // std::ifstream slider_file("sliders.txt");
- // if (!slider_file.is_open()) {
- //   std::cout << "slider file not open";
- //   return -1;
- // }
+  // if (!grid_file.is_open()) {
+  //   std::cout << "grid file not open";
+  //   return -1;
+  // }
+  // std::ifstream slider_file("sliders.txt");
+  // if (!slider_file.is_open()) {
+  //   std::cout << "slider file not open";
+  //   return -1;
+  // }
   std::string command = "";
   // std::cout << "Begin needle marker calibration? After continuing, start
   // pivoting the needle such that new optical frames can be read." <<
@@ -178,11 +178,11 @@ int main() {
   Point last_point = {0, 0, 0};
   double mag_tot = 0;
   int num_trials = 0;
-  //init_galil(3);
+  // init_galil(3);
   while (true) {
     Robot inverse_robot;
     std::string line;
-    //grid_file >> line;
+    // grid_file >> line;
     if (line == "") {
       break;
     }
@@ -203,7 +203,7 @@ int main() {
       break;
     }
 
-    //move_robot_with_slider_positions(position);
+    // move_robot_with_slider_positions(position);
     vector<NewTransform> F_OM1s;
     vector<NewTransform> F_OM2s;
     NewTransform F_OM1(0, 0, 0, 0, 0, 0);
@@ -276,6 +276,6 @@ int main() {
   }
   // std::cout << "average error over " << num_trials-1 << " trials of 10
   // samples for each trial: " << mag_tot / (num_trials-1) << std::endl;
-  //stop_galil();
+  // stop_galil();
   return 0;
 }

@@ -65,6 +65,42 @@ public:
     ret.z = p.x * matrix[2][0] + p.y * matrix[2][1] + p.z * matrix[2][2];
     return ret;
   }
+  std::array<T, 4> toQuaternion() const {
+    // returns {w, x, y, z}
+    T r00 = matrix[0][0], r01 = matrix[0][1], r02 = matrix[0][2];
+    T r10 = matrix[1][0], r11 = matrix[1][1], r12 = matrix[1][2];
+    T r20 = matrix[2][0], r21 = matrix[2][1], r22 = matrix[2][2];
+
+    T trace = r00 + r11 + r22;
+    T qw, qx, qy, qz;
+    if (trace > T(0)) {
+      T s = T(0.5) / sqrt(trace + T(1.0));
+      qw = T(0.25) / s;
+      qx = (r21 - r12) * s;
+      qy = (r02 - r20) * s;
+      qz = (r10 - r01) * s;
+    } else if (r00 > r11 && r00 > r22) {
+      T s = T(2.0) * sqrt(T(1.0) + r00 - r11 - r22);
+      qw = (r21 - r12) / s;
+      qx = T(0.25) * s;
+      qy = (r01 + r10) / s;
+      qz = (r02 + r20) / s;
+    } else if (r11 > r22) {
+      T s = T(2.0) * sqrt(T(1.0) + r11 - r00 - r22);
+      qw = (r02 - r20) / s;
+      qx = (r01 + r10) / s;
+      qy = T(0.25) * s;
+      qz = (r12 + r21) / s;
+    } else {
+      T s = T(2.0) * sqrt(T(1.0) + r22 - r00 - r11);
+      qw = (r10 - r01) / s;
+      qx = (r02 + r20) / s;
+      qy = (r12 + r21) / s;
+      qz = T(0.25) * s;
+    }
+    return {qw, qx, qy, qz};
+  }
+
   Rotation inverse() {
     Rotation<T> inv;
     for (int i = 0; i < 3; i++) {
@@ -111,7 +147,7 @@ public:
     p = translation;
   }
 
-  void print() {
+  void print() const {
     std::cout << "R:" << std::endl;
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {

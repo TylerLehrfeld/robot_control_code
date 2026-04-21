@@ -35,7 +35,7 @@ double read_transform(std::string filename, NewTransform& T, bool first) {
             try {
                 T.matrix[i][j] = stod(doubleStr);
             } catch (std::runtime_error e) {
-                std::cout << "transform not read: could not read numver" << std::endl;
+                std::cout << "transform not read: could not read number" << std::endl;
                 return -1;
             }
             
@@ -58,7 +58,7 @@ double read_transform(std::string filename, NewTransform& T, bool first) {
                 try {
                     T.matrix[i][j] = stod(doubleStr);
                 } catch (std::runtime_error e) {
-                    std::cout << "transform not read: could not read numver" << std::endl;
+                    std::cout << "transform not read: could not read number" << std::endl;
                     return -1;
                 }
 
@@ -88,7 +88,7 @@ void delay_ms(int milliseconds) {
  * @return NewTransform 
  */
 NewTransform get_needle_pivot_transform(Matrix& p_bottom_linkage_in_optical_frame) {
-    int num_measurements = 50;
+    int num_measurements = 20;
     std::string file_path = "../out.txt";
     
     std::vector<Transform> transform_list;

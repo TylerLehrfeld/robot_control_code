@@ -1,9 +1,13 @@
+#include "helpers.h"
 #include "jacobian.h"
+#include "robot_controller.h"
 #include "kinematics.h"
+#include "templated_classes/Templated_Transform.h"
 #include <cassert>
 #include <ceres/jet.h>
 #include <chrono>
 #include <cmath>
+#include <fstream>
 #include <random>
 #include <stdexcept>
 #include <vector>
@@ -26,9 +30,9 @@ Thetas<double> to_thetas(External::slider_positions s) {
 
 int get_positions(std::vector<Thetas<double>> &positions) {
   External::Robot robot;
-  int X_WIDTH = 100;
-  int Y_HEIGHT = 500;
-  int Y_MIN = 300;
+  int X_WIDTH = 50;
+  int Y_MIN = 380;
+  int Y_HEIGHT = Y_MIN + 60;
   for (float x = -X_WIDTH; x <= X_WIDTH; x += 10) {
     for (float y = Y_MIN; y < Y_HEIGHT; y += 10) {
       for (int i = 0; i < 5; i++) {
@@ -44,6 +48,9 @@ int get_positions(std::vector<Thetas<double>> &positions) {
         try {
           External::slider_positions sliders = External::inverse_kinematics(
               def, External::NewTransform(0, 0, 0, 0, 0, 0), robot);
+          if (sliders.left_slider_y < 80 || sliders.right_slider_y < 80) {
+            throw std::runtime_error("sliders too close to base");
+          }
           positions.push_back(to_thetas(sliders));
         } catch (std::runtime_error e) {
         }
@@ -70,6 +77,40 @@ void get_simulated_measurements(std::vector<Measurement<double>> &measurements,
   }
 }
 
+/**
+ * @param measurements An empty list of measurements to be gained from going to
+ *a set of thetas
+ * @param thetas A list of commanded postions
+ * @param params The parameters of the robot
+ **/
+void getMeasurements(
+    std::vector<Measurement<double>> &measurements,
+    std::vector<Thetas<double>> &thetas, Parameters<double> params,
+    std::ofstream logfile = std::ofstream("calibration_attempt_1.csv")) {
+  AtracsysTracker<double> atracsys("geometry100000.ini", "geometry999.ini");
+  RobotController robot(true);
+  frame_errors *errors_1 = new frame_errors;
+  frame_errors *errors_2 = new frame_errors;
+
+  for (int i = 0; i < thetas.size(); ++i) {
+    thetas[i].print();
+    robot.move(thetas[i]);
+
+    Measurement<double> atracsys_measurement;
+    while (atracsys.getMeasurement(BOTH, atracsys_measurement, errors_1,
+                                   errors_2) < 0) {
+      std::this_thread::sleep_for(750ms);
+    };
+
+    Transform<double> expected_F_EE = get_end_effector(thetas[i], params);
+    get_errors(atracsys_measurement, thetas[i], params, expected_F_EE, i,
+               logfile);
+    measurements.push_back(atracsys_measurement);
+  }
+  delete errors_1;
+  delete errors_2;
+}
+
 void compare_params(Parameters<double> actual, Parameters<double> optimized,
                     const int ct) {
   double *arr_1 = new double[ct];
@@ -89,24 +130,44 @@ void compare_params(Parameters<double> actual, Parameters<double> optimized,
   delete[] arr_1;
 }
 
-
-
 int main(int argc, char *argv[]) {
+  bool sim = false;
   constexpr Parameters<double> guess = get_default_parameters<double>();
   constexpr int ct = get_num_tunable_params(guess);
-  Parameters<double> actual = adjust_params(guess);
-  compare_params(actual, guess, ct);
+
+  Parameters<double> actual = guess;
+  if (sim) {
+    actual = adjust_params(guess);
+    compare_params(actual, guess, ct);
+  }
   std::vector<Thetas<double>> thetas;
   std::vector<Measurement<double>> measurements;
-  get_positions(thetas);
-  get_simulated_measurements(measurements, thetas, actual);
+  int num_positions = get_positions(thetas);
+  std::cout << num_positions << std::endl;
+  sort_min_travel(thetas);
+  if (sim) {
+    get_simulated_measurements(measurements, thetas, actual);
+  } else {
+    getMeasurements(measurements, thetas, guess);
+  }
   double unoptimized_mse = get_error_cost(measurements, thetas, guess);
   double minimal_mse = get_error_cost(measurements, thetas, actual);
   std::cout << "unoptimized_cost: " << unoptimized_mse
-            << " minimal_cost(should be zero): " << minimal_mse << std::endl;
+            << " minimal_cost (should be zero in simulation. Should be same in "
+               "test): "
+            << minimal_mse << std::endl;
   Parameters<double> optimized = ceres_solve<ct>(measurements, thetas, guess);
   double optimized_mse = get_error_cost(measurements, thetas, optimized);
 
   std::cout << "optimized_cost: " << optimized_mse << std::endl;
+
   compare_params(actual, optimized, ct);
+  if (!sim) {
+    std::vector<Measurement<double>> measurements_2;
+    getMeasurements(measurements_2, thetas, optimized,
+                    std::ofstream("post_calibration_logfile_1.csv"));
+    double updated_mse = get_error_cost(measurements_2, thetas, optimized);
+
+    std::cout << "updated_cost: " << updated_mse << std::endl;
+  }
 }

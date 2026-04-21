@@ -261,7 +261,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
   int cts_diffF = encoder_countF + int(desired_ctsF);
   int cts_diffE = encoder_countE + int(desired_ctsE);
   int cts_diffB = encoder_countB + int(desired_ctsB);
-  //std::cout << "beginning motion" << std::endl;
+  // std::cout << "beginning motion" << std::endl;
   check(GCommand(g, ("AtgtCT = " + to_string(cts_diffA)).c_str(), buf,
                  G_SMALL_BUFFER, &read_bytes));
   check(GCommand(g, ("FtgtCT = " + to_string(cts_diffF)).c_str(), buf,
@@ -277,7 +277,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
     GCmdI(g, "dMotion= ?", &done);
     std::this_thread::sleep_for(500ms);
     time += 500;
-    if (false && time > 1 * 1000) {
+    if (time > 1 * 1000) {
       std::cout << "motors stalled, trying to get them going" << std::endl;
       GCommand(g, ("STA; SHA; BGA;" + to_string(cts_diffA)).c_str(), buf,
                G_SMALL_BUFFER, &read_bytes);
@@ -291,7 +291,7 @@ move_robot_with_slider_positions(Thetas<double> positions) {
     }
   } while (!done);
 
-  //std::cout << "finished motion" << std::endl;
+  // std::cout << "finished motion" << std::endl;
   check(GCmdI(g, "MG _TPA", &encoder_countA));
   check(GCmdI(g, "MG _TPF", &encoder_countF));
   check(GCmdI(g, "MG _TPE", &encoder_countE));
@@ -313,6 +313,39 @@ move_robot_with_slider_positions(Thetas<double> positions) {
             << " actual ct: " << encoder_countB << " error in mm: " << BmmErr
             << std::endl;*/
   return {AmmErr, FmmErr, EmmErr, BmmErr};
+}
+static Thetas<double> last_position;
+
+Thetas<double> get_encoder_positions() {
+
+  Thetas<double> ret_thetas;
+  int encoder_countA, encoder_countF, encoder_countE, encoder_countB = 0;
+  check(GCmdI(g, "MG _TPA", &encoder_countA));
+  check(GCmdI(g, "MG _TPF", &encoder_countF));
+  check(GCmdI(g, "MG _TPE", &encoder_countE));
+  check(GCmdI(g, "MG _TPB", &encoder_countB));
+  double ctsPermmA = 947.419292;
+  double ctsPermmF = 948.586925;
+  double ctsPermmB = 942.555021;
+  double ctsPermmE = 944.160381;
+  ret_thetas.theta_1 = (ctsPermmF * -encoder_countF) + home_positions.theta_1;
+  ret_thetas.theta_2 = (ctsPermmA * -encoder_countA) + home_positions.theta_2;
+  ret_thetas.theta_3 = (ctsPermmE * -encoder_countE) + home_positions.theta_3;
+  ret_thetas.theta_4 = (ctsPermmB * -encoder_countB) + home_positions.theta_4;
+};
+
+void sendTgtPositions(int encoder_countA, int encoder_countF,
+                      int encoder_countB, int encoder_countE) {
+  char buf[G_SMALL_BUFFER]; // traffic buffer
+  GSize read_bytes = 0;     // bytes read in GCommand
+  check(GCommand(g, ("tgtA = " + to_string(encoder_countA)).c_str(), buf,
+                 G_SMALL_BUFFER, &read_bytes));
+  check(GCommand(g, ("tgtF = " + to_string(encoder_countF)).c_str(), buf,
+                 G_SMALL_BUFFER, &read_bytes));
+  check(GCommand(g, ("tgtB = " + to_string(encoder_countB)).c_str(), buf,
+                 G_SMALL_BUFFER, &read_bytes));
+  check(GCommand(g, ("tgtE = " + to_string(encoder_countE)).c_str(), buf,
+                 G_SMALL_BUFFER, &read_bytes));
 }
 
 #endif

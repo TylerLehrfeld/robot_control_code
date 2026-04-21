@@ -3,7 +3,7 @@
 #include "atracsys_functions.h"
 #include "inverse_kinematics.h"
 #include "kinematics.h"
-#include "robot_controller.h"
+#include "robot_controller_ros.h"
 #include "templated_classes/Templated_Point.h"
 #include "templated_classes/Templated_Transform.h"
 #include <cmath>
@@ -39,7 +39,7 @@ int main() {
 
   default_thetas = sort_min_travel(default_thetas);
   AtracsysTracker<double> atracsys("geometry100000.ini", "geometry999.ini");
-  RobotController robot(true);
+  RobotControllerROS robot(true, get_default_parameters<double>());
   Measurement<double> atracsys_measurement;
   // move to each of those positions, may need to write a new move function
   for (Thetas<double> position : default_thetas) {

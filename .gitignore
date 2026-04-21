@@ -19,3 +19,12 @@ grid.txt
 sliders.txt
 Benchtop_Accuracy_test
 kinematic_grid_error_analysis
+kinematic_calibration/ros2_ws/log/**
+kinematic_calibration/ros2_ws/build/**
+kinematic_calibration/ros2_ws/install/**
+Slicer_Extension/ros2_ws/install/**
+Slicer_Extension/ros2_ws/build/**
+Slicer_Extension/ros2_ws/log/**
+Slicer_Extension/STL_files/**
+install/**
+

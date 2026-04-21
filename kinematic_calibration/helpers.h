@@ -170,4 +170,27 @@ void get_errors(Measurement<double> &atracsys_measurement,
                     targeting_error, angular_error, index);
 }
 
+template <typename T>
+void appendPointToCSV(const Point<T> &p, const std::string &filename) {
+  std::ofstream file;
+
+  // Check if file exists and is non-empty
+  bool fileExists = false;
+  {
+    std::ifstream check(filename);
+    fileExists =
+        check.good() && check.peek() != std::ifstream::traits_type::eof();
+  }
+
+  file.open(filename, std::ios::app);
+  if (!file)
+    throw std::runtime_error("Could not open file: " + filename);
+
+  // Write header only if file didn't exist or was empty
+  if (!fileExists)
+    file << "x,y,z\n";
+
+  // Write the point data
+  file << p.x << "," << p.y << "," << p.z << std::endl;
+}
 #endif // !EXPERIMENT_HELPERS

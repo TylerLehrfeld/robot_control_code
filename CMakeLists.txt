@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(project_dir /${CMAKE_CURRENT_SOURCE_DIR})
-# Include Eigen
+set(project_dir /${CMAKE_CURRENT_SOURCE_DIR}) # Include Eigen
 include_directories(${project_dir}/dependencies/eigen-3.4.0)
 include_directories(${project_dir}/dependencies)
 include_directories(${project_dir}/dependencies/eigen-3.4.0/Eigen)
@@ -185,9 +184,13 @@ target_link_libraries(Home_test PRIVATE ${POST_LIBS})
 add_executable(simulation
     ${project_dir}/kinematic_calibration/simulation.cpp
     ${SRC_SIMULATION}
+    ${SRC_SHARED}
+    ${SRC_PIVOT}
+    ${api_SRCS}
+    ${additional_SRCS}
 )
 
-target_link_libraries(simulation ceres)
+target_link_libraries(simulation PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
 
 add_executable(test_forward_kinematics
         ${project_dir}/kinematic_calibration/test/test_forward_kinematics.cpp
@@ -218,6 +221,12 @@ add_executable(data_collection
 
 target_link_libraries(data_collection PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
 
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
+find_package(my_robot_interfaces REQUIRED)
+find_package(rclcpp_action REQUIRED)
 add_executable(z_graph
     ${project_dir}/kinematic_calibration/z_graph.cpp
     ${SRC_SIMULATION}
@@ -227,9 +236,15 @@ add_executable(z_graph
     ${additional_SRCS}
 )
 
-target_link_libraries(z_graph PRIVATE ${POST_LIBS} ceres Atracsys::AdvancedAPI)
+target_link_libraries(z_graph ${POST_LIBS} ceres Atracsys::AdvancedAPI)
 
-
+ament_target_dependencies(z_graph
+  rclcpp
+  rclcpp_action
+  std_msgs
+  action_msgs
+  my_robot_interfaces
+)
 
 add_executable(precision
     ${project_dir}/kinematic_calibration/precision.cpp

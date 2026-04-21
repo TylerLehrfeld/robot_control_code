@@ -89,6 +89,9 @@ template <typename T> struct Tunable_parameters {
   Param<T> D4;
   Param<T> lower_slope;
   Param<T> upper_slope;
+  Param<T> pivot_x;
+  Param<T> pivot_y;
+  Param<T> pivot_z;
 };
 
 template <typename T> struct Parameters {
@@ -113,38 +116,41 @@ template <typename T> constexpr Parameters<T> get_default_parameters() {
     params.tunable_params.loop_parameters[i].y_slider_offset = {
         sliderYs_offset[i] /*T(0)*/, true};
     params.tunable_params.loop_parameters[i].transmission_link_length =
-        i < 2 ? Param<T>(T(115), false) : Param<T>(T(110), false);
+        i < 2 ? Param<T>(T(115), true) : Param<T>(T(110), true);
     params.tunable_params.loop_parameters[i].proximal_link_midpoint =
-        i < 2 ? Param<T>(T(58), false) : Param<T>(T(46), false);
+        i < 2 ? Param<T>(T(58), true) : Param<T>(T(46), true);
     params.tunable_params.loop_parameters[i].proximal_link_length =
-        i < 2 ? Param<T>(T(116), false) : Param<T>(T(92), false);
+        i < 2 ? Param<T>(T(116), true) : Param<T>(T(92), true);
     params.tunable_params.loop_parameters[i].distal_link_length =
-        i < 2 ? Param<T>(T(125), false) : Param<T>(T(99), false);
+        i < 2 ? Param<T>(T(125), true) : Param<T>(T(99), true);
   }
-  params.tunable_params.top_needle_to_holder_distance =
-      Param<T>(T(47.7), false);
+  params.tunable_params.top_needle_to_holder_distance = Param<T>(T(47.7), true);
   params.tunable_params.bottom_needle_to_holder_distance =
-      Param<T>(T(47.7), false);
+      Param<T>(T(47.7), true);
   params.tunable_params.top_holder_to_linkage_distance =
-      Param<T>(T(19.25), false);
+      Param<T>(T(19.25), true);
   params.tunable_params.bottom_holder_to_linkage_distance =
-      Param<T>(T(14), false);
-  params.tunable_params.needle_offset = Param<T>(T(64.9), false);
-  params.tunable_params.lower_base_z_offset = Param<T>(T(0), false);
+      Param<T>(T(14), true);
+  params.tunable_params.needle_offset = Param<T>(T(64.9), true);
+  params.tunable_params.lower_base_z_offset = Param<T>(T(0), true);
   // check what true value is:
-  params.tunable_params.upper_base_z_offset = Param<T>(T(31.5), false);
-  params.tunable_params.D1 = Param<T>(T(62.5), false);
-  params.tunable_params.D2 = Param<T>(T(62.5), false);
-  params.tunable_params.D3 = Param<T>(T(62.5), false);
-  params.tunable_params.D4 = Param<T>(T(62.5), false);
+  params.tunable_params.upper_base_z_offset = Param<T>(T(40), true);
+  params.tunable_params.D1 = Param<T>(T(62.5), true);
+  params.tunable_params.D2 = Param<T>(T(62.5), true);
+  params.tunable_params.D3 = Param<T>(T(62.5), true);
+  params.tunable_params.D4 = Param<T>(T(62.5), true);
   params.tunable_params.upper_slope = Param<T>(T(0), false);
-  params.tunable_params.lower_slope = Param<T>(T(0), true);
-  params.lower_base.x = Param<T>(T(0), false);
-  params.lower_base.y = Param<T>(T(224), false);
-  params.lower_base.z = Param<T>(T(0), false);
-  params.upper_base.x = Param<T>(T(0), false);
-  params.upper_base.y = Param<T>(T(186), false);
-  params.upper_base.z = Param<T>(T(0), false);
+  params.tunable_params.lower_slope = Param<T>(T(0), false);
+  params.lower_base.x = Param<T>(T(0), true);
+  params.lower_base.y = Param<T>(T(224), true);
+  params.lower_base.z = Param<T>(T(0), true);
+  params.upper_base.x = Param<T>(T(0), true);
+  params.upper_base.y = Param<T>(T(186), true);
+  params.upper_base.z = Param<T>(T(0), true);
+  params.tunable_params.pivot_x = Param<T>(T(-0.237684), true);
+  params.tunable_params.pivot_y = Param<T>(T(29.5324), true);
+  params.tunable_params.pivot_z = Param<T>(T(-0.858548), true);
+
   return params;
 }
 
@@ -188,6 +194,10 @@ constexpr int get_num_tunable_params(const Parameters<T> parameters) {
   num_tunables += parameters.lower_base.z.tunable;
   num_tunables += parameters.tunable_params.lower_slope.tunable;
   num_tunables += parameters.tunable_params.upper_slope.tunable;
+  num_tunables += parameters.tunable_params.pivot_x.tunable;
+  num_tunables += parameters.tunable_params.pivot_y.tunable;
+  num_tunables += parameters.tunable_params.pivot_z.tunable;
+
   return num_tunables;
 }
 
@@ -231,7 +241,9 @@ constexpr inline int Parameters_to_array(Parameters<T> parameters, T *array) {
   set_val(&count, &parameters.lower_base.x, array);
   set_val(&count, &parameters.lower_base.y, array);
   set_val(&count, &parameters.lower_base.z, array);
-
+  set_val(&count, &tunables.pivot_x, array);
+  set_val(&count, &tunables.pivot_y, array);
+  set_val(&count, &tunables.pivot_z, array);
   return count;
 }
 
@@ -284,10 +296,14 @@ inline Parameters<T> array_to_Parameters(T const *tunable_params) {
   set_param<T>(&p.lower_base.x, &count, tunable_params);
   set_param<T>(&p.lower_base.y, &count, tunable_params);
   set_param<T>(&p.lower_base.z, &count, tunable_params);
+  set_param<T>(&p.tunable_params.pivot_x, &count, tunable_params);
+  set_param<T>(&p.tunable_params.pivot_y, &count, tunable_params);
+  set_param<T>(&p.tunable_params.pivot_z, &count, tunable_params);
+
   return p;
 }
 
-Parameters<double> adjust_params(Parameters<double> params) {
+inline Parameters<double> adjust_params(Parameters<double> params) {
   std::mt19937_64 rng(
       std::chrono::high_resolution_clock::now().time_since_epoch().count());
   std::uniform_real_distribution<double> dist(-1.0, 1.0);

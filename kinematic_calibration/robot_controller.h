@@ -60,6 +60,7 @@ struct linkage_ee_positions {
 
 class RobotController {
 public:
+  static Thetas<double> live_thetas;
   bool compensating;
   Parameters<double> parameters;
   bool left_forward = true;
@@ -84,7 +85,6 @@ public:
   }
 
   void home() {
-
     bool left_behind, right_behind, left_middle_behind, right_middle_behind;
     left_behind = right_behind = left_middle_behind = right_middle_behind =
         false;
@@ -294,6 +294,7 @@ public:
       box_size *= .75;
     }
   }
+
   Thetas<double> move(Thetas<double> desired_pos,
                       AtracsysTracker<double> &atracsys) {
     double targeting_error = 100;
